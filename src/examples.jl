@@ -19,6 +19,7 @@ outcomeStatus(survs)
 uniqueTimes(survs)
 
 km = kaplan(survs)
+confit(km, 2)
 na = nelson(survs)
 
 using Plots
@@ -28,3 +29,29 @@ plot(na.times, na.survs, linetype=:steppost, ylims = (0, 1))
 survival.(Ref(km), [1, 4, 7])
 cdf.(Ref(km), [1, 4, 7])
 chf.(Ref(km), [1, 4, 7])
+
+using RecipesBase
+using Plots
+
+@recipe function f(npe::NonParametricEstimator, plot_confint::Bool = true, α::Float64 = 0.05)
+    seriestype := :steppost
+    ylims := (0, 1)
+    @series begin
+        linecolor   --> :black
+        npe.times, npe.survs
+    end
+    if plot_confint
+        linecolor   --> :blue
+        cis = confint.(Ref(npe), npe.times, α)
+        lb = map(x -> x[1], cis)
+        ub = map(x -> x[2], cis)
+        @series begin
+            npe.times, lb
+        end
+        @series begin
+            npe.times, ub
+        end
+    end
+end
+
+plot(km)

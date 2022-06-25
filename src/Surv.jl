@@ -1,9 +1,13 @@
+# module Survival
+using Distributions
+using StatsBase
+
 abstract type Surv end
 abstract type OneSidedSurv <: Surv end
 abstract type TwoSidedSurv <:Surv end
 
 struct rcSurv <: OneSidedSurv
-    time::Float16
+    time::Float64
     status::Bool
     symbol::Char
     type::String
@@ -11,7 +15,7 @@ struct rcSurv <: OneSidedSurv
 end
 
 struct lcSurv <: OneSidedSurv
-    time::Float16
+    time::Float64
     status::Bool
     symbol::Char
     type::String
@@ -19,8 +23,8 @@ struct lcSurv <: OneSidedSurv
 end
 
 struct intSurv <: TwoSidedSurv
-    start::Float16
-    stop::Float16
+    start::Float64
+    stop::Float64
     type::String
     intSurv(start, stop) = new(start, stop, "interval")
 end
@@ -62,47 +66,74 @@ totalEvents(v::Vector{<:Union{rcSurv,lcSurv}}, t::Number) = sum(map(x -> x.time 
 
 abstract type NonParametricEstimator end
 struct KaplanMeier <: NonParametricEstimator
-    times::Vector{Float16}
-    survs::Vector{Float16}
+    times::Vector{Float64}
+    survs::Vector{Float64}
+    sd::Vector{Float64}
 end
 
 struct NelsonAalen <: NonParametricEstimator
-    times::Vector{Float16}
-    survs::Vector{Float16}
+    times::Vector{Float64}
+    survs::Vector{Float64}
+    sd::Vector{Float64}
 end
 
-kaplan = function (v::Vector{rcSurv})
-    ut = uniqueTimes(survs)
+# Calculates standard error using the method of Kalbfleisch and Prentice (1980)
+function kaplan(v::Vector{rcSurv})
+    ut = uniqueEventTimes(v)
     surv = []
+    V̂ = []
     for tmax in ut
         p = 1
-        sd = 0
+        Vᵢ = 0
         for t in ut
             if t <= tmax
                 d = totalDeaths(v, t)
-                n = totalEvents(v, t)
-                p *= 1 - (d / n)
-                sd += √(d / (n * (n - d)))
+                n = sum(riskSet(v, t))
+                p *= (1 - (d / n))
+                Vᵢ += d / (n * (n - d))
             end
         end
         push!(surv, p)
+        push!(V̂, Vᵢ / (log(p)^2))
     end
-    KaplanMeier(ut, surv)
+    KaplanMeier(ut, surv, .√V̂)
 end
 
-nelson = function (v::Vector{rcSurv})
-    ut = uniqueTimes(survs)
+function nelson(v::Vector{rcSurv})
+    ut = uniqueEventTimes(v)
     chf = []
+    sd = []
     for tmax in ut
         p = 0
+        sdᵢ = 0
         for t in ut
             if t <= tmax
-                p += (totalDeaths(v, t) / totalEvents(v, t))
+                d = totalDeaths(v, t)
+                n = sum(riskSet(v, t))
+                p += (d / n)
+                sdᵢ += (d * (n - d)) / (n^3)
             end
         end
         push!(chf, p)
+        push!(sd, √(sdᵢ))
     end
-    NelsonAalen(ut, exp.(-chf))
+    NelsonAalen(ut, exp.(-chf), sd)
+end
+
+±(x, y) = (x - y, x + y)
+∓(x, y) = (x + y, x - y)
+
+# Calculates confidence intervals using the method of Kalbfleisch and Prentice (1980)
+function StatsBase.confint(km::KaplanMeier, t::Number, α::Float64 = 0.05)
+    q = quantile(Normal(), 1 - α/2)
+    which = searchsortedlast(km.times, t)
+    map(x -> exp(-exp(x)), log(-log(km.survs[which])) ∓ (q * km.sd[which]))
+end
+
+function StatsBase.confint(na::NelsonAalen, t::Number, α::Float64 = 0.05)
+    q = quantile(Normal(), 1 - α/2)
+    which = searchsortedlast(na.times, t)
+    exp(-na.survs[which]) ± (q * na.sd[which])
 end
 
 function survival(npe::NonParametricEstimator, t)
@@ -111,9 +142,8 @@ end
 function chf(npe::NonParametricEstimator, t)
     -log(survival(npe, t))
 end
-function cdf(npe::NonParametricEstimator, t)
+function Distributions.cdf(npe::NonParametricEstimator, t)
     1 - survival(npe, t)
 end
 
-
-survival.(Ref(km), [1,2, 3, 8])
+# end
