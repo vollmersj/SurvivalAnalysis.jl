@@ -1,6 +1,8 @@
 # module Survival
 using Distributions
 using StatsBase
+using RecipesBase
+using Plots
 
 abstract type Surv end
 abstract type OneSidedSurv <: Surv end
@@ -130,10 +132,12 @@ function StatsBase.confint(km::KaplanMeier, t::Number, α::Float64 = 0.05)
     map(x -> exp(-exp(x)), log(-log(km.survs[which])) ∓ (q * km.sd[which]))
 end
 
+# Calculates pointwise confidence intervals for *survival predictions*
 function StatsBase.confint(na::NelsonAalen, t::Number, α::Float64 = 0.05)
     q = quantile(Normal(), 1 - α/2)
     which = searchsortedlast(na.times, t)
-    exp(-na.survs[which]) ± (q * na.sd[which])
+    map(x -> min(1, max(0, exp(-x))),
+        -log(na.survs[which]) ∓ (q * na.sd[which]))
 end
 
 function survival(npe::NonParametricEstimator, t)
@@ -146,4 +150,24 @@ function Distributions.cdf(npe::NonParametricEstimator, t)
     1 - survival(npe, t)
 end
 
-# end
+@recipe function f(npe::NonParametricEstimator, plot_confint::Bool = true, α::Float64 = 0.05)
+    seriestype := :steppost
+    ylims := (0, 1)
+    legend := false
+    @series begin
+        linecolor   --> :black
+        npe.times, npe.survs
+    end
+    if plot_confint
+        linecolor   --> :blue
+        cis = confint.(Ref(npe), npe.times, α)
+        lb = map(x -> x[1], cis)
+        ub = map(x -> x[2], cis)
+        @series begin
+            npe.times, lb
+        end
+        @series begin
+            npe.times, ub
+        end
+    end
+end

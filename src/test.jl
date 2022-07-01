@@ -9,3 +9,5 @@ et = Surv.(round.(rand(Uniform(1, 10), 10)), rand(Binomial(), 10) .== 1, "right"
 
 na = nelson(et)
 confint.(Ref(na), na.times)
+
+plot(na)
