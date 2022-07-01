@@ -1,13 +1,32 @@
 include("src/Surv.jl")
 
 using Random: seed!
+using BenchmarkTools
+using Survival
+
 seed!(1)
-et = Surv.(round.(rand(Uniform(1, 10), 10)), rand(Binomial(), 10) .== 1, "right")
+n = 100
+T = round.(rand(Uniform(1, 10), n));
+Δ = rand(Binomial(), n) .== 1;
+ot = Surv(T, Δ, "right");
+Surv(T, Δ .== 1, "right")
+et = EventTime.(T, Δ);
 
-# km = kaplan(et)
-# confint.(Ref(km), km.times)
+k1 = kaplan(ot)
+k2 = kaplan2(ot)
 
-na = nelson(et)
-confint.(Ref(na), na.times)
+km = fit(Survival.KaplanMeier, et)
 
-plot(na)
+@assert k1.survs == k2.survs
+km.survival
+
+
+m1 = median(@benchmark kaplan($ot))
+m2 = median(@benchmark kaplan2($ot))
+m3 = median(@benchmark fit(Survival.KaplanMeier, $et))
+judge(m1, m3)
+judge(m2, m3)
+
+@btime m1
+@btime m2
+@btime m3

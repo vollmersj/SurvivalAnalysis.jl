@@ -3,28 +3,39 @@ using Distributions
 using StatsBase
 using RecipesBase
 using Plots
+using DataFrames
 
 abstract type Surv end
 abstract type OneSidedSurv <: Surv end
 abstract type TwoSidedSurv <:Surv end
 
 struct rcSurv <: OneSidedSurv
-    time::Float64
-    status::Bool
+    time::Vector{Float64}
+    status::Vector{Bool}
     symbol::Char
     type::String
-    rcSurv(time, status) = new(time, status, '+', "right")
+    rcSurv(time::Union{Vector{Float64}, Vector{Number}}, status::Union{Vector{Bool},BitVector, Vector{Int}}) =
+        new(convert(Vector{Float64}, time), convert(BitVector, status), '+', "right")
+    rcSurv(time::Number, status::Bool) =
+        new([convert(Float64, time)], [status], '+', "right")
+    rcSurv(time::Number, status::Int) =
+        new([convert(Float64, time)], [status == 1], '+', "right")
 end
 
 struct lcSurv <: OneSidedSurv
-    time::Float64
-    status::Bool
+    time::Vector{Float64}
+    status::Vector{Bool}
     symbol::Char
     type::String
-    lcSurv(time, status) = new(time, status, '-', "left")
+    lcSurv(time::Vector{Number}, status::Union{Vector{Bool},BitVector}) =
+        new(convert(Vector{Float64}, time), status, '-', "left")
+    lcSurv(time::Number, status::Bool) =
+        new([convert(Float64, time)], [status], '-', "left")
+    lcSurv(time::Number, status::Int) =
+        new([convert(Float64, time)], [status == 1], '-', "left")
 end
 
-struct intSurv <: TwoSidedSurv
+struct intSurv <: TwoSidedSurv ## FIXME - VECTORISE LIKE OneSidedSurv
     start::Float64
     stop::Float64
     type::String
@@ -35,7 +46,7 @@ function Surv(start::AbstractFloat, stop::AbstractFloat)
     intSurv(start, stop)
 end
 
-function Surv(time::AbstractFloat, status::Bool, type::String)
+function Surv(time::Vector{Float64}, status::BitVector, type::String)
     @assert type in ["left", "right"]
     if type == "right"
         rcSurv(time, status)
@@ -45,26 +56,30 @@ function Surv(time::AbstractFloat, status::Bool, type::String)
 end
 
 Base.show(io::IO, oss::OneSidedSurv) =
-    print(io, oss.time, oss.status ? "" : oss.symbol)
-
+    print(io, map((t, δ) -> string(t, δ ? "" : "+"), oss.time, oss.status))
 Base.show(io::IO, oss::TwoSidedSurv) =
     print(io, "(", oss.start, ", ", oss.stop, "]")
 
-outcomeTimes(v::Vector{<:Union{rcSurv,lcSurv}}) = map(x -> x.time, v)
-function eventTimes(v::Vector{<:Union{rcSurv,lcSurv}})
-    res = [];
-    foreach(x -> x.status && push!(res, x.time), v)
-    res
-end
+outcomeTimes(v::Union{rcSurv,lcSurv}) = v.time
 outcomeTimes(v::Vector{intSurv}) = map(x -> [x.start, x.stop], v)
+
+eventTimes(v::Union{rcSurv,lcSurv}) = v.time[v.status]
 eventTimes(v::Vector{intSurv}) = map(x -> x.stop, v)
 
-outcomeStatus(v::Vector{<:Union{rcSurv, lcSurv}}) = map(x -> x.status, v)
-uniqueTimes(v::Vector) = sort(unique(outcomeTimes(v)))
-uniqueEventTimes(v::Vector) = sort(unique(eventTimes(v)))
-riskSet(v::Vector{<:Union{rcSurv,lcSurv}}, t::Number) = map(x -> x.time >= t, v)
-totalDeaths(v::Vector{<:Union{rcSurv,lcSurv}}, t::Number) = sum(map(x -> x.status && x.time == t, v))
-totalEvents(v::Vector{<:Union{rcSurv,lcSurv}}, t::Number) = sum(map(x -> x.time == t, v))
+outcomeStatus(v::Union{rcSurv, lcSurv}) = v.status
+
+uniqueTimes(v::Union{rcSurv, lcSurv}) = sort(unique(outcomeTimes(v)))
+uniqueEventTimes(v::Union{rcSurv, lcSurv}) = sort(unique(eventTimes(v)))
+
+riskSet(v::Union{rcSurv,lcSurv}, t::Number) = map(x -> x >= t, v.time)
+
+totalEvents(v::Union{rcSurv,lcSurv}) = length(v.status)
+totalEvents(v::Union{rcSurv,lcSurv}, t::Number) = sum(map(x -> x == t, v.time))
+
+totalDeaths(v::Union{rcSurv,lcSurv}) = sum(v.outcome.status)
+totalDeaths(v::Union{rcSurv,lcSurv}, t::Number) = sum(map((τ, δ) -> τ == t &&  δ, v.time, v.status))
+
+totalRisk(v::Union{rcSurv,lcSurv}, t::Number) = sum(riskSet(v, t))
 
 abstract type NonParametricEstimator end
 struct KaplanMeier <: NonParametricEstimator
@@ -80,25 +95,41 @@ struct NelsonAalen <: NonParametricEstimator
 end
 
 # Calculates standard error using the method of Kalbfleisch and Prentice (1980)
-function kaplan(v::Vector{rcSurv})
+function kaplan(v::rcSurv)
     ut = uniqueEventTimes(v)
     surv = []
-    V̂ = []
+    # V̂ = []
+    V̂ = ones(length(ut))
     for tmax in ut
         p = 1
-        Vᵢ = 0
+        # Vᵢ = 0
         for t in ut
             if t <= tmax
                 d = totalDeaths(v, t)
                 n = sum(riskSet(v, t))
                 p *= (1 - (d / n))
-                Vᵢ += d / (n * (n - d))
+                # Vᵢ += d / (n * (n - d))
             end
         end
         push!(surv, p)
-        push!(V̂, Vᵢ / (log(p)^2))
+        # push!(V̂, Vᵢ / (log(p)^2))
     end
     KaplanMeier(ut, surv, .√V̂)
+end
+
+function kaplan2(v::rcSurv)
+    ut = uniqueEventTimes(v)
+    q = zeros(length(ut))
+    V̂ = ones(length(ut))
+    for (i, t) in enumerate(ut)
+        p = 1
+        # Vᵢ = 0
+        d = totalDeaths(v, t)
+        n = sum(riskSet(v, t))
+        q[i] = 1 - (d / n)
+        # push!(V̂, Vᵢ / (log(p)^2))
+    end
+    KaplanMeier(ut, cumprod(q), .√V̂)
 end
 
 function nelson(v::Vector{rcSurv})
