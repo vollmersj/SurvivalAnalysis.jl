@@ -97,60 +97,31 @@ end
 # Calculates standard error using the method of Kalbfleisch and Prentice (1980)
 function kaplan(v::rcSurv)
     ut = uniqueEventTimes(v)
-    surv = []
-    # V̂ = []
-    V̂ = ones(length(ut))
-    for tmax in ut
-        p = 1
-        # Vᵢ = 0
-        for t in ut
-            if t <= tmax
-                d = totalDeaths(v, t)
-                n = sum(riskSet(v, t))
-                p *= (1 - (d / n))
-                # Vᵢ += d / (n * (n - d))
-            end
-        end
-        push!(surv, p)
-        # push!(V̂, Vᵢ / (log(p)^2))
-    end
-    KaplanMeier(ut, surv, .√V̂)
-end
-
-function kaplan2(v::rcSurv)
-    ut = uniqueEventTimes(v)
-    q = zeros(length(ut))
-    V̂ = ones(length(ut))
+    qₜ = zeros(length(ut))
+    vₜ = zeros(length(ut))
     for (i, t) in enumerate(ut)
-        p = 1
-        # Vᵢ = 0
         d = totalDeaths(v, t)
         n = sum(riskSet(v, t))
-        q[i] = 1 - (d / n)
-        # push!(V̂, Vᵢ / (log(p)^2))
+        qₜ[i] = 1 - (d / n)
+        vₜ[i] = d / (n * (n - d))
     end
-    KaplanMeier(ut, cumprod(q), .√V̂)
+    surv = cumprod(qₜ)
+    variance = cumsum(vₜ)
+    variance = map((qₜ, vₜ) -> √(vₜ / (log(qₜ)^2)), surv, variance)
+    KaplanMeier(ut, surv, variance)
 end
 
-function nelson(v::Vector{rcSurv})
+function nelson(v::rcSurv)
     ut = uniqueEventTimes(v)
-    chf = []
-    sd = []
-    for tmax in ut
-        p = 0
-        sdᵢ = 0
-        for t in ut
-            if t <= tmax
-                d = totalDeaths(v, t)
-                n = sum(riskSet(v, t))
-                p += (d / n)
-                sdᵢ += (d * (n - d)) / (n^3)
-            end
-        end
-        push!(chf, p)
-        push!(sd, √(sdᵢ))
+    hₜ = ones(length(ut))
+    vₜ = ones(length(ut))
+    for (i, t) in enumerate(ut)
+        d = totalDeaths(v, t)
+        n = sum(riskSet(v, t))
+        hₜ[i] = (d / n)
+        vₜ[i] = (d * (n - d)) / (n^3)
     end
-    NelsonAalen(ut, exp.(-chf), sd)
+    NelsonAalen(ut, exp.(-cumsum(hₜ)), .√cumsum(vₜ))
 end
 
 ±(x, y) = (x - y, x + y)
