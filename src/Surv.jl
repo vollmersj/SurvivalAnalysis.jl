@@ -94,52 +94,69 @@ struct NelsonAalen <: NonParametricEstimator
     sd::Vector{Float64}
 end
 
-# Calculates standard error using the method of Kalbfleisch and Prentice (1980)
-function kaplan(v::rcSurv)
-    ut = uniqueEventTimes(v)
-    qₜ = zeros(length(ut))
-    vₜ = zeros(length(ut))
+function fit_NPE(class, Surv::rcSurv, point_est::Function, var_est::Function,
+                surv_trafo::Function, sd_trafo::Function)
+    ut = uniqueEventTimes(Surv)
+    p = zeros(length(ut))
+    v = zeros(length(ut))
     for (i, t) in enumerate(ut)
-        d = totalDeaths(v, t)
-        n = sum(riskSet(v, t))
-        qₜ[i] = 1 - (d / n)
-        vₜ[i] = d / (n * (n - d))
+        d = totalDeaths(Surv, t)
+        n = sum(riskSet(Surv, t))
+        p[i] = point_est(d, n)
+        v[i] = var_est(d, n)
     end
-    surv = cumprod(qₜ)
-    variance = cumsum(vₜ)
-    variance = map((qₜ, vₜ) -> √(vₜ / (log(qₜ)^2)), surv, variance)
-    KaplanMeier(ut, surv, variance)
+    variance = cumsum(v)
+    surv = surv_trafo(p)
+    sd = sd_trafo(variance, surv)
+    class(ut, surv, sd)
 end
 
-function nelson(v::rcSurv)
-    ut = uniqueEventTimes(v)
-    hₜ = ones(length(ut))
-    vₜ = ones(length(ut))
-    for (i, t) in enumerate(ut)
-        d = totalDeaths(v, t)
-        n = sum(riskSet(v, t))
-        hₜ[i] = (d / n)
-        vₜ[i] = (d * (n - d)) / (n^3)
-    end
-    NelsonAalen(ut, exp.(-cumsum(hₜ)), .√cumsum(vₜ))
+function kaplan(Surv::rcSurv)
+    fit_NPE(
+        KaplanMeier,
+        Surv,
+        (d, n) -> 1 - (d / n),
+        (d, n) -> d / (n * (n - d)),
+        cumprod,
+        # Calculates standard error using the method of Kalbfleisch and Prentice (1980)
+        (v, p) -> map((qₜ, vₜ) -> √(vₜ / (log(qₜ)^2)), p, v)
+    )
+end
+
+function nelson(Surv::rcSurv)
+    fit_NPE(
+        NelsonAalen,
+        Surv,
+        (d, n) -> d / n,
+        (d, n) -> (d * (n - d)) / (n^3),
+        (p) -> exp.(-cumsum(p)),
+        (v, p) -> .√v
+    )
 end
 
 ±(x, y) = (x - y, x + y)
 ∓(x, y) = (x + y, x - y)
 
 # Calculates confidence intervals using the method of Kalbfleisch and Prentice (1980)
-function StatsBase.confint(km::KaplanMeier, t::Number, α::Float64 = 0.05)
+function confint_NPE(npe, t, α, trafo)
     q = quantile(Normal(), 1 - α/2)
-    which = searchsortedlast(km.times, t)
-    map(x -> exp(-exp(x)), log(-log(km.survs[which])) ∓ (q * km.sd[which]))
+    which = searchsortedlast(npe.times, t)
+    trafo(npe, q, which)
+end
+
+function StatsBase.confint(km::KaplanMeier, t::Number, α::Float64 = 0.05)
+    confint_NPE(
+        km, t, α,
+        (E, q, w) -> map(x -> exp(-exp(x)), log(-log(E.survs[w])) ∓ (q * E.sd[w]))
+    )
 end
 
 # Calculates pointwise confidence intervals for *survival predictions*
 function StatsBase.confint(na::NelsonAalen, t::Number, α::Float64 = 0.05)
-    q = quantile(Normal(), 1 - α/2)
-    which = searchsortedlast(na.times, t)
-    map(x -> min(1, max(0, exp(-x))),
-        -log(na.survs[which]) ∓ (q * na.sd[which]))
+    confint_NPE(
+        na, t, α,
+        (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survs[w]) ∓ (q * E.sd[w]))
+    )
 end
 
 function survival(npe::NonParametricEstimator, t)

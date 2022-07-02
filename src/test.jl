@@ -12,9 +12,22 @@ ot = Surv(T, Δ, "right");
 Surv(T, Δ .== 1, "right")
 et = EventTime.(T, Δ);
 
+@btime confint.(Ref(kaplan(ot)), uniqueEventTimes(ot));
+@btime confint(fit(Survival.KaplanMeier, et));
+
+map(v -> map(x -> -log(x), v), confint.(Ref(nelson(ot)), uniqueEventTimes(ot)))
+confint(fit(Survival.NelsonAalen, et))
+
+@btime nelson(ot);
+@btime nelson2(ot);
+
+@assert kaplan(ot).survs == kaplan2(ot).survs
+@assert kaplan(ot).sd == kaplan2(ot).sd
+@assert nelson2(ot).survs == nelson2(ot).survs
+@assert nelson(ot).sd == nelson2(ot).sd
 
 m1 = median(@benchmark kaplan(ot));
-m2 = median(@benchmark fit(Survival.KaplanMeier, et));
+m2 = median(@benchmark );
 judge(m1, m2)
 
 km =
