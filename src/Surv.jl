@@ -60,26 +60,47 @@ Base.show(io::IO, oss::OneSidedSurv) =
 Base.show(io::IO, oss::TwoSidedSurv) =
     print(io, "(", oss.start, ", ", oss.stop, "]")
 
-outcomeTimes(v::Union{rcSurv,lcSurv}) = v.time
+outcomeTimes(v::OneSidedSurv) = v.time
 outcomeTimes(v::Vector{intSurv}) = map(x -> [x.start, x.stop], v)
 
-eventTimes(v::Union{rcSurv,lcSurv}) = v.time[v.status]
+eventTimes(v::OneSidedSurv) = v.time[v.status]
 eventTimes(v::Vector{intSurv}) = map(x -> x.stop, v)
 
-outcomeStatus(v::Union{rcSurv, lcSurv}) = v.status
+outcomeStatus(v::OneSidedSurv) = v.status
 
-uniqueTimes(v::Union{rcSurv, lcSurv}) = sort(unique(outcomeTimes(v)))
-uniqueEventTimes(v::Union{rcSurv, lcSurv}) = sort(unique(eventTimes(v)))
+uniqueTimes(v::OneSidedSurv; sorted = true) =
+    sorted ? sort(unique(outcomeTimes(v))) : unique(outcomeTimes(v))
+uniqueEventTimes(v::OneSidedSurv; sorted = true) =
+    sorted ? sort(unique(eventTimes(v))) : unique(eventTimes(v))
 
-riskSet(v::Union{rcSurv,lcSurv}, t::Number) = map(x -> x >= t, v.time)
+riskSet(v::OneSidedSurv, t::Number; value = false) =
+    value ? filter(x -> x >= t, v.time) : map(x -> x >= t, v.time)
 
-totalEvents(v::Union{rcSurv,lcSurv}) = length(v.status)
-totalEvents(v::Union{rcSurv,lcSurv}, t::Number) = sum(map(x -> x == t, v.time))
+totalEvents(v::OneSidedSurv) = length(v.status)
+totalEvents(v::OneSidedSurv, t::Number) = sum(map(x -> x == t, v.time))
 
-totalDeaths(v::Union{rcSurv,lcSurv}) = sum(v.outcome.status)
-totalDeaths(v::Union{rcSurv,lcSurv}, t::Number) = sum(map((τ, δ) -> τ == t &&  δ, v.time, v.status))
+totalDeaths(v::OneSidedSurv) = sum(v.status)
+totalDeaths(v::OneSidedSurv, t::Number) = sum(map((τ, δ) -> τ == t &&  δ, v.time, v.status))
 
-totalRisk(v::Union{rcSurv,lcSurv}, t::Number) = sum(riskSet(v, t))
+totalCensored(v::OneSidedSurv) = sum(!v.status)
+totalCensored(v::OneSidedSurv, t::Number) = sum(map((τ, δ) -> τ == t &&  !δ, v.time, v.status))
+
+totalRisk(v::OneSidedSurv, t::Number) = sum(riskSet(v, t))
+
+tabulateOutcomes(v::OneSidedSurv; sorted = false) =
+    sorted ? countmap(sort(v.time)) : countmap(v.time)
+tabulateDeaths(v::OneSidedSurv; sorted = false) =
+    sorted ? countmap(sort(v.time[v.status])) : countmap(v.time[v.status])
+tabulateCensored(v::OneSidedSurv; sorted = false) =
+    sorted ? countmap(sort(v.time[.!v.status])) : countmap(v.time[.!v.status])
+function tabulateRisk(v::OneSidedSurv; sorted = false)
+    out = Dict{Float64, Int}()
+    for t in uniqueEventTimes(v, sorted = true)
+        out[t] = totalRisk.(Ref(v), t)
+    end
+    out
+end
+
 
 abstract type NonParametricEstimator end
 struct KaplanMeier <: NonParametricEstimator

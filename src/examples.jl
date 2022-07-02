@@ -1,27 +1,11 @@
 include("src/Surv.jl")
 
-n = 100
-T = round.(rand(Uniform(1, 10), n))
-Δ = rand(Binomial(), n) .== 1
-rc3 = rcSurv3(T, Δ);
-rc1 = Surv.(T, Δ, "right");
+n = 10
+T = round.(rand(Uniform(1, 10), n));
+Δ = rand(Binomial(), n) .== 1;
+srv = Surv(T, Δ, "right");
 
-using BenchmarkTools
-
-@btime riskSet(rc1, 7);
-@btime riskSet(rc3, 7);
-
-@btime totalEvents(rc1, 7);
-@btime totalEvents(rc3, 7);
-
-@btime totalDeaths(rc1, 7);
-@btime totalDeaths(rc3, 7);
-
-@btime totalRisk(rc1, 7);
-@btime totalRisk(rc3, 7);
-
-
-DataFrame(AB=[df.A; df.B], C=rand(20))
+outcomeTimes(srv)
 
 Surv(1.0, false, "left")
 Surv(1.0, true, "left")
