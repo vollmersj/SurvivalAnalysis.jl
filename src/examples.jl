@@ -4,6 +4,34 @@ n = 10
 T = round.(rand(Uniform(1, 10), n));
 Δ = rand(Binomial(), n) .== 1;
 srv = Surv(T, Δ, "right");
+srv2 = rcSurv2(T, Δ);
+
+@btime rcSurv(T, Δ); kaplan(srv);
+@btime rcSurv2(T, Δ); kaplan2(srv2);
+
+@btime uniqueTimes(srv);
+@btime uniqueTimes(srv2);
+
+@btime totalEvents(srv, 8);
+@btime totalEvents(srv2, 8);
+
+@btime totalCensored(srv, 8);
+@btime totalCensored(srv2, 8);
+
+@btime totalRisk(srv, 8);
+@btime totalRisk(srv2, 8);
+
+@btime rcSurv(T, Δ); tabulateRisk(srv, events = false);
+@btime rcSurv2(T, Δ); tabulateRisk(srv2, events = false);
+
+@btime kaplan(srv);
+@btime kaplan2(srv2);
+
+kaplan(srv)
+kaplan2(srv)
+@btime kaplan(srv);
+@btime kaplan2(srv);
+@assert kaplan(srv) == kaplan2(srv)
 
 outcomeTimes(srv)
 

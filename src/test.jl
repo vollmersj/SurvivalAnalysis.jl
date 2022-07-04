@@ -8,12 +8,13 @@ seed!(1)
 n = 1000
 T = round.(rand(Uniform(1, 10), n));
 Δ = rand(Binomial(), n) .== 1;
-ot = Surv(T, Δ, "right");
-Surv(T, Δ .== 1, "right")
+# ot = Surv(T, Δ, "right");
+# Surv(T, Δ .== 1, "right")
 et = EventTime.(T, Δ);
+ot = rcSurv2(T, Δ);
 
-@benchmark confint.(Ref(kaplan(ot)), uniqueEventTimes(ot))
+@btime EventTime.(T, Δ);
+@btime rcSurv2(T, Δ); ## longer as expected due to postprocessing
+
+@benchmark confint.(Ref(kaplan2(ot)), uniqueEventTimes(ot))
 @benchmark confint(fit(Survival.KaplanMeier, et))
-
-@benchmark confint.(Ref(nelson(ot)), uniqueEventTimes(ot))
-@benchmark confint(fit(Survival.NelsonAalen, et))

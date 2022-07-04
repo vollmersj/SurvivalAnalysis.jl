@@ -4,10 +4,18 @@ using StatsBase
 using RecipesBase
 using Plots
 using DataFrames
+using OrderedCollections
 
 abstract type Surv end
 abstract type OneSidedSurv <: Surv end
 abstract type TwoSidedSurv <:Surv end
+
+# function _OneSidedSurv(time, status, symbol, type)
+#     self = new(time, status, symbol, type)
+#     df = _tabulateSurv(self)
+#     self.df = df
+#     self
+# end
 
 struct rcSurv <: OneSidedSurv
     time::Vector{Float64}
@@ -20,6 +28,19 @@ struct rcSurv <: OneSidedSurv
         new([convert(Float64, time)], [status], '+', "right")
     rcSurv(time::Number, status::Int) =
         new([convert(Float64, time)], [status == 1], '+', "right")
+end
+
+struct rcSurv2 <: OneSidedSurv
+    time::Vector{Float64}
+    status::Vector{Bool}
+    symbol::Char
+    type::String
+    stats::NamedTuple{(:time, :nrisk, :ncens, :ndeaths, :nevents), Tuple{Vector{Float64}, Vector{Int64}, Vector{Int64}, Vector{Int64}, Vector{Int64}}}
+    function rcSurv2(time::Union{Vector{Float64}, Vector{Number}}, status::Union{Vector{Bool},BitVector, Vector{Int}})
+        time = convert(Vector{Float64}, time)
+        status = convert(BitVector, status)
+        new(time, status, '+', "right", _tabulateSurv(time, status))
+    end
 end
 
 struct lcSurv <: OneSidedSurv
@@ -70,6 +91,7 @@ outcomeStatus(v::OneSidedSurv) = v.status
 
 uniqueTimes(v::OneSidedSurv; sorted = true) =
     sorted ? sort(unique(outcomeTimes(v))) : unique(outcomeTimes(v))
+uniqueTimes(v::rcSurv2) = v.stats.time
 uniqueEventTimes(v::OneSidedSurv; sorted = true) =
     sorted ? sort(unique(eventTimes(v))) : unique(eventTimes(v))
 
@@ -78,14 +100,18 @@ riskSet(v::OneSidedSurv, t::Number; value = false) =
 
 totalEvents(v::OneSidedSurv) = length(v.status)
 totalEvents(v::OneSidedSurv, t::Number) = sum(map(x -> x == t, v.time))
+totalEvents(v::rcSurv2, t::Number) = v.stats.nevents[searchsortedfirst(v.stats.time, t)]
 
 totalDeaths(v::OneSidedSurv) = sum(v.status)
 totalDeaths(v::OneSidedSurv, t::Number) = sum(map((τ, δ) -> τ == t &&  δ, v.time, v.status))
+totalDeaths(v::rcSurv2, t::Number) = v.stats.ndeaths[searchsortedfirst(v.stats.time, t)]
 
 totalCensored(v::OneSidedSurv) = sum(!v.status)
 totalCensored(v::OneSidedSurv, t::Number) = sum(map((τ, δ) -> τ == t &&  !δ, v.time, v.status))
+totalCensored(v::rcSurv2, t::Number) = v.stats.ncens[searchsortedfirst(v.stats.time, t)]
 
 totalRisk(v::OneSidedSurv, t::Number) = sum(riskSet(v, t))
+totalRisk(v::rcSurv2, t::Number) = v.stats.nrisk[searchsortedfirst(v.stats.time, t)]
 
 tabulateOutcomes(v::OneSidedSurv; sorted = false) =
     sorted ? countmap(sort(v.time)) : countmap(v.time)
@@ -93,13 +119,35 @@ tabulateDeaths(v::OneSidedSurv; sorted = false) =
     sorted ? countmap(sort(v.time[v.status])) : countmap(v.time[v.status])
 tabulateCensored(v::OneSidedSurv; sorted = false) =
     sorted ? countmap(sort(v.time[.!v.status])) : countmap(v.time[.!v.status])
-function tabulateRisk(v::OneSidedSurv; sorted = false)
-    out = Dict{Float64, Int}()
-    for t in uniqueEventTimes(v, sorted = true)
+function tabulateRisk(v::OneSidedSurv; sorted = false, events = true)
+    out = sorted ? OrderedDict{Float64, Int}() : Dict{Float64, Int}()
+    times = events ? uniqueEventTimes(v, sorted = sorted) : uniqueTimes(v, sorted = sorted)
+    for t in times
         out[t] = totalRisk.(Ref(v), t)
     end
     out
 end
+function tabulateRisk(v::rcSurv2; all_events = true)
+    all_events ? v.stats.nrisk[map(x -> x > 0, v.stats.ndeaths)] : v.stats.nrisk
+end
+survStats(v::rcSurv2; all_events = true) =
+    all_events ? v.stats : (w = map(x -> x > 0, v.stats.ndeaths); map(s -> s[w], v.stats))
+function _tabulateSurv(T, Δ)
+    ut = sort(unique(T))
+    n = length(ut)
+    nrisk = zeros(n)
+    ncens = zeros(n)
+    ndeaths = zeros(n)
+    nevents = zeros(n)
+    for (i, t) in enumerate(ut)
+        nrisk[i] = sum(map(x -> x >= t, T))
+        ncens[i] = sum(map((τ, δ) -> τ == t &&  !δ, T, Δ))
+        ndeaths[i] = sum(map((τ, δ) -> τ == t &&  δ, T, Δ))
+        nevents[i] = ncens[i] + ndeaths[i]
+    end
+    (time = ut, nrisk = nrisk, ncens = ncens, ndeaths = ndeaths, nevents = nevents)
+end
+
 
 
 abstract type NonParametricEstimator end
@@ -132,8 +180,36 @@ function fit_NPE(class, Surv::rcSurv, point_est::Function, var_est::Function,
     class(ut, surv, sd)
 end
 
+function fit_NPE2(class, Surv::rcSurv2, point_est::Function, var_est::Function,
+                    surv_trafo::Function, sd_trafo::Function)
+    stats = survStats(Surv, all_events = false)
+    n = length(stats.time)
+    p = zeros(n)
+    v = zeros(n)
+    for (i, t) in enumerate(stats.time)
+        p[i] = point_est(stats.ndeaths[i], stats.nrisk[i])
+        v[i] = var_est(stats.ndeaths[i], stats.nrisk[i])
+    end
+    variance = cumsum(v)
+    surv = surv_trafo(p)
+    sd = sd_trafo(variance, surv)
+    class(stats.time, surv, sd)
+end
+
 function kaplan(Surv::rcSurv)
     fit_NPE(
+        KaplanMeier,
+        Surv,
+        (d, n) -> 1 - (d / n),
+        (d, n) -> d / (n * (n - d)),
+        cumprod,
+        # Calculates standard error using the method of Kalbfleisch and Prentice (1980)
+        (v, p) -> map((qₜ, vₜ) -> √(vₜ / (log(qₜ)^2)), p, v)
+    )
+end
+
+function kaplan2(Surv::rcSurv2)
+    fit_NPE2(
         KaplanMeier,
         Surv,
         (d, n) -> 1 - (d / n),
