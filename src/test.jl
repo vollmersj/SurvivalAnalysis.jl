@@ -16,5 +16,5 @@ ot = rcSurv2(T, Δ);
 @btime EventTime.(T, Δ);
 @btime rcSurv2(T, Δ); ## longer as expected due to postprocessing
 
-@benchmark confint.(Ref(kaplan2(ot)), uniqueEventTimes(ot))
-@benchmark confint(fit(Survival.KaplanMeier, et))
+@btime Ref(kaplan2(ot)), uniqueEventTimes(ot);
+@btime fit(Survival.KaplanMeier, et);
