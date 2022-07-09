@@ -18,3 +18,10 @@ ot = rcSurv2(T, Δ);
 
 @btime Ref(kaplan2(ot)), uniqueEventTimes(ot);
 @btime fit(Survival.KaplanMeier, et);
+
+
+
+
+Fₓ  = 1 .- [1, km.survs...]
+pₓ = [Fₓ[1], diff(Fₓ)...]
+d = DiscreteNonParametric([0, km.times...],  pₓ, check_args = false)

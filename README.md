@@ -1,2 +1,3 @@
-# Survival.jl
-Mainly used for my own coding practice, but also to test ideas for survival analysis in Julia.
+# Survival
+
+[![Build Status](https://github.com/RaphaelS1/Survival.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/RaphaelS1/Survival.jl/actions/workflows/CI.yml?query=branch%3Amain)
