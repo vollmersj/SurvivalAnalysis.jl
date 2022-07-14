@@ -15,7 +15,7 @@ function fit_NPE(class, Surv::rcSurv, point_est::Function, var_est::Function,
     surv = surv_trafo(p)
     sd = sd_trafo(variance, surv)
     # Set S(0) = 1
-    T = [0, stats.times...]
+    T = [0, stats.time...]
     Sₜ = [1, surv...]
     # calculate pmf and create distribution
     pₓ = [0, abs.(diff(Sₜ))...]
@@ -27,13 +27,13 @@ end
 # Calculates confidence intervals using the method of Kalbfleisch and Prentice (1980)
 function confint_NPE(npe, t, α, trafo)
     q = quantile(Normal(), 1 - α/2)
-    which = searchsortedlast(npe.times, t)
+    which = searchsortedlast(npe.time, t)
     trafo(npe, q, which)
 end
 
 # syntactic sugar for vectorising over all times
 function StatsBase.confint(npe::NonParametricEstimator; α::Float64 = 0.05)
-    confint.(Ref(npe), npe.times, α = α)
+    confint.(Ref(npe), npe.time, α = α)
 end
 
 @recipe function f(npe::NonParametricEstimator, plot_confint::Bool = true, α::Float64 = 0.05)
@@ -42,18 +42,18 @@ end
     legend := false
     @series begin
         linecolor   --> :black
-        npe.times, npe.survival
+        npe.time, npe.survival
     end
     if plot_confint
         linecolor   --> :blue
-        cis = confint.(Ref(npe), npe.times, α = α)
+        cis = confint.(Ref(npe), npe.time, α = α)
         lb = map(x -> x[1], cis)
         ub = map(x -> x[2], cis)
         @series begin
-            npe.times, lb
+            npe.time, lb
         end
         @series begin
-            npe.times, ub
+            npe.time, ub
         end
     end
 end

@@ -1,5 +1,5 @@
 struct KaplanMeier <: NonParametricEstimator
-    times::Vector{Float64}
+    time::Vector{Float64}
     survival::Vector{Float64}
     sd::Vector{Float64}
     d::DiscreteNonParametric

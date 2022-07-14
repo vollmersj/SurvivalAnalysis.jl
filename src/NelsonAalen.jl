@@ -1,5 +1,5 @@
 struct NelsonAalen <: NonParametricEstimator
-    times::Vector{Float64}
+    time::Vector{Float64}
     survival::Vector{Float64}
     sd::Vector{Float64}
     d::DiscreteNonParametric
@@ -18,6 +18,8 @@ function nelson(Surv::rcSurv)
 end
 
 # Calculates pointwise confidence intervals for *survival predictions*
+# Unclear if this even needs to be a different method, could just use the confint around
+# survival for both NPEs
 function StatsBase.confint(na::NelsonAalen, t::Number; α::Float64 = 0.05)
     confint_NPE(
         na, t, α,

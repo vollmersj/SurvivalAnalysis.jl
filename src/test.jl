@@ -24,4 +24,4 @@ ot = rcSurv2(T, Δ);
 
 Fₓ  = 1 .- [1, km.survs...]
 pₓ = [Fₓ[1], diff(Fₓ)...]
-d = DiscreteNonParametric([0, km.times...],  pₓ, check_args = false)
+d = DiscreteNonParametric([0, km.time...],  pₓ, check_args = false)

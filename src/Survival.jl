@@ -20,6 +20,7 @@ module Survival
         kaplan,
         nelson
 
+    include("utils.jl")
     include("Surv.jl")
     include("NonParametricEstimator.jl")
     include("KaplanMeier.jl")
