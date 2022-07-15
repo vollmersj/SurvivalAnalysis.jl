@@ -1,2 +1,17 @@
 ±(x, y) = (x - y, x + y)
 ∓(x, y) = (x + y, x - y)
+∑(A) = sum(A)
+∑(A...) = sum(A)
+∏(A) = prod(A)
+∏(A...) = prod(A)
+
+survival(d::UnivariateDistribution, x::Real) = ccdf(d, x)
+hazard(d::UnivariateDistribution, x::Real) = pdf(d, x) / survival(d, x)
+cumHazard(d::UnivariateDistribution, x::Real) = -log(survival(d, x))
+
+Fₜ(d, t) = cdf(d, t)
+fₜ(d, t) = pdf(d, t)
+pₜ(d, t) = pdf(d, t)
+Sₜ(d, t) = survival(d, t)
+hₜ(d, t) = hazard(d, t)
+Hₜ(d, t) = cumHazard(d, t)
