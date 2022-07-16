@@ -2,34 +2,79 @@ using Distributions
 using Optim, NLSolversBase, Random
 using LinearAlgebra: diag
 using Survival
+using DataFrames
 
-function fit_PH(d::String, init::Vector{T} = [0.1]) where {T <: Real}
+# L = ∏ λ(t|x)^δ S(t|x)
+# l = ∑(Δ .* log.(hₜ.(ζ, T).*exp.(x'β)) .- exp.(x'β) * Hₜ.(ζ, T))
+
+struct FittedParametricPH
+    coefficients::NamedTuple{(:betas, :pars), NTuple{2, Vector{Float64}}}
+    hessian::Matrix
+    var_cov::Matrix
+    t::Vector
+    baseline::ContinuousUnivariateDistribution
+    routine
+end
+
+function fit_PH(X::DataFrame, Y::Survival.rcSurv, d::String, init::Number = 0.1)
     @assert d in ["Weibull", "Exponential"]
 
-    init = d == "Weibull" ? ones(2) * 0.1 : ones(1) * 0.1
+    nβ = ncol(X)
+    nϕ = d == "Weibull" ? 2 : 1
+    npar = nβ + nϕ
+    X = Matrix(X)
 
-    function loglik(T, Δ, θ)
-        any(i -> i <= 0, θ) && return Inf # reject impossible candidates
-        ζ = getfield(Distributions, Symbol(d))(θ...)
-        -Survival.∑(Δ .* log.(Survival.hₜ.(ζ, T)) .- Survival.Hₜ.(ζ, T))
+    init = [zeros(nβ)..., (ones(nϕ) .* init)...]
+
+    function loglik(x, t, δ, β, ϕ)
+        any(i -> i <= 0, ϕ) && return Inf # reject impossible candidates
+        ζ = getfield(Distributions, Symbol(d))(ϕ...)
+        -Survival.∑(δ .* log.(Survival.hₜ.(ζ, t).*exp.(x*β)) .- exp.(x*β) .* Survival.Hₜ.(ζ, t))
     end
 
     func = TwiceDifferentiable(
-        θ -> loglik(surv.time, surv.status, θ), init; autodiff=:forward);
+        θ -> loglik(X, Y.time, Y.status, θ[1:nβ], θ[nβ+1:npar]),
+        init; autodiff=:forward);
 
     opt = optimize(func, init)
     θ̂ = Optim.minimizer(opt)
     H = hessian!(func, θ̂)
-    Var = inv(H)
-    t = θ̂./sqrt.(diag(Var))
+    V = inv(H)
+    β̂ = θ̂[1:nβ]
+    t = β̂./sqrt.(diag(V)[1:nβ])
+    ϕ̂ = θ̂[nβ+1:npar]
 
-    (θ̂ = θ̂, H = H, Var = Var, t = t, routine = opt)
+    ζ̂ = getfield(Distributions, Symbol(d))(ϕ̂...)
+
+    FittedParametricPH((betas = β̂, pars = ϕ̂), H, V, t, ζ̂, opt)
 end
 
-n = 100
-T = round.(rand(Uniform(1, 10), n));
-Δ = rand(Binomial(), n) .== 1;
-surv = Survival.Surv(T, Δ, "right");
+function predict_PH(fit::FittedParametricPH, X::DataFrame)
+    η = exp.(Matrix(X) * fit.coefficients.betas)
+    ζ = ParametricPH.(fit.baseline, η)
+    (lp = η, distr = ζ)
+end
 
-w = fit_PH("Weibull");
-e = fit_PH("Exponential");
+n = 100;
+Xs = Uniform();
+X = DataFrame("X1" => rand(Xs, n), "X2" => rand(Xs, n),
+        "X3" => rand(Xs, n));
+T = X.X1 * 2 + X.X2 * -0.1 + X.X3 * 3.1;
+Δ = rand(Binomial(), n) .== 1;
+Y = Surv(T, Δ, "right");
+
+#w = fit_PH(X, Y, "Weibull");
+e = fit_PH(X, Y, "Exponential");
+p = predict_PH(e, X);
+hazard.(p.dist, 1)
+
+# using RCall
+
+# R"
+#     library(survival)
+#     time = $T
+#     status = $Δ
+#     df = $X
+#     surv = Surv(time, status)
+#     survreg(surv ~ ., data = df, dist = 'exponential')
+# "
