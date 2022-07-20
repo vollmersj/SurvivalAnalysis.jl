@@ -23,6 +23,7 @@ module Survival
     include("utils.jl")
     include("Surv.jl")
     include("ParametricPH.jl")
+    include("ParametricAFT.jl")
     include("NonParametricEstimator.jl")
     include("KaplanMeier.jl")
     include("NelsonAalen.jl")
