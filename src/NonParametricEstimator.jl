@@ -16,7 +16,7 @@ function fit_NPE(class, Surv::rcSurv, point_est::Function, var_est::Function,
     sd = sd_trafo(variance, surv)
     # Set S(0) = 1
     T = [0, stats.time...]
-    Sₜ = [1, surv...]
+    Sₜ = [1, surv...] # FIXME - LOOKS LIKE ADDDING 1/0 TWICE
     # calculate pmf and create distribution
     pₓ = [0, abs.(diff(Sₜ))...]
     d = DiscreteNonParametric(T,  pₓ, check_args = false)

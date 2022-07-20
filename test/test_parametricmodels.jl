@@ -70,6 +70,8 @@ R_scale_weib = weib$scale
     round(scale(exp_ph.baseline), digits = 6) ===
     round(exp(βₑ[1]) , digits = 6)
 
+# test predictions
+
 new_X = DataFrame("X1" => rand(Xs, n), "X2" => rand(Xs, n),
     "X3" => rand(Xs, n));
 R"
@@ -78,15 +80,18 @@ weib = survreg(Surv($T_Weib) ~ ., data = $X, dist = 'weibull')
 exp = survreg(Surv($T_Exp) ~ ., data = $X, dist = 'exponential')
 R_lp_w = predict(weib, $new_X, type = 'lp')
 R_lp_e = predict(exp, $new_X, type = 'lp')
-R_q_w = predict(weib, $new_X, type = 'quantile', p = 0.5)
-R_q_e = predict(exp, $new_X, type = 'quantile', p = 0.5)
+R_q_w = predict(weib, $new_X, type = 'quantile', p = 0.2)
+R_q_e = predict(exp, $new_X, type = 'quantile', p = 0.2)
 ";
 
+pred_e = predict_Parametric(exp_aft, new_X);
+pred_w = predict_Parametric(weib_aft, new_X);
+
+# note we return lp not including intercept
 @assert all(round.(rcopy(R"R_lp_e"), digits = 6) .==
-round.(predict_Parametric(exp_aft, new_X).lp, digits = 6))
-
+round.(pred_e.lp .+ exp_aft.coefficients.betas[1], digits = 6))
 @assert all(round.(rcopy(R"R_lp_w"), digits = 6) .==
-round.(predict_Parametric(weib_aft, new_X).lp, digits = 6))
+round.(pred_w.lp .+ weib_aft.coefficients.betas[1], digits = 6))
 
-cdf.(predict_Parametric(weib_aft, new_X).distr, rcopy(R"R_q_w"))
-cdf.(predict_Parametric(exp_aft, new_X).distr, rcopy(R"R_q_e"))
+@assert all(round.(cdf.(predict_Parametric(weib_aft, new_X).distr, rcopy(R"R_q_w")), digits = 6) .== 0.2)
+@assert all(round.(cdf.(predict_Parametric(exp_aft, new_X).distr, rcopy(R"R_q_e")), digits = 6) .== 0.2)

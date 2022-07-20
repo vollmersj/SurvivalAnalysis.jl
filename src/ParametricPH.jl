@@ -10,6 +10,7 @@ partype(::ParametricPH) = Float64
 
 #### Evaluation
 
-Distributions.pdf(d::ParametricPH, x::Real) = hazard(d, x) * ccdf(d, x)
+Distributions.pdf(d::ParametricPH, x::Real) = hazard(d.ζ, x) * exp(d.η) * (ccdf(d.ζ, x)^exp(d.η))
+Distributions.cdf(d::ParametricPH, x::Real) = 1 - (ccdf(d.ζ, x)^exp(d.η))
 Distributions.ccdf(d::ParametricPH, x::Real) = ccdf(d.ζ, x)^exp(d.η)
-hazard(d::ParametricPH, x::Real) = hazard(d.ζ, x)*exp(d.η)
+hazard(d::ParametricPH, x::Real) = hazard(d.ζ, x) * exp(d.η)
