@@ -50,6 +50,6 @@ end
 
 function predict_Parametric(fit::FittedParametricAFT, X::DataFrame)
     η = Matrix(X) * fit.coefficients.betas[2:end]
-    ζ = ParametricAFT.(fit.baseline, η)
+    ζ = ContinuousAFTDistribution.(fit.baseline, η)
     _survPredict(ζ = ζ, η = η, ϕ = -η)
 end

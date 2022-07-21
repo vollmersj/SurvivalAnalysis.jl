@@ -3,6 +3,7 @@ using Test
 using Random
 using RCall
 using Distributions
+using DataFrames
 
 @testset "Survival.jl" begin
     @test typeof(Surv(1, 1)) == Survival.intSurv

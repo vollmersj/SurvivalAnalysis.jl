@@ -1,14 +1,15 @@
 module Survival
 
-    using Distributions
-    using StatsBase
     using RecipesBase
     using DataFrames
     using LinearAlgebra: diag
     using Optim
-    # using LineSearches, Optim, NLSolversBase
-    # using LineSearches, Optim, NLSolversBase
-    # using Plots
+    using NLSolversBase: hessian!
+    using Reexport
+    @reexport using StatsModels
+    using Distributions
+    using StatsBase
+    export coef, confint, stderror, vcov, predict, fit, fit!
 
     export
         Surv,
@@ -23,15 +24,19 @@ module Survival
         totalRisk,
         survStats,
         kaplan,
-        nelson
+        nelson,
+        ParametricPH,
+        ParametricAFT,
+        ph,
+        aft
 
-    abstract type FittedParametric end
+    abstract type FittedParametric <: StatisticalModel end
 
     include("utils.jl")
     include("Surv.jl")
     include("SurvivalPrediction.jl")
-    include("ParametricPH.jl")
-    include("ParametricAFT.jl")
+    include("ContinuousPHDistribution.jl")
+    include("ContinuousAFTDistribution.jl")
     include("FittedParametricAFT.jl")
     include("FittedParametricPH.jl")
     include("NonParametricEstimator.jl")

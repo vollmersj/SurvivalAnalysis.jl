@@ -25,22 +25,18 @@ end
 function _survPredict(;ζ::Vector{Distribution}, η::Vector{T}, ϕ::Vector{T},
                         T̂::Vector{T}, Ts::Vector{T}, Ŝ::Matrix{T}) where {T<:Float64}
     n = []
-    if !missing(ζ) push!(n, length(ζ))
-    if !missing(η) push!(n, length(η))
-    if !missing(ϕ) push!(n, length(ϕ))
-    if !missing(T̂) push!(n, length(T̂))
-    if !missing(Ŝ) push!(n, size(Ŝ, 1))
+    !missing(ζ) && push!(n, length(ζ))
+    !missing(η) && push!(n, length(η))
+    !missing(ϕ) && push!(n, length(ϕ))
+    !missing(T̂) && push!(n, length(T̂))
+    !missing(Ŝ) && push!(n, size(Ŝ, 1))
     n = unique(n)
 
-    if length n > 1
-        error("Supplied parameters of different lengths")
-    end
+    @assert length n == 1 error("Supplied parameters of different lengths")
 
     # construct distribution from matrix if available
     if ismissing(Ts) + ismissing(Ŝ) == 1
         error("Either both 'Ts' should be provided 'Ŝ' or neither")
-    elseif ismissing(Ts)  && ismissing(Ŝ)
-
     elseif !ismissing(Ts) && !ismissing(Ŝ) && ismissing(ζ)
         @assert length(Ts) == size(Ŝ, 2)
         if Ts[1] != 0
