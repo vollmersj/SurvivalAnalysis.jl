@@ -17,4 +17,4 @@ Distributions.cdf(d::ContinuousPHDistribution, x::Real) = 1 - (ccdf(d.ζ, x)^exp
 Distributions.ccdf(d::ContinuousPHDistribution, x::Real) = ccdf(d.ζ, x)^exp(d.η)
 hazard(d::ContinuousPHDistribution, x::Real) = hazard(d.ζ, x) * exp(d.η)
 
-Base.show(io::IO, d::ContinuousAFTDistribution) = print(io, "PH(ζ=$(d.ζ), η=$(d.η))")
+Base.show(io::IO, d::ContinuousPHDistribution) = print(io, "PH(ζ=$(d.ζ), η=$(d.η))")
