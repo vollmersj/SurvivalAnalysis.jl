@@ -1,4 +1,4 @@
-module Survival
+module SurvivalAnalysis
 
     using RecipesBase
     using LinearAlgebra: diag

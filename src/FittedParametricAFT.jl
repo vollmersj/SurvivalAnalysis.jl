@@ -7,7 +7,7 @@ struct FittedParametricAFT <: FittedParametric
     routine
 end
 
-function fit_AFT(X::DataFrame, Y::Survival.rcSurv, d::String, init::Number = 1)
+function fit_AFT(X::DataFrame, Y::rcSurv, d::String, init::Number = 1)
     @assert d in ["Weibull", "Exponential"]
 
     # θ[1] = scale, θ[2] = β₀, θ[...] = β...
@@ -24,7 +24,7 @@ function fit_AFT(X::DataFrame, Y::Survival.rcSurv, d::String, init::Number = 1)
         elseif d == "Weibull"
             l = (δ .* (log(1/ϕ) .+ (((1/ϕ)-1) .* log.(t)) .- (β₀ .+ x*β) ./ ϕ)) .- (exp.((-β₀ .- x*β) ./ ϕ) .* t.^(1/ϕ))
         end
-        -Survival.∑(l)
+        -∑(l)
     end
 
     func = TwiceDifferentiable(

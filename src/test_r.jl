@@ -2,7 +2,7 @@ using RCall
 using Random: seed!
 using Distributions
 using BenchmarkTools
-using Survival
+using SurvivalAnalysis
 using StatsBase
 seed!(1)
 n = 1000

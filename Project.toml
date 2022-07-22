@@ -1,4 +1,4 @@
-name = "Survival"
+name = "SurvivalAnalysis"
 uuid = "d1dd7d07-e5c2-418a-8652-e20add45d312"
 authors = ["Raphael Sonabend <raphaelsonabend@gmail.com>"]
 version = "0.1.0"

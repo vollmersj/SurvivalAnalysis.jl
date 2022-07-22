@@ -1,15 +1,9 @@
-using Survival
+using SurvivalAnalysis
 using Test
 using Random
 using RCall
 using Distributions
 using DataFrames
-
-@testset "Survival.jl" begin
-    @test typeof(Surv(1, 1)) == Survival.intSurv
-    @test typeof(Surv(1, 1, "right")) == Survival.rcSurv
-    @test typeof(Surv(1, 1, "left")) == Survival.lcSurv
-end
 
 @testset "Parametric models" begin
     @test include("test_parametricmodels.jl")

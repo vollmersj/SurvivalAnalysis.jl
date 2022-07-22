@@ -1,4 +1,4 @@
-using Survival
+using SurvivalAnalysis
 using Distributions
 using DataFrames
 n = 20

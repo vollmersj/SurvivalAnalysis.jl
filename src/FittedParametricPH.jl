@@ -23,13 +23,13 @@ end
 
 ph(X, y, args...; kwargs...) = fit(ParametricPH, X, y, args...; kwargs...)
 
-function StatsBase.fit(::Type{ParametricPH}, X::AbstractMatrix{<:Real}, Y::Survival.rcSurv,
+function StatsBase.fit(::Type{ParametricPH}, X::AbstractMatrix{<:Real}, Y::rcSurv,
                 d::Type{T}, init::Number = 1) where {T <: ContinuousUnivariateDistribution}
     @assert d in [Weibull, Exponential]
     fit!(ParametricPH(d, X), X, Y, init)
 end
 
-function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::Survival.rcSurv,
+function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::rcSurv,
                         init::Number)
     # θ[1] = scale, θ[2:end] = βs
     nβ = size(X, 2)
@@ -45,7 +45,7 @@ function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::Surviva
         else
             l = (δ .* (log(1/ϕ) .+ (((1/ϕ)-1) .* log.(t)) .+ x*β)) .- (exp.(x*β) .* t.^(1/ϕ))
         end
-        -Survival.∑(l)
+        -∑(l)
     end
 
     func = TwiceDifferentiable(
