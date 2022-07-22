@@ -3,43 +3,46 @@ abstract type SurvivalPrediction end
 struct DeterministicSurvivalPrediction{T<:Float64} <: SurvivalPrediction
     lp::Vector{T}
     crank::Vector{T}
-    survivaltime::Vector{T}
+    time::Vector{T}
 end
 
 struct DiscreteSurvivalPrediction{T<:Float64} <: SurvivalPrediction
     distr::Vector{DiscreteNonParametric}
     lp::Vector{T}
     crank::Vector{T}
-    survivaltime::Vector{T}
-    times::Vector{T}
-    mat::Matrix{T}
+    time::Vector{T}
+    survivalmatrix::NamedTuple{(:time, :surv), Tuple{Vector{T}, Matrix{T}}}
 end
 
 struct ContinuousSurvivalPrediction{T<:Float64} <: SurvivalPrediction
-    distr::Vector{ContinuousUnivariateDistribution}
+    distr::Vector{<:ContinuousUnivariateDistribution}
     lp::Vector{T}
     crank::Vector{T}
-    survivaltime::Vector{T}
+    time::Vector{T}
 end
 
-function _survPredict(;ζ::Vector{Distribution}, η::Vector{T}, ϕ::Vector{T},
-                        T̂::Vector{T}, Ts::Vector{T}, Ŝ::Matrix{T}) where {T<:Float64}
+function SurvivalPrediction(;ζ::Vector{<:Distribution} = nothing,
+    η::Union{Vector{T}, Nothing}  = nothing, ϕ::Union{Vector{T}, Nothing} = nothing,
+    T̂::Union{Vector{T}, Nothing} = nothing, Ts::Union{Vector{T}, Nothing} = nothing,
+    Ŝ::Union{Vector{T}, Nothing} = nothing) where {T<:Float64}
+
     n = []
-    !missing(ζ) && push!(n, length(ζ))
-    !missing(η) && push!(n, length(η))
-    !missing(ϕ) && push!(n, length(ϕ))
-    !missing(T̂) && push!(n, length(T̂))
-    !missing(Ŝ) && push!(n, size(Ŝ, 1))
+    ζ ≠ nothing && push!(n, length(ζ))
+    η ≠ nothing && push!(n, length(η))
+    ϕ ≠ nothing && push!(n, length(ϕ))
+    T̂ ≠ nothing && push!(n, length(T̂))
+    Ŝ ≠ nothing && push!(n, size(Ŝ, 1))
     n = unique(n)
 
-    @assert length n == 1 error("Supplied parameters of different lengths")
+    length(n) === 1 || throw(ArgumentError("Supplied parameters of different lengths"))
+    n = n[1]
 
     # construct distribution from matrix if available
-    if ismissing(Ts) + ismissing(Ŝ) == 1
+    if (Ts === nothing) + (Ŝ === nothing) === 1
         error("Either both 'Ts' should be provided 'Ŝ' or neither")
-    elseif !ismissing(Ts) && !ismissing(Ŝ) && ismissing(ζ)
+    elseif Ts ≠ nothing && Ŝ ≠ nothing && ζ ≠ nothing
         @assert length(Ts) == size(Ŝ, 2)
-        if Ts[1] != 0
+        if Ts[1] ≠ 0
             # Set S(0) = 1
             Ŝ = hcat(ones(n), Ŝ)
             Ts = [0, Ts...]
@@ -50,20 +53,30 @@ function _survPredict(;ζ::Vector{Distribution}, η::Vector{T}, ϕ::Vector{T},
     end
 
     # no transformations assumed
-    η = ismissing(η) ? fill(NaN, n) : η
-    ϕ = ismissing(ϕ) ? fill(NaN, n) : ϕ
-    T̂ = ismissing(T̂) ? fill(NaN, n) : T̂
+    η = η === nothing ? fill(NaN, n) : η
+    ϕ = ϕ === nothing ? fill(NaN, n) : ϕ
+    T̂ = T̂ === nothing ? fill(NaN, n) : T̂
 
-    if ismissing(ζ)
+    if ζ === nothing
         DeterministicSurvivalPrediction(η, ϕ, T̂)
     elseif ζ[1] isa ContinuousUnivariateDistribution
         ContinuousSurvivalPrediction(ζ, η, ϕ, T̂)
     elseif ζ[1] isa DiscreteNonParametric
-        if ismissing(Ts)
+        if Ts === nothing
             Ts = unique(support.(ζ))
             @assert length(Ts) == 1 "Predicted distributions (ζ) must have same survival times"
             Ŝ = mapreduce(s -> 1 .- cumsum(probs(s)), hcat, ζ)'
         end
-        DiscreteSurvivalPrediction(ζ, η, ϕ, T̂, Ts, Ŝ)
+        DiscreteSurvivalPrediction(ζ, η, ϕ, T̂, (time = Ts, surv = Ŝ))
     end
 end
+
+Base.show(io::IO, sp::T where {T <: DeterministicSurvivalPrediction}) =
+    print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time))
+Base.show(io::IO, sp::T where {T <: DiscreteSurvivalPrediction}) =
+    print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time,
+                        "distr" => sp.distr,
+                        "mat" => sp.survivalmatrix))
+Base.show(io::IO, sp::T where {T <: ContinuousSurvivalPrediction}) =
+    print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time,
+                        "distr" => sp.distr))

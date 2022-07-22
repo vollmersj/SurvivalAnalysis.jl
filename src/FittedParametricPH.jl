@@ -4,12 +4,12 @@ mutable struct ParametricPH{T} <: FittedParametric where {T <: ContinuousUnivari
     hessian::Matrix
     var_cov::Matrix
     tstats::Vector
-    distribution::Union{T, Type{T}}
+    baseline::Union{T, Type{T}}
     routine
 end
 
 function ParametricPH(d::Type{T}, X) where {T <: ContinuousUnivariateDistribution}
-    nβ = size(X, 2) + 1
+    nβ = size(X, 2)
     ParametricPH(
         zeros(nβ),
         0.0,
@@ -31,25 +31,25 @@ end
 
 function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::Survival.rcSurv,
                         init::Number)
-    # θ[1] = scale, θ[2] = β₀, θ[...] = β...
+    # θ[1] = scale, θ[2:end] = βs
     nβ = size(X, 2)
-    npar = nβ + 2
+    npar = nβ + 1
     X = Matrix(X)
 
-    init = [init, 0, zeros(nβ)...]
+    init = [init, zeros(nβ)...]
 
-    function loglik(x, t, δ, ϕ, β₀, β)
+    function loglik(x, t, δ, ϕ, β)
         ϕ <= 0 && return Inf # reject impossible candidates
-        if obj.distribution == Exponential
-            l = (δ .* (β₀ .+ x*β)) .- (exp.(β₀ .+ x*β) .* t)
+        if obj.baseline == Exponential
+            l = (δ .* (x*β)) .- (exp.(x*β) .* t)
         else
-            l = (δ .* (log(1/ϕ) .+ (((1/ϕ)-1) .* log.(t)) .+ β₀ .+ x*β)) .- (exp.(β₀ .+ x*β) .* t.^(1/ϕ))
+            l = (δ .* (log(1/ϕ) .+ (((1/ϕ)-1) .* log.(t)) .+ x*β)) .- (exp.(x*β) .* t.^(1/ϕ))
         end
         -Survival.∑(l)
     end
 
     func = TwiceDifferentiable(
-        θ -> loglik(X, Y.time, Y.status, θ[1], θ[2], θ[3:length(θ)]),
+        θ -> loglik(X, Y.time, Y.status, θ[1], θ[2:end]),
         init; autodiff=:forward);
 
     opt = optimize(func, init)
@@ -69,7 +69,7 @@ function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::Surviva
     obj.tstats = β̂./sqrt.(diag(obj.var_cov)[2:nθ])
     obj.coefficients = β̂
 
-    obj.distribution = obj.distribution == Exponential ?
+    obj.baseline = obj.baseline == Exponential ?
         Exponential(exp(-β̂[1])) :
         Weibull(1/obj.scale, exp(-β̂[1] * obj.scale))
 
@@ -77,11 +77,7 @@ function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::Surviva
 end
 
 function StatsBase.predict(fit::ParametricPH, X::AbstractMatrix{<:Real})
-    η = X * fit.coefficients.betas[2:end]
-    ζ = ParametricPH.(fit.baseline, η)
-    _survPredict(ζ = ζ, η = η, ϕ = η)
+    η = X * fit.coefficients
+    ζ = ContinuousPHDistribution.(fit.baseline, η)
+    SurvivalPrediction(ζ = ζ, η = η, ϕ = η)
 end
-
-coef(obj::FittedParametric) = obj.coefficients
-scale(object::FittedParametric) = scale(obj.distribution)
-shape(object::FittedParametric) = shape(obj.distribution)

@@ -16,6 +16,7 @@ Current features:
 * [x] Discrete and continuous survival prediction objects, including distribution, linear predictor and general risk return types
 * [x] Plotting for non parametric estimators
 * [x] Surv object for unified censoring indicator (functionality for left, right, interval)
+* [x] Extended formula interface for survival objects
 
 Planned features:
 
@@ -26,4 +27,4 @@ Planned features:
 * [ ] Generic plotting functionality
 * [ ] Proportional odds functionality
 * [ ] Gompertz, Tobit, Gaussian, Rayleigh, Loglogistic, Lognormal
-
+* [ ] Analytical optimisation

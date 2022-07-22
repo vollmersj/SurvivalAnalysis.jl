@@ -1,18 +1,25 @@
 module Survival
 
     using RecipesBase
-    using DataFrames
     using LinearAlgebra: diag
     using Optim
     using NLSolversBase: hessian!
-    using Reexport
-    @reexport using StatsModels
-    using Distributions
+
+    using DataFrames
+    export DataFrame
+
+    using StatsModels
+    export @formula, terms, coefnames
+
     using StatsBase
     export coef, confint, stderror, vcov, predict, fit, fit!
 
+    using Distributions
+    export scale, shape, Exponential, Weibull
+
     export
         Surv,
+        Srv,
         outcomeTimes,
         eventTimes,
         outcomeStatus,
@@ -30,13 +37,14 @@ module Survival
         ph,
         aft
 
-    abstract type FittedParametric <: StatisticalModel end
-
     include("utils.jl")
     include("Surv.jl")
+    include("SurvTerm.jl")
+    include("SurvivalModel.jl")
     include("SurvivalPrediction.jl")
     include("ContinuousPHDistribution.jl")
     include("ContinuousAFTDistribution.jl")
+    include("FittedParametric.jl")
     include("FittedParametricAFT.jl")
     include("FittedParametricPH.jl")
     include("NonParametricEstimator.jl")
