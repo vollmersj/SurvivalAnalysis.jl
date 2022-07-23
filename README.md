@@ -5,7 +5,7 @@
 
 Just used to develop my own Julia skills and to experiment with implementing survival analysis. Builds on existing experience with [mlr3proba](https://github.com/mlr-org/mlr3proba) and [distr6](https://github.com/alan-turing-institute/distr6).
 
-**Don't confuse this package with [JuliaStats/Survival.jl](https://github.com/JuliaStats/Survival.jl).** (I may change the name of this one) - Features here are experimental and sub-optimally coded.
+**Don't confuse this package with [JuliaStats/Survival.jl](https://github.com/JuliaStats/Survival.jl).** - SurvivalAnalysis.jl is experimental and sub-optimally coded.
 
 Current features:
 
