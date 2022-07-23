@@ -20,11 +20,7 @@ jobs:
             arch: x64
             version: 1
             experimental: false
-          - os: windows-latest
-            arch: x86
-            version: 1
-            experimental: true
-
+            
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
