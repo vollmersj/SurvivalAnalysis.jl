@@ -15,7 +15,7 @@ module SurvivalAnalysis
     export coef, confint, stderror, vcov, predict, fit, fit!
 
     using Distributions
-    export scale, shape, Exponential, Weibull
+    export scale, shape, Exponential, Weibull, params
 
     export
         Surv,
@@ -35,7 +35,8 @@ module SurvivalAnalysis
         ParametricPH,
         ParametricAFT,
         ph,
-        aft
+        aft,
+        baseline
 
     include("utils.jl")
     include("Surv.jl")
@@ -44,9 +45,9 @@ module SurvivalAnalysis
     include("SurvivalPrediction.jl")
     include("ContinuousPHDistribution.jl")
     include("ContinuousAFTDistribution.jl")
-    include("FittedParametric.jl")
-    include("FittedParametricAFT.jl")
-    include("FittedParametricPH.jl")
+    include("ParametricSurvival.jl")
+    include("ParametricAFT.jl")
+    include("ParametricPH.jl")
     include("NonParametricEstimator.jl")
     include("KaplanMeier.jl")
     include("NelsonAalen.jl")
