@@ -5,7 +5,7 @@ struct KaplanMeier <: NonParametricEstimator
     d::DiscreteNonParametric
 end
 
-function kaplan(Surv::rcSurv)
+function kaplan(Surv::RCSurv)
     fit_NPE(
         KaplanMeier,
         Surv,

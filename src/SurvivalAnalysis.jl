@@ -1,42 +1,24 @@
 module SurvivalAnalysis
 
-    using RecipesBase
-    using LinearAlgebra: diag
-    using Optim
-    using NLSolversBase: hessian!
-
     using DataFrames
-    export DataFrame
-
-    using StatsModels
-    export @formula, terms, coefnames
-
-    using StatsBase
-    export coef, confint, stderror, vcov, predict, fit, fit!
-
     using Distributions
-    export scale, shape, Exponential, Weibull, params
+    using LinearAlgebra: diag
+    using NLSolversBase: hessian!
+    using Optim
+    using RecipesBase
+    using StatsBase
+    using StatsModels
 
-    export
-        Surv,
-        Srv,
-        outcomeTimes,
-        eventTimes,
-        outcomeStatus,
-        uniqueTimes,
-        uniqueEventTimes,
-        totalEvents,
-        totalCensored,
-        totalOutcomes,
-        totalRisk,
-        survStats,
-        kaplan,
-        nelson,
-        ParametricPH,
-        ParametricAFT,
-        ph,
-        aft,
-        baseline
+    export DataFrame # DataFrames
+    export scale, shape, params, Exponential, Weibull # Distributions
+    export coef, confint, stderror, vcov, predict, fit, fit! # StatsBase
+    export @formula, terms, coefnames # StatsModels
+    export Surv, outcome_times, event_times, outcome_status, unique_times, unique_event_times
+    export total_events, total_censored, total_outcomes, total_risk, surv_stats
+    export Srv
+    export kaplan, nelson, ph, aft
+    export ParametricPH, ParametricAFT
+    export baseline
 
     include("utils.jl")
     include("Surv.jl")
@@ -51,5 +33,4 @@ module SurvivalAnalysis
     include("NonParametricEstimator.jl")
     include("KaplanMeier.jl")
     include("NelsonAalen.jl")
-
 end

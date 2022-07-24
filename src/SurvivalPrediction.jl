@@ -11,7 +11,7 @@ struct DiscreteSurvivalPrediction{T<:Float64} <: SurvivalPrediction
     lp::Vector{T}
     crank::Vector{T}
     time::Vector{T}
-    survivalmatrix::NamedTuple{(:time, :surv), Tuple{Vector{T}, Matrix{T}}}
+    survival_matrix::NamedTuple{(:time, :surv), Tuple{Vector{T}, Matrix{T}}}
 end
 
 struct ContinuousSurvivalPrediction{T<:Float64} <: SurvivalPrediction
@@ -76,7 +76,7 @@ Base.show(io::IO, sp::T where {T <: DeterministicSurvivalPrediction}) =
 Base.show(io::IO, sp::T where {T <: DiscreteSurvivalPrediction}) =
     print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time,
                         "distr" => sp.distr,
-                        "mat" => sp.survivalmatrix))
+                        "mat" => sp.survival_matrix))
 Base.show(io::IO, sp::T where {T <: ContinuousSurvivalPrediction}) =
     print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time,
                         "distr" => sp.distr))

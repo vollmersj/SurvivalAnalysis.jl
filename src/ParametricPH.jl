@@ -23,7 +23,7 @@ end
 
 ph(args...; kwargs...) = fit(ParametricPH, args...; kwargs...)
 
-function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::rcSurv,
+function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::RCSurv,
                         init::Number)
 
     function llik(ζ, x, t, δ, ϕ, β)

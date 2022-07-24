@@ -18,23 +18,23 @@ srv = Surv(T, Δ, "right");
 # Surv(5, 0, "right")
 
 ## get cohort statistics for all outcomes
-survStats(srv, events_only = false)
+surv_stats(srv, events_only = false)
 ## get cohort statistics for events only
-survStats(srv, events_only = true)
+surv_stats(srv, events_only = true)
 
-outcomeTimes(srv) # times at which outcomes occur (event or censoring)
-uniqueTimes(srv) # unique times at which outcomes occur (event or censoring)
-eventTimes(srv) # (unsorted) times at which events occur
-uniqueEventTimes(srv) # unique times at which events occur
-outcomeStatus(srv) # status at outcome (event (1) or censoring (0))
+outcome_times(srv) # times at which outcomes occur (event or censoring)
+unique_times(srv) # unique times at which outcomes occur (event or censoring)
+event_times(srv) # (unsorted) times at which events occur
+unique_event_times(srv) # unique times at which events occur
+outcome_status(srv) # status at outcome (event (1) or censoring (0))
 
-totalOutcomes(srv, 6) # total deaths at time T
-totalOutcomes(srv, 0) # outcomes/censored/events return 0 if T = 0 for outcomes
-totalCensored(srv, 6) # total deaths at time T
-totalEvents(srv, 6) # total deaths at time T
-totalEvents(srv, 10) # all return 0 if T > max(T)
-totalRisk(srv, 6) # total deaths at time T
-totalRisk(srv, 0) # return risk set at min(T) if T=0
+total_outcomes(srv, 6) # total deaths at time T
+total_outcomes(srv, 0) # outcomes/censored/events return 0 if T = 0 for outcomes
+total_censored(srv, 6) # total deaths at time T
+total_events(srv, 6) # total deaths at time T
+total_events(srv, 10) # all return 0 if T > max(T)
+total_risk(srv, 6) # total deaths at time T
+total_risk(srv, 0) # return risk set at min(T) if T=0
 
 km = kaplan(srv) # kaplan-Meier
 na = nelson(srv) # Nelson-Aalen

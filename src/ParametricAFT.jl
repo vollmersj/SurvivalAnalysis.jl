@@ -23,7 +23,7 @@ end
 
 aft(args...; kwargs...) = fit(ParametricAFT, args...; kwargs...)
 
-function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::rcSurv,
+function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv,
                         init::Number)
 
     function llik(ζ, x, t, δ, ϕ, β)

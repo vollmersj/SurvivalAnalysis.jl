@@ -1,8 +1,8 @@
 abstract type NonParametricEstimator end
 
-function fit_NPE(class, Surv::rcSurv, point_est::Function, var_est::Function,
+function fit_NPE(class, Surv::RCSurv, point_est::Function, var_est::Function,
     surv_trafo::Function, sd_trafo::Function)
-    stats = survStats(Surv, events_only = true)
+    stats = surv_stats(Surv, events_only = true)
     n = length(stats.time)
     p = zeros(n)
     v = zeros(n)

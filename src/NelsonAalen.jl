@@ -5,7 +5,7 @@ struct NelsonAalen <: NonParametricEstimator
     d::DiscreteNonParametric
 end
 
-function nelson(Surv::rcSurv)
+function nelson(Surv::RCSurv)
     fit_NPE(
         NelsonAalen,
         Surv,
