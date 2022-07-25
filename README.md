@@ -30,3 +30,6 @@ Planned features:
 * [ ] Proportional odds functionality
 * [ ] Gompertz, Tobit, Gaussian, Rayleigh, Loglogistic, Lognormal
 * [ ] Analytical optimisation
+* [ ] Discrimination measures
+* [ ] Scoring rules
+* [ ] Calibration measures
