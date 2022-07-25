@@ -11,15 +11,13 @@ Spacing
 * [ ] whitespace for readability
 * [ ] no trailing whitespace
 * [ ] 92 character line length limit
-* [ ] space between `if` and `(`
 * [ ] newline before opening `{` in function definitions
-* [ ] newline between `}` and `else` instead of `} else {`
-* [ ] No padding brackets with spaces
+* [x] No padding brackets with spaces
 
 Comments
 
 * [ ] necessary comments to explain code
-* [ ] "Julia" = language; "julia" = executable
+* [x] "Julia" = language; "julia" = executable
 
 Functions
 
@@ -30,7 +28,7 @@ Functions
 
 Modules
 
-* [ ] Import modules with `using`, with one module per line and at the top of the file when possible.
+* [x] Import modules with `using`, with one module per line and at the top of the file
 
 Files
 

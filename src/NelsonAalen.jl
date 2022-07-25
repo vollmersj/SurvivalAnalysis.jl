@@ -1,14 +1,18 @@
-struct NelsonAalen <: NonParametricEstimator
+mutable struct NelsonAalen <: SurvivalAnalysis.NonParametricEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
     sd::Vector{Float64}
-    d::DiscreteNonParametric
+    distribution::DiscreteNonParametric
+
+    NelsonAalen() = new()
 end
 
-function nelson(Surv::RCSurv)
-    fit_NPE(
-        NelsonAalen,
-        Surv,
+nelson_aalen(args...; kwargs...) = StatsBase.fit(KaplanMeier, args...; kwargs...)
+
+function StatsBase.fit!(obj::NelsonAalen, Y::RCSurv)
+    _fit_npe(
+        obj,
+        Y,
         (d, n) -> d / n,
         (d, n) -> (d * (n - d)) / (n^3),
         # makes use of NA being a plug-in estimator then converts to surv
@@ -21,7 +25,7 @@ end
 # Unclear if this even needs to be a different method, could just use the confint around
 # survival for both NPEs
 function StatsBase.confint(na::NelsonAalen, t::Number; α::Float64 = 0.05)
-    confint_NPE(
+    _confint_npe(
         na, t, α,
         (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.sd[w]))
     )
