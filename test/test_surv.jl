@@ -35,7 +35,7 @@ T2 = T .+ 1
     @test total_outcomes(srv, 2) == 2
     @test total_outcomes(srv, 5) == 1
     @test total_risk(srv, -1) == 5
-    @test total_risk(srv, 10) == 0
+    @test total_risk(srv, 50) == 0
     @test total_risk(srv, 2) == 5
     @test total_risk(srv, 5) == 3
     srv2 = merge(srv, Surv(T2, Δ2, "right"))
