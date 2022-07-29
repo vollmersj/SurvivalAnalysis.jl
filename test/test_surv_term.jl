@@ -15,7 +15,7 @@ end
     st = SurvivalAnalysis.SurvTerm(Term(:X), Term(:Y), ConstantTerm(1))
     @test st isa SurvivalAnalysis.SurvTerm
     @test show(st) === nothing
-    @test SurvivalAnalysis.SurvTerm(Term(:X), Term(:Y)) == st
+    @test SurvivalAnalysis.SurvTerm(Term(:X), Term(:Y)) == Srv(:X, :Y) == st
 end
 
 true

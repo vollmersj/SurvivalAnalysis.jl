@@ -10,8 +10,7 @@ SurvTerm(T::X where {X<:AbstractTerm}, Δ::Y where {Y<:AbstractTerm}) =
 Base.show(io::IO, t::SurvTerm) =
     print(io, string("(", t.T, ",",  t.Δ, t.type.n == 1 ? ";+" : ";-", ")"))
 
-# This is covered in tests but for some reason not showing up in codecov
-Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type)) #nocov
+Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type))
 
 function StatsModels.apply_schema(t::FunctionTerm{typeof(Srv)},
                                     sch::StatsModels.Schema,
