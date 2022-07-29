@@ -7,7 +7,7 @@ using Distributions
 using DataFrames
 using StatsModels
 
-const files = filter(x -> contains(x, "test_"), readdir())
+const files = filter(x -> occursin("test_", x), readdir())
 
 for f in files
     @testset "$(titlecase(replace(f, r"test_|.jl" => "", "_" => " ")))" begin
