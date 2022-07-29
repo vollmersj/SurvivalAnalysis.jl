@@ -2,7 +2,6 @@
 
 [![Run tests](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/run-tests.yml/badge.svg)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/run-tests.yml)
 ![Experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)
-[![CodeFactor](https://www.codefactor.io/repository/github/raphaels1/survivalanalysis.jl/badge)](https://www.codefactor.io/repository/github/raphaels1/survivalanalysis.jl)
 [![codecov](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl/branch/main/graph/badge.svg?token=R1QK5X4RVP)](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
