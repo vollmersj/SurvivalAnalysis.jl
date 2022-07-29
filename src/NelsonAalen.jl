@@ -1,13 +1,14 @@
 mutable struct NelsonAalen <: SurvivalAnalysis.NonParametricEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
-    sd::Vector{Float64}
+    std::Vector{Float64}
     distribution::DiscreteNonParametric
 
     NelsonAalen() = new()
 end
 
-nelson_aalen(args...; kwargs...) = StatsBase.fit(KaplanMeier, args...; kwargs...)
+nelson_aalen(args...; kwargs...) = StatsBase.fit(NelsonAalen, args...; kwargs...)
+nelson_aalen(Y::RCSurv) = StatsBase.fit(NelsonAalen, Y)
 
 function StatsBase.fit!(obj::NelsonAalen, Y::RCSurv)
     return _fit_npe(
@@ -27,6 +28,6 @@ end
 function StatsBase.confint(na::NelsonAalen, t::Number; α::Float64 = 0.05)
     return _confint_npe(
         na, t, α,
-        (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.sd[w]))
+        (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.std[w]))
     )
 end

@@ -1,13 +1,14 @@
 mutable struct KaplanMeier <: NonParametricEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
-    sd::Vector{Float64}
+    std::Vector{Float64}
     distribution::DiscreteNonParametric
 
     KaplanMeier() = new()
 end
 
 kaplan_meier(args...; kwargs...) = StatsBase.fit(KaplanMeier, args...; kwargs...)
+kaplan_meier(Y::RCSurv) = StatsBase.fit(KaplanMeier, Y)
 
 function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
     return _fit_npe(
@@ -24,6 +25,6 @@ end
 function StatsBase.confint(km::KaplanMeier, t::Number; α::Float64 = 0.05)
     return _confint_npe(
         km, t, α,
-        (E, q, w) -> map(x -> exp(-exp(x)), log(-log(E.survival[w])) ∓ (q * E.sd[w]))
+        (E, q, w) -> map(x -> exp(-exp(x)), log(-log(E.survival[w])) ∓ (q * E.std[w]))
     )
 end

@@ -16,18 +16,11 @@ R"
     time = $T
     status = $Δ
     surv = Surv(time, status)
-";
-
-@benchmark R"
     km = survfit(surv ~ 1)
-"
-
-@benchmark kaplan(surv)
-
-R"
     paste(round(km$lower, 2),
     round(km$upper, 2), sep = ',')
 "
 
-km = kaplan(surv);
+km = kaplan_meier(@formula(Srv(time, status) ~ 1), data)
+km = kaplan_meier(surv);
 confint(km)

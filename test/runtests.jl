@@ -7,9 +7,9 @@ using Distributions
 using DataFrames
 using StatsModels
 
-# @testset "Nonparametric estimators" begin
-#     @test include("test_nonparametricestimators.jl")
-# end
+@testset "Nonparametric estimators" begin
+    @test include("test_nonparametricestimators.jl")
+end
 
 
 @testset "Parametric models" begin
