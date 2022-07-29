@@ -9,5 +9,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/RaphaelS1/SurvivalAnalysis.jl"
+    repo = "github.com/RaphaelS1/SurvivalAnalysis.jl.git"
 )
