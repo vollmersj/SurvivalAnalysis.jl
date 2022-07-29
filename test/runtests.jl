@@ -11,6 +11,9 @@ using StatsModels
     @test include("test_survivalestimators.jl")
 end
 
+@testset "Continuous parametric distributions" begin
+    @test include("test_continuousparametric.jl")
+end
 
 @testset "Parametric models" begin
     @test include("test_parametricmodels.jl")

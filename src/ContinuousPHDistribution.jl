@@ -3,8 +3,6 @@ mutable struct ContinuousPHDistribution <: ContinuousUnivariateDistribution
     η::Float64 # linear predictor
 end
 
-ContinuousPHDistribution(d) = ContinuousPHDistribution(d, 0.0)
-
 #@distr_support ContinuousPHDistribution 0.0 Inf
 
 Distributions.params(d::ContinuousPHDistribution) = (d.ζ, d.η)
@@ -15,6 +13,8 @@ Distributions.partype(::ContinuousPHDistribution) = Float64
 Distributions.pdf(d::ContinuousPHDistribution, x::Real) =
     hazard(d.ζ, x) * exp(d.η) * (ccdf(d.ζ, x)^exp(d.η))
 Distributions.cdf(d::ContinuousPHDistribution, x::Real) = 1 - (ccdf(d.ζ, x)^exp(d.η))
+Distributions.quantile(d::ContinuousPHDistribution, q::Real) =
+    quantile(d.ζ, (1 - exp(log(1 - q) / exp(d.η))))
 Distributions.ccdf(d::ContinuousPHDistribution, x::Real) = ccdf(d.ζ, x)^exp(d.η)
 hazard(d::ContinuousPHDistribution, x::Real) = hazard(d.ζ, x) * exp(d.η)
 

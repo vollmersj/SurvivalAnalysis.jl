@@ -28,8 +28,10 @@ exp_aft = aft(@formula(Srv(T_Exp, δ) ~ 1), data, Exponential)
 @test exp_aft.model isa ParametricAFT{Exponential}
 
 # test parameters against theoretical
-@test (2.0, 5.0) === round.(params(weib_aft.model.baseline)) === round.(params(weib_ph.model.baseline))
-@test (5.0, ) === round.(params(exp_aft.model.baseline)) === round.(params(exp_ph.model.baseline))
+@test (2.0, 5.0) === round.(params(weib_aft.model.baseline)) ===
+    round.(params(weib_ph.model.baseline))
+@test (5.0, ) === round.(params(exp_aft.model.baseline)) ===
+    round.(params(exp_ph.model.baseline))
 
 # test coefficients against R
 weib_ph = ph(@formula(Srv(T_Weib, δ) ~ X1 + X2 + X3), data, Weibull)
