@@ -14,7 +14,8 @@ data = DataFrame(
 
 
 weib_aft = aft(@formula(Srv(T_Weib, δ) ~ 1), data, Weibull)
-exp_ph = ph(@formula(Srv(T_Exp, δ) ~ 1), data, Exponentiweib_ph = ph(@formula(Srv(T_Weib, δ) ~ 1), data, Weibull)al)
+weib_ph = ph(@formula(Srv(T_Weib, δ) ~ 1), data, Weibull)
+exp_ph = ph(@formula(Srv(T_Exp, δ) ~ 1), data, Exponential)
 exp_aft = aft(@formula(Srv(T_Exp, δ) ~ 1), data, Exponential)
 
 @testset "Check correct class" begin
@@ -101,6 +102,12 @@ pred_w = predict(weib_aft, new_X);
 
     @test all(round.(cdf.(pred_w.distr, rcopy(R"R_q_w")), digits = 6) .== 0.2)
     @test all(round.(cdf.(pred_e.distr, rcopy(R"R_q_e")), digits = 6) .== 0.2)
+end
+
+@testset "Predict fails as expected" begin
+    bad_data = DataFrame("Y1" => rand(Xs, n), "Y2" => rand(Xs, n),
+                            "Y3" => rand(Xs, n))
+    @test_throws ErrorException predict(exp_aft,  bad_data)
 end
 
 @testset "Check non-formula interface" begin
