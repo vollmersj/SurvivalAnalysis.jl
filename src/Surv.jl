@@ -77,11 +77,11 @@ total_censored(v::OneSidedSurv) = length(v.status) - sum(v.status)
 total_outcomes(v::OneSidedSurv) = length(v.status)
 total_risk(v::OneSidedSurv) = length(v.status)
 
-# unsure if should return 0, NA, or error if > observed times
+# TODO - unsure if should return 0, NA, or error if > observed times
 #  also unclear about behaviour between times
 function _total_outcome(v::OneSidedSurv, t::Number, var::String)
-    if t == 0
-        return var == "nrisk" ? v.stats.time[1] : 0
+    if t < minimum(v.stats.time)
+        return var == "nrisk" ? v.stats.nrisk[1] : 0
     elseif t > maximum(v.stats.time)
         return 0
     else

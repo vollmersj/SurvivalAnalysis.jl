@@ -11,7 +11,6 @@ Base.show(io::IO, t::SurvTerm) =
     print(io, string("(", t.T, ",",  t.Δ, t.type.n == 1 ? ";+" : ";-", ")"))
 
 Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type))
-Srv(T::Symbol) = SurvTerm(term(T), term(trues(length(T))), term(1))
 
 function StatsModels.apply_schema(t::FunctionTerm{typeof(Srv)},
                                     sch::StatsModels.Schema,
@@ -28,7 +27,8 @@ function StatsModels.apply_schema(t::SurvTerm,
     Δ = apply_schema(t.Δ, sch, Mod)
     isa(Δ, ContinuousTerm) ||
         throw(ArgumentError("SurvTerm only works with discrete terms (got $Δ)"))
-    @assert abs(t.type.n) == 1 "Srv type must be 1 (right) or -1 (left) censoring"
+    abs(t.type.n) == 1 ||
+        throw(ArgumentError("Srv type must be 1 (right) or -1 (left) censoring"))
     return SurvTerm(T, Δ, t.type)
 end
 
@@ -38,8 +38,9 @@ function StatsModels.modelcols(t::SurvTerm, d::NamedTuple)
     return Surv(T, Δ, t.type.n == 1 ? "right" : "left")
 end
 
-StatsModels.terms(t::SurvTerm) = [terms(t.T), terms(t.Δ), terms(t.type)]
-StatsModels.termvars(t::SurvTerm) = [StatsModels.termvars(t.T), StatsModels.termvars(t.Δ),
-                                        StatsModels.termvars(t.type)]
-StatsModels.width(t::SurvTerm) = 1
-StatsBase.coefnames(t::SurvTerm) = [coefnames(t.T), coefnames(t.Δ), "(type)"]
+# TODO - UNCLEAR IF CODE BELOW NEEDED
+# StatsModels.terms(t::SurvTerm) = [terms(t.T), terms(t.Δ), terms(t.type)]
+# StatsModels.termvars(t::SurvTerm) = [StatsModels.termvars(t.T), StatsModels.termvars(t.Δ),
+#                                         StatsModels.termvars(t.type)]
+# StatsModels.width(t::SurvTerm) = 1
+# StatsBase.coefnames(t::SurvTerm) = [coefnames(t.T), coefnames(t.Δ), "(type)"]

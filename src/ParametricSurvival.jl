@@ -1,8 +1,6 @@
 abstract type ParametricSurvival <: SurvivalModel end
 
 StatsBase.coef(obj::ParametricSurvival) = obj.coefficients
-Distributions.scale(obj::ParametricSurvival) = scale(obj.distribution)
-Distributions.shape(obj::ParametricSurvival) = shape(obj.distribution)
 
 function StatsBase.fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
     d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}

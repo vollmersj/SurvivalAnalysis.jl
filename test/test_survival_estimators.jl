@@ -18,8 +18,15 @@ na = nelson_aalen(@formula(Srv(time, status) ~ 1), data)
     @test na isa
         StatsModels.TableStatisticalModel{SurvivalAnalysis.NelsonAalen, Matrix{Float64}}
 
-    @test confint(km) isa Vector{Tuple{Float64, Float64}} # TODO - Improve precision
+    @test confint(km) isa Vector{Tuple{Float64, Float64}} # TODO - Improve precision & test
+    @test confint(km) == confint(km.model)
     @test std(km) isa Vector{Float64}
+    @test std(km) === std(km.model)
+
+    @test confint(na) isa Vector{Tuple{Float64, Float64}} # TODO - Improve precision & test
+    @test confint(na) == confint(na.model)
+    @test std(na) isa Vector{Float64}
+    @test std(na) === std(na.model)
 end
 
 @testset "Alignment with R" begin
