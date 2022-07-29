@@ -18,3 +18,7 @@ end
 @testset "Parametric models" begin
     @test include("test_parametricmodels.jl")
 end
+
+@testset "Utils" begin
+    @test include("test_utils.jl")
+end

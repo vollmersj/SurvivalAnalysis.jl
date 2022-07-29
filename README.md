@@ -35,3 +35,4 @@ Planned features:
 * [ ] Scoring rules
 * [ ] Calibration measures
 * [ ] Bayesian interface
+* [ ] Documentation

@@ -24,6 +24,7 @@ module SurvivalAnalysis
     export survival, hazard, cum_hazard, Fₜ, fₜ, pₜ, Sₜ, hₜ, Hₜ
 
     include("utils.jl")
+    include("tools.jl")
     include("Surv.jl")
     include("SurvTerm.jl")
     include("SurvivalModel.jl")
