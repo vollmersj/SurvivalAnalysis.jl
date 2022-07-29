@@ -22,3 +22,7 @@ end
 @testset "Utils" begin
     @test include("test_utils.jl")
 end
+
+@testset "Surv" begin
+    @test include("test_surv.jl")
+end

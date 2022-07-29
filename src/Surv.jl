@@ -40,6 +40,9 @@ function Surv(start::Union{Vector{T}, T} where T <: Number,
     return IntSurv(start, stop)
 end
 
+Surv(time::Union{Vector{T}, T} where T <: Number) = Surv(time, trues(length(time)), "right")
+
+
 function Surv(time::Union{Vector{T}, T} where T <: Number,
             status::Union{BitVector, Vector{Bool}, Bool, Int, Vector{Int}},
             type::String)
@@ -70,7 +73,7 @@ unique_times(v::OneSidedSurv) = v.stats.time
 unique_event_times(v::OneSidedSurv) = unique(event_times(v))
 
 total_events(v::OneSidedSurv) = sum(v.status)
-total_censored(v::OneSidedSurv) = sum(!v.status)
+total_censored(v::OneSidedSurv) = length(v.status) - sum(v.status)
 total_outcomes(v::OneSidedSurv) = length(v.status)
 total_risk(v::OneSidedSurv) = length(v.status)
 

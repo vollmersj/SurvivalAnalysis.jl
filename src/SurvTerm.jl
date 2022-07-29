@@ -11,6 +11,7 @@ Base.show(io::IO, t::SurvTerm) =
     print(io, string("(", t.T, ",",  t.Δ, t.type.n == 1 ? ";+" : ";-", ")"))
 
 Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type))
+Srv(T::Symbol) = SurvTerm(term(T), term(trues(length(T))), term(1))
 
 function StatsModels.apply_schema(t::FunctionTerm{typeof(Srv)},
                                     sch::StatsModels.Schema,
