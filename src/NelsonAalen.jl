@@ -10,7 +10,7 @@ end
 nelson_aalen(args...; kwargs...) = StatsBase.fit(KaplanMeier, args...; kwargs...)
 
 function StatsBase.fit!(obj::NelsonAalen, Y::RCSurv)
-    _fit_npe(
+    return _fit_npe(
         obj,
         Y,
         (d, n) -> d / n,
@@ -25,7 +25,7 @@ end
 # Unclear if this even needs to be a different method, could just use the confint around
 # survival for both NPEs
 function StatsBase.confint(na::NelsonAalen, t::Number; α::Float64 = 0.05)
-    _confint_npe(
+    return _confint_npe(
         na, t, α,
         (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.sd[w]))
     )

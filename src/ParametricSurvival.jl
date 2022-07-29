@@ -9,7 +9,7 @@ function StatsBase.fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real},
     @assert d in [Weibull, Exponential]
     # crude method to force intercept
     X = X[:,1] == ones(size(X, 1)) ? X : hcat(ones(size(X, 1)), X)
-    fit!(t(d, X), X, Y, init)
+    return fit!(t(d, X), X, Y, init)
 end
 
 function _fitParametricSurvival(obj, X, Y, init, llik, dtrafo)
@@ -48,5 +48,5 @@ function _fitParametricSurvival(obj, X, Y, init, llik, dtrafo)
 
     obj.baseline = dtrafo(obj.baseline, obj.coefficients, obj.scale)
 
-    obj
+    return obj
 end

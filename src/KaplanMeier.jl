@@ -10,7 +10,7 @@ end
 kaplan_meier(args...; kwargs...) = StatsBase.fit(KaplanMeier, args...; kwargs...)
 
 function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
-    _fit_npe(
+    return _fit_npe(
         obj,
         Y,
         (d, n) -> 1 - (d / n),
@@ -22,7 +22,7 @@ function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
 end
 
 function StatsBase.confint(km::KaplanMeier, t::Number; α::Float64 = 0.05)
-    _confint_npe(
+    return _confint_npe(
         km, t, α,
         (E, q, w) -> map(x -> exp(-exp(x)), log(-log(E.survival[w])) ∓ (q * E.sd[w]))
     )

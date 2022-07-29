@@ -7,7 +7,8 @@ struct RCSurv <: OneSidedSurv
     status::Vector{Bool}
     symbol::Char
     type::String
-    stats::NamedTuple{(:time, :nrisk, :ncens, :nevents, :noutcomes), Tuple{Vector{Float64}, Vector{Int64}, Vector{Int64}, Vector{Int64}, Vector{Int64}}}
+    stats::NamedTuple{(:time, :nrisk, :ncens, :nevents, :noutcomes),
+        Tuple{Vector{Float64}, Vector{Int64}, Vector{Int64}, Vector{Int64}, Vector{Int64}}}
     RCSurv(time::Vector{Float64}, status::BitVector) =
         new(time, status, '+', "right", _tabulate_surv(time, status))
 end
@@ -17,7 +18,8 @@ struct LCSurv <: OneSidedSurv
     status::Vector{Bool}
     symbol::Char
     type::String
-    stats::NamedTuple{(:time, :nrisk, :ncens, :nevents, :noutcomes), Tuple{Vector{Float64}, Vector{Int64}, Vector{Int64}, Vector{Int64}, Vector{Int64}}}
+    stats::NamedTuple{(:time, :nrisk, :ncens, :nevents, :noutcomes),
+        Tuple{Vector{Float64}, Vector{Int64}, Vector{Int64}, Vector{Int64}, Vector{Int64}}}
     LCSurv(time::Vector{Float64}, status::BitVector) =
         new(time, status, '-', "left", _tabulate_surv(time, status))
 end
@@ -31,9 +33,11 @@ end
 
 function Surv(start::Union{Vector{T}, T} where T <: Number,
             stop::Union{Vector{T}, T} where T <: Number)
-    start = start isa Vector ? convert(Vector{Float64}, start) : convert(Vector{Float64}, [start])
-    stop = stop isa Vector ? convert(Vector{Float64}, stop) : convert(Vector{Float64}, [stop])
-    IntSurv(start, stop)
+    start = start isa Vector ? convert(Vector{Float64}, start) :
+        convert(Vector{Float64}, [start])
+    stop = stop isa Vector ? convert(Vector{Float64}, stop) :
+        convert(Vector{Float64}, [stop])
+    return IntSurv(start, stop)
 end
 
 function Surv(time::Union{Vector{T}, T} where T <: Number,
@@ -41,11 +45,12 @@ function Surv(time::Union{Vector{T}, T} where T <: Number,
             type::String)
     @assert type in ["left", "right"]
 
-    time = time isa Vector ? convert(Vector{Float64}, time) : convert(Vector{Float64}, [time])
+    time = time isa Vector ? convert(Vector{Float64}, time) :
+        convert(Vector{Float64}, [time])
     status = (status isa Bool || status isa Int) ? convert(BitVector, [status]) :
         convert(BitVector, status)
 
-    type == "right" ? RCSurv(time, status) : LCSurv(time, status)
+    return type == "right" ? RCSurv(time, status) : LCSurv(time, status)
 end
 
 Base.show(io::IO, oss::OneSidedSurv) =
@@ -77,7 +82,7 @@ function _total_outcome(v::OneSidedSurv, t::Number, var::String)
     elseif t > maximum(v.stats.time)
         return 0
     else
-        getproperty(v.stats, Symbol(var))[searchsortedlast(v.stats.time, t)]
+        return getproperty(v.stats, Symbol(var))[searchsortedlast(v.stats.time, t)]
     end
 end
 
@@ -102,7 +107,8 @@ function _tabulate_surv(T, Δ)
         nevents[i] = sum(map((τ, δ) -> τ == t &&  δ, T, Δ))
         noutcomes[i] = ncens[i] + nevents[i]
     end
-    (time = ut, nrisk = nrisk, ncens = ncens, nevents = nevents, noutcomes = noutcomes)
+    return (time = ut, nrisk = nrisk, ncens = ncens, nevents = nevents,
+            noutcomes = noutcomes)
 end
 
 function Base.merge(A::OneSidedSurv...)
@@ -112,7 +118,7 @@ function Base.merge(A::OneSidedSurv...)
     Δ = falses(0)
     foreach(v -> push!(T, v.time...), A)
     foreach(v -> push!(Δ, v.status...), A)
-    Surv(T, Δ, type[1])
+    return Surv(T, Δ, type[1])
 end
 
 function Base.merge(A::TwoSidedSurv...)
@@ -120,5 +126,5 @@ function Base.merge(A::TwoSidedSurv...)
     stop = zeros(0)
     foreach(v -> push!(start, v.start...), A)
     foreach(v -> push!(stop, v.stop...), A)
-    Surv(start, stop)
+    return Surv(start, stop)
 end

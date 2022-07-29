@@ -4,14 +4,14 @@ function StatsBase.fit(
     obj::Type{<:NonParametricEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
     # TODO - need to add something here to check if rhs is intercept only or stratified
     #  currently stratified not supported
-    fit!(obj(), Y)
+    return fit!(obj(), Y)
 end
 
 function StatsBase.predict(fit::NonParametricEstimator, X::AbstractMatrix{<:Real})
     # TODO - need to add something here to check if rhs is intercept only or stratified
     #  currently stratified not supported
     n = size(X, 1)
-    SurvivalPrediction(
+    return SurvivalPrediction(
         ζ = fill(fit.distribution, n),
         Ts = fit.time,
         Ŝ = repeat(fit.survival', n)
@@ -53,7 +53,10 @@ function StatsBase.confint(npe::NonParametricEstimator; α::Float64 = 0.05)
     return confint.(Ref(npe), npe.time, α = α)
 end
 
-@recipe function f(npe::NonParametricEstimator, plot_confint::Bool = true, α::Float64 = 0.05)
+@recipe function f(
+    npe::NonParametricEstimator, plot_confint::Bool = true;
+    α::Float64 = 0.05
+)
     seriestype := :steppost
     ylims := (0, 1)
     legend := false
@@ -73,4 +76,5 @@ end
             npe.time, ub
         end
     end
+    return nothing
 end

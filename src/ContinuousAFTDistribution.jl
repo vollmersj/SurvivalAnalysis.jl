@@ -14,7 +14,8 @@ Distributions.partype(::ContinuousAFTDistribution) = Float64
 #### Evaluation
 
 # need to confirm sign of all the below
-Distributions.pdf(d::ContinuousAFTDistribution, x::Real) = exp(-d.η) * hazard(d.ζ, x / exp(d.η)) * ccdf(d.ζ, x / exp(d.η))
+Distributions.pdf(d::ContinuousAFTDistribution, x::Real) =
+    exp(-d.η) * hazard(d.ζ, x / exp(d.η)) * ccdf(d.ζ, x / exp(d.η))
 Distributions.cdf(d::ContinuousAFTDistribution, x::Real) = cdf(d.ζ, x / exp(d.η))
 Distributions.quantile(d::ContinuousAFTDistribution, q::Real) = quantile(d.ζ, q) * exp(d.η)
 Distributions.ccdf(d::ContinuousAFTDistribution, x::Real) = ccdf(d.ζ, x / exp(d.η))

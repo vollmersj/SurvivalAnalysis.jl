@@ -7,14 +7,15 @@ end
 SurvTerm(T::X where {X<:AbstractTerm}, Δ::Y where {Y<:AbstractTerm}) =
     SurvTerm(T, Δ, term(1))
 
-Base.show(io::IO, t::SurvTerm) = print(io, string("(", t.T, ",",  t.Δ, t.type.n == 1 ? ";+" : ";-", ")"))
+Base.show(io::IO, t::SurvTerm) =
+    print(io, string("(", t.T, ",",  t.Δ, t.type.n == 1 ? ";+" : ";-", ")"))
 
 Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type))
 
 function StatsModels.apply_schema(t::FunctionTerm{typeof(Srv)},
                                     sch::StatsModels.Schema,
                                     Mod::Type{<:Any})
-    apply_schema(SurvTerm(t.args_parsed...), sch, Mod)
+    return apply_schema(SurvTerm(t.args_parsed...), sch, Mod)
 end
 
 function StatsModels.apply_schema(t::SurvTerm,
@@ -27,13 +28,13 @@ function StatsModels.apply_schema(t::SurvTerm,
     isa(Δ, ContinuousTerm) ||
         throw(ArgumentError("SurvTerm only works with discrete terms (got $Δ)"))
     @assert abs(t.type.n) == 1 "Srv type must be 1 (right) or -1 (left) censoring"
-    SurvTerm(T, Δ, t.type)
+    return SurvTerm(T, Δ, t.type)
 end
 
 function StatsModels.modelcols(t::SurvTerm, d::NamedTuple)
     T = modelcols(t.T, d)
     Δ = modelcols(t.Δ, d)
-    Surv(T, Δ, t.type.n == 1 ? "right" : "left")
+    return Surv(T, Δ, t.type.n == 1 ? "right" : "left")
 end
 
 StatsModels.terms(t::SurvTerm) = [terms(t.T), terms(t.Δ), terms(t.type)]

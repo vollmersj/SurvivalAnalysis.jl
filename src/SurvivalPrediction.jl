@@ -58,16 +58,17 @@ function SurvivalPrediction(;ζ::Vector{<:Distribution} = nothing,
     T̂ = T̂ === nothing ? fill(NaN, n) : T̂
 
     if ζ === nothing
-        DeterministicSurvivalPrediction(η, ϕ, T̂)
+        return DeterministicSurvivalPrediction(η, ϕ, T̂)
     elseif ζ[1] isa ContinuousUnivariateDistribution
-        ContinuousSurvivalPrediction(ζ, η, ϕ, T̂)
+        return ContinuousSurvivalPrediction(ζ, η, ϕ, T̂)
     elseif ζ[1] isa DiscreteNonParametric
         if Ts === nothing
             Ts = unique(support.(ζ))
-            @assert length(Ts) == 1 "Predicted distributions (ζ) must have same survival times"
+            @assert length(Ts) == 1 "Predicted distributions (ζ) must have same survival
+times"
             Ŝ = mapreduce(s -> 1 .- cumsum(probs(s)), hcat, ζ)'
         end
-        DiscreteSurvivalPrediction(ζ, η, ϕ, T̂, (time = Ts, surv = Ŝ))
+        return DiscreteSurvivalPrediction(ζ, η, ϕ, T̂, (time = Ts, surv = Ŝ))
     end
 end
 
