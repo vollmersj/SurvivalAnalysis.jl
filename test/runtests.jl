@@ -10,7 +10,7 @@ using StatsModels
 const files = filter(x -> occursin("test_", x), readdir())
 
 for f in files
-    @testset "$(titlecase(replace(f, r"test_|.jl" => "", "_" => " ")))" begin
+    @testset "$(titlecase(replace(replace(f, r"test_|.jl" => ""), "_" => " ")))" begin
         @test include(f)
     end
 end
