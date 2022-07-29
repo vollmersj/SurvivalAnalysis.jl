@@ -34,3 +34,4 @@ Planned features:
 * [ ] Discrimination measures
 * [ ] Scoring rules
 * [ ] Calibration measures
+* [ ] Bayesian interface
