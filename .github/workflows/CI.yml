@@ -12,14 +12,10 @@ jobs:
         version:
           - '1.0'
           - '1'
-        os: [ubuntu-latest]
-        arch: [x64]
-        experimental: [false]
-        include:
-          - os: windows-latest
-            arch: x64
-            version: 1
-            experimental: false
+        os:
+          - ubuntu-latest
+        arch:
+          - x64
 
     steps:
       - uses: actions/checkout@v2
