@@ -31,6 +31,12 @@ struct IntSurv <: TwoSidedSurv
     IntSurv(start::Vector{Float64}, stop::Vector{Float64}) = new(start, stop, "interval")
 end
 
+"""
+    Surv(start, stop)
+    Surv(time)
+    Surv(time, status, type)
+This is the entry point object into survival modelling.
+"""
 function Surv(start::Union{Vector{T}, T} where T <: Number,
             stop::Union{Vector{T}, T} where T <: Number)
     start = start isa Vector ? convert(Vector{Float64}, start) :
