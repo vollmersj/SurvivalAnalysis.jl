@@ -8,6 +8,6 @@ makedocs(
         ]
 )
 
-deploydocs(;
-    repo="github.com/RaphaelS1/SurvivalAnalysis.jl",
+deploydocs(
+    repo = "github.com/RaphaelS1/SurvivalAnalysis.jl"
 )
