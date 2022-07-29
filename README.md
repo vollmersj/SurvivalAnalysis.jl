@@ -1,6 +1,6 @@
 # SurvivalAnalysis
 
-[![CI](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/run-tests.yml/badge.svg)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/run-tests.yml)
+[![CI](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/CI.yml)
 ![Experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)
 [![codecov](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl/branch/main/graph/badge.svg?token=R1QK5X4RVP)](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl)
 [![MIT](https://img.shields.io/badge/License-MIT-yelllow)](https://opensource.org/licenses/MIT)
