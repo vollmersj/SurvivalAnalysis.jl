@@ -38,4 +38,5 @@ module SurvivalAnalysis
     include("SurvivalEstimator.jl")
     include("KaplanMeier.jl")
     include("NelsonAalen.jl")
+    include("plot_survivalestimator.jl")
 end

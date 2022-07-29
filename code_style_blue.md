@@ -28,4 +28,4 @@ Functions
 Custom styles
 
 * [x] Import modules with `using`, with one module per line and at the top of the file
-* [ ] Never say 'error'!
+* [x] Never say 'error'!
