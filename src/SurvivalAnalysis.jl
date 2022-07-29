@@ -33,7 +33,7 @@ module SurvivalAnalysis
     include("ParametricSurvival.jl")
     include("ParametricAFT.jl")
     include("ParametricPH.jl")
-    include("NonParametricEstimator.jl")
+    include("SurvivalEstimator.jl")
     include("KaplanMeier.jl")
     include("NelsonAalen.jl")
 end

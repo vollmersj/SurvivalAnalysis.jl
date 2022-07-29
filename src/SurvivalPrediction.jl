@@ -7,7 +7,7 @@ struct DeterministicSurvivalPrediction{T<:Float64} <: SurvivalPrediction
 end
 
 struct DiscreteSurvivalPrediction{T<:Float64} <: SurvivalPrediction
-    distr::Vector{DiscreteNonParametric}
+    distr::Vector{<:DiscreteNonParametric}
     lp::Vector{T}
     crank::Vector{T}
     time::Vector{T}
@@ -21,10 +21,14 @@ struct ContinuousSurvivalPrediction{T<:Float64} <: SurvivalPrediction
     time::Vector{T}
 end
 
-function SurvivalPrediction(;ζ::Vector{<:Distribution} = nothing,
-    η::Union{Vector{T}, Nothing}  = nothing, ϕ::Union{Vector{T}, Nothing} = nothing,
-    T̂::Union{Vector{T}, Nothing} = nothing, Ts::Union{Vector{T}, Nothing} = nothing,
-    Ŝ::Union{Vector{T}, Nothing} = nothing) where {T<:Float64}
+function SurvivalPrediction(;
+    ζ::Vector{<:Distribution} = nothing,
+    η::Union{Vector{T}, Nothing}  = nothing,
+    ϕ::Union{Vector{T}, Nothing} = nothing,
+    T̂::Union{Vector{T}, Nothing} = nothing,
+    Ts::Union{Vector{T}, Nothing} = nothing,
+    Ŝ::Union{Matrix{T}, Nothing} = nothing
+) where {T<:Float64}
 
     n = []
     ζ ≠ nothing && push!(n, length(ζ))
@@ -40,7 +44,7 @@ function SurvivalPrediction(;ζ::Vector{<:Distribution} = nothing,
     # construct distribution from matrix if available
     if (Ts === nothing) + (Ŝ === nothing) === 1
         error("Either both 'Ts' should be provided 'Ŝ' or neither")
-    elseif Ts ≠ nothing && Ŝ ≠ nothing && ζ ≠ nothing
+    elseif Ts ≠ nothing && Ŝ ≠ nothing && ζ === nothing
         @assert length(Ts) == size(Ŝ, 2)
         if Ts[1] ≠ 0
             # Set S(0) = 1

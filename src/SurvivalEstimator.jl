@@ -1,15 +1,15 @@
-abstract type NonParametricEstimator <: SurvivalModel end
+abstract type SurvivalEstimator <: StatisticalModel end
 
 function StatsBase.fit(
-    obj::Type{<:NonParametricEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
+    obj::Type{<:SurvivalEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
     # TODO - need to add something here to check if rhs is intercept only or stratified
     #  currently stratified not supported
     return fit!(obj(), Y)
 end
 
-StatsBase.fit(obj::Type{<:NonParametricEstimator}, Y::RCSurv) = fit!(obj(), Y)
+StatsBase.fit(obj::Type{<:SurvivalEstimator}, Y::RCSurv) = fit!(obj(), Y)
 
-function StatsBase.predict(fit::NonParametricEstimator, X::AbstractMatrix{<:Real})
+function StatsBase.predict(fit::SurvivalEstimator, X::AbstractMatrix{<:Real})
     # TODO - need to add something here to check if rhs is intercept only or stratified
     #  currently stratified not supported
     n = size(X, 1)
@@ -20,7 +20,27 @@ function StatsBase.predict(fit::NonParametricEstimator, X::AbstractMatrix{<:Real
     )
 end
 
-function _fit_npe(obj::NonParametricEstimator, Surv::RCSurv, point_est::Function,
+function StatsModels.predict(
+    mm::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}, data;
+    kwargs...
+)
+    Tables.istable(data) ||
+        throw(ArgumentError("expected data in a Table, got $(typeof(data))"))
+
+    f = mm.mf.f
+    if f.rhs isa MatrixTerm{Tuple{InterceptTerm{true}}}
+        new_x = reshape(data[!,1], :, 1) # pick an arbitrary column - only care about size
+    else
+        ## TODO - ADD SUPPORT FOR STRATIFIED NPEs
+        cols, nonmissings = StatsModels.missing_omit(StatsModels.columntable(data), f.rhs)
+        new_x = modelcols(f.rhs, cols)
+        new_x = reshape(new_x, size(new_x, 1), :)[:,2:end] # remove intercept
+    end
+    return StatsModels.predict(mm.model, new_x; kwargs...)
+end
+
+
+function _fit_npe(obj::SurvivalEstimator, Surv::RCSurv, point_est::Function,
     var_est::Function, surv_trafo::Function, std_trafo::Function)
     stats = surv_stats(Surv, events_only = true)
     n = length(stats.time)
@@ -50,45 +70,45 @@ function _confint_npe(npe, t, α, trafo)
 end
 
 # syntactic sugar for vectorising over all times
-function StatsBase.confint(npe::NonParametricEstimator; α::Float64 = 0.05)
+function StatsBase.confint(npe::SurvivalEstimator; α::Float64 = 0.05)
     return confint.(Ref(npe), npe.time, α = α)
 end
 
 function StatsBase.confint(
-    npe::StatsModels.TableStatisticalModel{<:NonParametricEstimator, <:AbstractMatrix};
+    npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix};
     α::Float64 = 0.05
 )
     return confint.(Ref(npe.model), npe.model.time, α = α)
 end
 
-Base.time(npe::NonParametricEstimator) = npe.time
-survival(npe::NonParametricEstimator) = npe.survival
-StatsBase.std(npe::NonParametricEstimator) = npe.std
-distribution(npe::NonParametricEstimator) = npe.distribution
+Base.time(npe::SurvivalEstimator) = npe.time
+survival(npe::SurvivalEstimator) = npe.survival
+StatsBase.std(npe::SurvivalEstimator) = npe.std
+distribution(npe::SurvivalEstimator) = npe.distribution
 
 function Base.time(
-    npe::StatsModels.TableStatisticalModel{<:NonParametricEstimator, <:AbstractMatrix}
+    npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
 )
     return npe.model.time
 end
 function survival(
-    npe::StatsModels.TableStatisticalModel{<:NonParametricEstimator, <:AbstractMatrix}
+    npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
 )
     return npe.model.survival
 end
 function StatsBase.std(
-    npe::StatsModels.TableStatisticalModel{<:NonParametricEstimator, <:AbstractMatrix}
+    npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
 )
     return npe.model.std
 end
 function distribution(
-    npe::StatsModels.TableStatisticalModel{<:NonParametricEstimator, <:AbstractMatrix}
+    npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
 )
     return npe.model.distribution
 end
 
 @recipe function f(
-    npe::NonParametricEstimator, plot_confint::Bool = true;
+    npe::SurvivalEstimator, plot_confint::Bool = true;
     α::Float64 = 0.05
 )
     seriestype := :steppost

@@ -1,4 +1,4 @@
-mutable struct NelsonAalen <: SurvivalAnalysis.NonParametricEstimator
+mutable struct NelsonAalen <: SurvivalAnalysis.SurvivalEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
     std::Vector{Float64}

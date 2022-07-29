@@ -93,5 +93,5 @@ pred_w = predict(weib_aft, new_X);
 @test all(round.(cdf.(pred_w.distr, rcopy(R"R_q_w")), digits = 6) .== 0.2)
 @test all(round.(cdf.(pred_e.distr, rcopy(R"R_q_e")), digits = 6) .== 0.2)
 
-# FIXME - ADD TESTS FOR MATRIX INTERFACE, FIT INTERFACE, PREDICT ON INTERCEPT ONLY
+# TODO - ADD TESTS FOR MATRIX INTERFACE, FIT INTERFACE, PREDICT ON INTERCEPT ONLY
 true
