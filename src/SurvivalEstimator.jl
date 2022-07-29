@@ -9,6 +9,9 @@ end
 
 StatsBase.fit(obj::Type{<:SurvivalEstimator}, Y::RCSurv) = fit!(obj(), Y)
 
+StatsBase.predict(fit::SurvivalEstimator, data::DataFrame; kwargs...) =
+    predict(fit, Matrix(data); kwargs...)
+
 function StatsBase.predict(fit::SurvivalEstimator, X::AbstractMatrix{<:Real})
     # TODO - need to add something here to check if rhs is intercept only or stratified
     #  currently stratified not supported
@@ -36,7 +39,7 @@ function StatsModels.predict(
         new_x = modelcols(f.rhs, cols)
         new_x = reshape(new_x, size(new_x, 1), :)[:,2:end] # remove intercept
     end
-    return StatsModels.predict(mm.model, new_x; kwargs...)
+    return predict(mm.model, new_x; kwargs...)
 end
 
 
