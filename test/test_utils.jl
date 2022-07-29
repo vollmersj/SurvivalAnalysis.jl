@@ -1,6 +1,4 @@
 @testset "Test operators" begin
-    @test SurvivalAnalysis.±(0, π) == (-π, π)
-    @test SurvivalAnalysis.∓(0, π) == (π, -π)
     @test SurvivalAnalysis.∑(1, 2, 3, 4) == 10
     @test SurvivalAnalysis.∑([1, 2, 3, 4]) == 10
     @test SurvivalAnalysis.∏(1, 2, 3, 4) == 24
