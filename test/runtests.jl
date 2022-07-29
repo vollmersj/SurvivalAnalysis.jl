@@ -7,22 +7,10 @@ using Distributions
 using DataFrames
 using StatsModels
 
-@testset "Nonparametric estimators" begin
-    @test include("test_survivalestimators.jl")
-end
+const files = filter(x -> contains(x, "test_"), readdir())
 
-@testset "Continuous parametric distributions" begin
-    @test include("test_continuousparametric.jl")
-end
-
-@testset "Parametric models" begin
-    @test include("test_parametricmodels.jl")
-end
-
-@testset "Utils" begin
-    @test include("test_utils.jl")
-end
-
-@testset "Surv" begin
-    @test include("test_surv.jl")
+for f in files
+    @testset "$(titlecase(replace(f, r"test_|.jl" => "", "_" => " ")))" begin
+        @test include(f)
+    end
 end

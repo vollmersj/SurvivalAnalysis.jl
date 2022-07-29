@@ -22,6 +22,7 @@ module SurvivalAnalysis
     export ParametricPH, ParametricAFT
     export baseline
     export survival, hazard, cum_hazard, Fₜ, fₜ, pₜ, Sₜ, hₜ, Hₜ
+    export SurvivalPrediction
 
     include("utils.jl")
     include("tools.jl")

@@ -25,6 +25,7 @@ Functions
 * [x] Include explicit `return`s
 * [x] functions mutating at least one of their arguments end in `!`
 
-Modules
+Custom styles
 
 * [x] Import modules with `using`, with one module per line and at the top of the file
+* [ ] Never say 'error'!

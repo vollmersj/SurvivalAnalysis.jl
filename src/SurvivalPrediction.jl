@@ -22,13 +22,13 @@ struct ContinuousSurvivalPrediction{T<:Float64} <: SurvivalPrediction
 end
 
 function SurvivalPrediction(;
-    ζ::Vector{<:Distribution} = nothing,
-    η::Union{Vector{T}, Nothing}  = nothing,
-    ϕ::Union{Vector{T}, Nothing} = nothing,
-    T̂::Union{Vector{T}, Nothing} = nothing,
-    Ts::Union{Vector{T}, Nothing} = nothing,
+    ζ::Union{Nothing, Vector{<:Distribution}} = nothing,
+    η::Union{Nothing, Vector{T}}  = nothing,
+    ϕ::Union{Nothing, Vector{T}} = nothing,
+    T̂::Union{Nothing, Vector{T}} = nothing,
+    Ts::Union{Nothing, Vector{T}} = nothing,
     Ŝ::Union{Matrix{T}, Nothing} = nothing
-) where {T<:Float64}
+) where {T<:Number}
 
     n = []
     ζ ≠ nothing && push!(n, length(ζ))
@@ -43,17 +43,21 @@ function SurvivalPrediction(;
 
     # construct distribution from matrix if available
     if (Ts === nothing) + (Ŝ === nothing) === 1
-        error("Either both 'Ts' should be provided 'Ŝ' or neither")
+        throw(ArgumentError(("Either both 'Ts' should be provided 'Ŝ' or neither")))
     elseif Ts ≠ nothing && Ŝ ≠ nothing && ζ === nothing
-        @assert length(Ts) == size(Ŝ, 2)
-        if Ts[1] ≠ 0
+        if length(Ts) != size(Ŝ, 2)
+            throw(ArgumentError("Length of 'Ts' must equal number of columns of 'Ŝ'"))
+        end
+        ζₛ = Ŝ
+        ζₜ = Ts
+        if ζₜ[1] ≠ 0
             # Set S(0) = 1
-            Ŝ = hcat(ones(n), Ŝ)
-            Ts = [0, Ts...]
+            ζₛ = hcat(ones(n), ζₛ)
+            ζₜ = [0, ζₜ...]
         end
         # calculate pmf and create distribution
-        p = mapreduce(x -> abs.(diff(x)), hcat, eachrow(Ŝ))'
-        ζ = DiscreteNonParametric(Ts, p, check_args = false)
+        ζ = map(x -> DiscreteNonParametric(ζₜ, [1 - x[1], abs.(diff(x))...];
+                check_args=false), eachrow(ζₛ))
     end
 
     # no transformations assumed
@@ -68,9 +72,10 @@ function SurvivalPrediction(;
     elseif ζ[1] isa DiscreteNonParametric
         if Ts === nothing
             Ts = unique(support.(ζ))
-            @assert length(Ts) == 1 "Predicted distributions (ζ) must have same survival
-times"
-            Ŝ = mapreduce(s -> 1 .- cumsum(probs(s)), hcat, ζ)'
+            length(Ts) == 1 || throw(ArgumentError(
+                "Predicted distributions (ζ) must have same survival times"))
+            Ts = Ts[1]
+            Ŝ = Matrix(mapreduce(s -> 1 .- cumsum(probs(s)), hcat, ζ)')
         end
         return DiscreteSurvivalPrediction(ζ, η, ϕ, T̂, (time = Ts, surv = Ŝ))
     end
