@@ -53,6 +53,8 @@ jobs:
         if: matrix.version == '1.0' && success()
         with:
           file: lcov.info
+      - name: Install dependencies
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Documenter
         if: matrix.version == '1.0' && success()
         env:
