@@ -56,6 +56,7 @@ R_scale_weib = weib$scale
 αᵥ = rcopy(R"R_scale_weib");
 
 @testset "Check coefficients against R" begin
+    @test coef(weib_aft.model) == coef(weib_aft)
     @test round.(βᵥ, digits = 6) == round.(coef(weib_aft), digits = 6)
     @test round.(βᵥ, digits = 6) == round.(-coef(weib_ph) * αᵥ, digits = 6)
     @test round.(βₑ, digits = 6) == round.(coef(exp_aft), digits = 6)
