@@ -23,3 +23,4 @@ Pkg.add(url="https://github.com/RaphaelS1/SurvivalAnalysis.jl.git")
 
 ## Upcoming features
 - Bayesian methods
+- Survival metrics (discrimination, calibration, scoring rules)
