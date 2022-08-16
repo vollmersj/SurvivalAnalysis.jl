@@ -30,7 +30,7 @@ The cumulative hazard function for random variable ``t`` is defined as
 
     ``Hₜ(x) = ∫ˣ hₜ(u) du = -log(Sₜ(x))``
 
-where ``fₜ`` is the pdf of ``t`` and ``Sₜ`` is the survival function of ``t``.
+where ``hₜ`` is the hazard function of ``t`` and ``Sₜ`` is the survival function of ``t``.
 
 # Examples
 ```jldoctest
