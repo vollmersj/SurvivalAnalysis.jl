@@ -20,3 +20,7 @@ Pkg.add(url="https://github.com/RaphaelS1/SurvivalAnalysis.jl.git")
 - Parametric models
 - Semi-parametric models
 - Nonparametric estimators
+
+## Upcoming features
+- Bayesian methods
+- Survival metrics (discrimination, calibration, scoring rules)
