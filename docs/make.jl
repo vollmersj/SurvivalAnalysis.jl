@@ -2,7 +2,7 @@ using Documenter, SurvivalAnalysis
 
 makedocs(
     sitename = "SurvivalAnalysis.jl",
-    modules  = [SurvivalAnalysis],
+    modules  = [SurvivalAnalysis, Distributions, DataFrames, Random],
     pages=[
         "Home" => "index.md"
         "Examples" => "examples.md"
