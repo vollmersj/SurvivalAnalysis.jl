@@ -21,16 +21,18 @@ Current features:
 
 Planned features:
 
-* [ ] Cox PH
-* [ ] Log-rank tests
-* [ ] Residuals (Schoenfeld etc.)
-* [ ] Predict type transformations
-* [ ] Generic plotting functionality
-* [ ] Proportional odds functionality
-* [ ] Gompertz, Tobit, Gaussian, Rayleigh, Loglogistic, Lognormal
-* [ ] Analytical optimisation
-* [ ] Discrimination measures
-* [ ] Scoring rules
-* [ ] Calibration measures
-* [ ] Bayesian interface
-* [ ] Documentation
+* [ ] [CoxPH](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/8)
+* [ ] [Log-rank tests](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/10)
+* [ ] [Residuals (Schoenfeld etc.)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/11)
+* [ ] [Predict type transformations](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/12)
+* [ ] [Generic plotting functionality](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/13)
+* [ ] [Proportional odds functionality](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/14)
+* [ ] [More parametric AFTS](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/15)
+* [ ] [Analytical optimisation](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/16)
+* [ ] [Discrimination measures](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/17)
+* [ ] [Scoring rules](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/19)
+* [ ] [Calibration measures](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/18)
+* [ ] [Bayesian interface](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/20)
+* [ ] [mlr3proba integration](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/21)
+* [ ] [MLJ integration](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/22)
+* [ ] [Documentation](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/9)
