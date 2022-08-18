@@ -15,7 +15,7 @@ Models can be fit in one of four ways but we only recommend the first.
 ```jldoctest
 julia> using Random
 
-julia> f = kaplan_meier(@formula(Srv(Y, D) ~ 1), DataFrame(Y = randn(10), D = trues(10)))
+julia> f = kaplan_meier(@formula(Srv(Y, D) ~ 1), DataFrame(Y = randn(10), D = trues(10)));
 
 julia> typeof(f)
 StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
@@ -26,7 +26,7 @@ StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
 ```jldoctest
 julia> using Random
 
-julia>  f = fit(KaplanMeier, @formula(Srv(Y, D) ~ 1), DataFrame(Y = randn(10), D = trues(10)))
+julia>  f = fit(KaplanMeier, @formula(Srv(Y, D) ~ 1), DataFrame(Y = randn(10), D = trues(10)));
 
 julia> typeof(f)
 StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
@@ -37,7 +37,7 @@ StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
 ```jldoctest
 julia> using Random
 
-julia> f = kaplan_meier(hcat(ones(10), 1:10), Surv(randn(MersenneTwister(42), 10)))
+julia> f = kaplan_meier(hcat(ones(10), 1:10), Surv(randn(MersenneTwister(42), 10)));
 
 julia> typeof(f)
 KaplanMeier
@@ -48,7 +48,7 @@ KaplanMeier
 ```jldoctest
 julia> using Random
 
-julia> f = fit(KaplanMeier, hcat(ones(10), 1:10), Surv(randn(MersenneTwister(42), 10)))
+julia> f = fit(KaplanMeier, hcat(ones(10), 1:10), Surv(randn(MersenneTwister(42), 10)));
 
 julia> typeof(f)
 KaplanMeier
@@ -62,10 +62,10 @@ If fitting method (1) or (2) are selected then new data must be given as a DataF
 ```jldoctest
 julia> using Random
 
-julia> f = kaplan_meier(@formula(Srv(Y, D) ~ 1), DataFrame(Y = randn(10), D = trues(10)))
+julia> f = kaplan_meier(@formula(Srv(Y, D) ~ 1), DataFrame(Y = randn(10), D = trues(10)));
 
 julia> typeof(f)
 StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
 
-julia> predict(f, DataFrame(Y = randn(10), D = trues(10)))
+julia> predict(f, DataFrame(Y = randn(10), D = trues(10)));
 ```
