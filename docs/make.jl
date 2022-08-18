@@ -1,5 +1,8 @@
 using Documenter, SurvivalAnalysis
 
+
+DocMeta.setdocmeta!(SurvivalAnalysis, :DocTestSetup, :(using SurvivalAnalysis); recursive=true)
+
 makedocs(
     sitename = "SurvivalAnalysis.jl",
     modules  = [SurvivalAnalysis, Distributions, DataFrames, Random],
