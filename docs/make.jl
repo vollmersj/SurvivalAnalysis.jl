@@ -1,7 +1,7 @@
 using Documenter, SurvivalAnalysis, DataFrames, Distributions
 
 
-DocMeta.setdocmeta!(SurvivalAnalysis, :DocTestSetup, :(using SurvivalAnalysis); recursive=true)
+DocMeta.setdocmeta!(SurvivalAnalysis, :DocTestSetup, :(using SurvivalAnalysis, Distributions); recursive=true)
 
 makedocs(
     sitename = "SurvivalAnalysis",
