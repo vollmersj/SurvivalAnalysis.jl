@@ -7,7 +7,9 @@ Compute the hazard function of distribution `d` at point `x`.
 
 The hazard function for random variable ``t`` is defined as
 
-    ``hₜ(x) = fₜ(x)/Sₜ(x)``
+```math
+hₜ(x) = \\frac{fₜ(x)}{Sₜ(x)}
+```
 
 where ``fₜ`` is the pdf of ``t`` and ``Sₜ`` is the survival function of ``t``.
 
@@ -29,7 +31,9 @@ Compute the cumulative hazard function of distribution `d` at point `x`.
 
 The cumulative hazard function for random variable ``t`` is defined as
 
-    ``Hₜ(x) = ∫ˣ hₜ(u) du = -log(Sₜ(x))``
+```math
+Hₜ(x) = \\int^x_0 hₜ(u) du = -log(Sₜ(x))
+```
 
 where ``hₜ`` is the hazard function of ``t`` and ``Sₜ`` is the survival function of ``t``.
 
