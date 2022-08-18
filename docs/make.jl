@@ -1,13 +1,18 @@
-using Documenter, SurvivalAnalysis
+using Documenter, SurvivalAnalysis, DataFrames, Distributions
+
+
+DocMeta.setdocmeta!(SurvivalAnalysis, :DocTestSetup, :(using SurvivalAnalysis, Distributions); recursive=true)
 
 makedocs(
-    sitename = "SurvivalAnalysis.jl",
+    sitename = "SurvivalAnalysis",
     modules  = [SurvivalAnalysis],
     pages=[
         "Home" => "index.md"
         "Examples" => "examples.md"
         "API" => "api.md"
-        ]
+    ],
+    doctest = true,
+    strict = :doctest,
 )
 
 deploydocs(

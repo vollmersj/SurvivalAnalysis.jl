@@ -14,6 +14,7 @@ where ``fₜ`` is the pdf of ``t`` and ``Sₜ`` is the survival function of ``t`
 # Examples
 ```jldoctest
 julia> using Distributions
+
 julia> hazard(Binomial(5, 0.5), 3)
 1.6666666666666679
 ```
@@ -35,6 +36,7 @@ where ``hₜ`` is the hazard function of ``t`` and ``Sₜ`` is the survival func
 # Examples
 ```jldoctest
 julia> using Distributions
+
 julia> cum_hazard(Binomial(5, 0.5), 3)
 1.6739764335716711
 ```
