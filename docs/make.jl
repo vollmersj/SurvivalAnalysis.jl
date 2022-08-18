@@ -10,7 +10,9 @@ makedocs(
         "Home" => "index.md"
         "Examples" => "examples.md"
         "API" => "api.md"
-        ]
+    ],
+    doctest = true,
+    strict = :doctest,
 )
 
 deploydocs(
