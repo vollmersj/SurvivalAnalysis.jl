@@ -60,7 +60,7 @@ end
     @test all(isnan.(sp.lp))
     @test all(isnan.(sp.crank))
     @test sp.survival_matrix.time == [1.0, 5.0]
-    @test sp.survival_matrix.surv == M ## FIXME - SURV/SURVIVAL CONSISTENCY
+    @test sp.survival_matrix.surv == M ## FIXME # 31 - SURV/SURVIVAL CONSISTENCY
     @test unique(support.(sp.distr)) == [[0.0, 1.0, 5.0]]
     @test probs.(sp.distr) == map(x -> [0, abs.(diff(x))...], eachrow(hcat(ones(5), M)))
 end

@@ -27,7 +27,7 @@ function _fitParametricSurvival(obj, X, Y, init, llik, dtrafo)
     obj.routine = opt
 
     obj.hessian = hessian!(func, θ̂)
-    ## FIXME - NEED TO FIGURE OUT WHY INVERSION SOMETIMES FAILS
+    ## FIXME #27 - NEED TO FIGURE OUT WHY INVERSION SOMETIMES FAILS
     obj.var_cov = try
         inv(obj.hessian)
     catch
@@ -37,7 +37,7 @@ function _fitParametricSurvival(obj, X, Y, init, llik, dtrafo)
 
     obj.coefficients = θ̂[2:end]
 
-    ## FIXME - NEED TO FIGURE OUT WHY VAR_COV SOMETIMES < 0
+    ## FIXME #29 - NEED TO FIGURE OUT WHY VAR_COV SOMETIMES < 0
     obj.tstats = try
         obj.coefficients./sqrt.(diag(obj.var_cov)[2:end])
     catch

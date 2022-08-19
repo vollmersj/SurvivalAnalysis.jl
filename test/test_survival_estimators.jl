@@ -53,10 +53,10 @@ end
     @test p isa SurvivalAnalysis.DiscreteSurvivalPrediction{Float64}
     @test all(p.lp .=== p.crank .=== p.time .=== fill(NaN, 10))
     @test length(unique(p.distr)) == 1
-    @test p.distr[1] == distribution(km) # FIXME - FIX CONSISTENCY DISTR/DISTRIUTION
+    @test p.distr[1] == distribution(km) # FIXME #31 - FIX CONSISTENCY DISTR/DISTRIUTION
     @test p.survival_matrix.time == time(km)
     @test size(p.survival_matrix.surv) == (10, length(time(km)))
-    @test unique(p.survival_matrix.surv) == survival(km) # FIXME - FIX CONSISTENCY SURV/SURVIVAL
+    @test unique(p.survival_matrix.surv) == survival(km) # FIXME #31 - FIX CONSISTENCY SURV/SURVIVAL
 end
 
 @testset "Non-formula interface works" begin
