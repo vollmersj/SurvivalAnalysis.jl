@@ -28,7 +28,7 @@ function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv
                         init::Number)
 
     function llik(ζ, x, t, δ, ϕ, β)
-        if ζ == Exponential
+        if ζ === Exponential
             return (δ .* (-x*β)) .- (exp.(-x*β) .* t)
         else # weibull
             return (δ .* (log(1/ϕ) .+ (((1/ϕ)-1) .* log.(t)) .- x*β ./ ϕ)) .-
@@ -37,7 +37,7 @@ function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv
     end
 
     function dtrafo(ζ, β, ϕ)
-        if ζ == Exponential
+        if ζ === Exponential
             return Exponential(exp(β[1]))
         else # weibull
             return Weibull(1/ϕ, exp(β[1]))
