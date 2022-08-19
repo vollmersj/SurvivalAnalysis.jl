@@ -20,7 +20,7 @@ end
     @test all(isnan.(sp.time))
     @test sp.distr == distr
     @test sp.survival_matrix.time == [1.0, 2.0] # TODO - MAKE TIME/TIMES CONSISTENT
-    @test sp.survival_matrix.surv == [[0.5,0.7] [0.0,0.0]]
+    @test sp.survival_matrix.survival == [[0.5,0.7] [0.0,0.0]]
     @test show(sp) === nothing
 end
 
@@ -60,7 +60,7 @@ end
     @test all(isnan.(sp.lp))
     @test all(isnan.(sp.crank))
     @test sp.survival_matrix.time == [1.0, 5.0]
-    @test sp.survival_matrix.surv == M ## FIXME # 31 - SURV/SURVIVAL CONSISTENCY
+    @test sp.survival_matrix.survival == M
     @test unique(support.(sp.distr)) == [[0.0, 1.0, 5.0]]
     @test probs.(sp.distr) == map(x -> [0, abs.(diff(x))...], eachrow(hcat(ones(5), M)))
 end

@@ -20,7 +20,7 @@ function StatsBase.predict(fit::SurvivalEstimator, X::AbstractMatrix{<:Real})
     #  currently stratified not supported
     n = size(X, 1)
     return SurvivalPrediction(
-        distr = fill(fit.distribution, n),
+        distr = fill(fit.distr, n),
         fit_times = fit.time,
         survival_matrix = repeat(fit.survival', n)
     )
@@ -60,9 +60,9 @@ function _fit_npe(obj::SurvivalEstimator, Surv::RCSurv, point_est::Function,
     obj.time = stats.time
     # for both NPEs variance calculated as plug-in
     obj.std = [0, std_trafo(cumsum(v), obj.survival)...]
-    # calculate pmf and create distribution - Set S(0) = 1
+    # calculate pmf and create distr - Set S(0) = 1
     pₓ = [0, abs.(diff(obj.survival))...]
-    obj.distribution = DiscreteNonParametric([0, stats.time...],  pₓ, check_args = false)
+    obj.distr = DiscreteNonParametric([0, stats.time...],  pₓ, check_args = false)
 
     return obj
 end
@@ -89,7 +89,7 @@ end
 Base.time(npe::SurvivalEstimator) = npe.time
 survival(npe::SurvivalEstimator) = npe.survival
 StatsBase.std(npe::SurvivalEstimator) = npe.std
-distribution(npe::SurvivalEstimator) = npe.distribution
+distr(npe::SurvivalEstimator) = npe.distr
 
 function Base.time(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
@@ -106,10 +106,10 @@ function StatsBase.std(
 )
     return npe.model.std
 end
-function distribution(
+function distr(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
 )
-    return npe.model.distribution
+    return npe.model.distr
 end
 
 #-------------------
@@ -119,7 +119,7 @@ mutable struct KaplanMeier <: SurvivalEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
     std::Vector{Float64}
-    distribution::DiscreteNonParametric
+    distr::DiscreteNonParametric
 
     KaplanMeier() = new()
 end
@@ -153,7 +153,7 @@ mutable struct NelsonAalen <: SurvivalEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
     std::Vector{Float64}
-    distribution::DiscreteNonParametric
+    distr::DiscreteNonParametric
 
     NelsonAalen() = new()
 end
@@ -167,7 +167,7 @@ function StatsBase.fit!(obj::NelsonAalen, Y::RCSurv)
         Y,
         (d, n) -> d / n,
         (d, n) -> (d * (n - d)) / (n^3),
-        # makes use of NA being a plug-in estimator then converts to surv
+        # makes use of NA being a plug-in estimator then converts to survival
         (p) -> exp.(-cumsum(p)),
         (v, p) -> .√v
     )

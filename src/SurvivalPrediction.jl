@@ -11,7 +11,7 @@ struct DiscreteSurvivalPrediction{T<:Float64} <: SurvivalPrediction
     lp::Vector{T}
     crank::Vector{T}
     time::Vector{T}
-    survival_matrix::NamedTuple{(:time, :surv), Tuple{Vector{T}, Matrix{T}}}
+    survival_matrix::NamedTuple{(:time, :survival), Tuple{Vector{T}, Matrix{T}}}
 end
 
 struct ContinuousSurvivalPrediction{T<:Float64} <: SurvivalPrediction
@@ -41,7 +41,7 @@ function SurvivalPrediction(;
     length(n) === 1 || throw(ArgumentError("Supplied parameters of different lengths"))
     n = n[1]
 
-    # construct distribution from matrix if available
+    # construct distr from matrix if available
     if (fit_times === nothing) + (survival_matrix === nothing) === 1
         throw(ArgumentError(("Either both 'fit_times' should be provided 'survival_matrix' or neither")))
     elseif fit_times ≠ nothing && survival_matrix ≠ nothing && distr === nothing
@@ -55,7 +55,7 @@ function SurvivalPrediction(;
             ζₛ = hcat(ones(n), ζₛ)
             ζₜ = [0, ζₜ...]
         end
-        # calculate pmf and create distribution
+        # calculate pmf and create distr
         distr = map(x -> DiscreteNonParametric(ζₜ, [1 - x[1], abs.(diff(x))...];
                 check_args=false), eachrow(ζₛ))
     end
@@ -78,7 +78,7 @@ function SurvivalPrediction(;
             survival_matrix = Matrix(mapreduce(s -> 1 .- cumsum(probs(s)), hcat, distr)')
         end
         return DiscreteSurvivalPrediction(distr, lp, crank, time,
-                                        (time = fit_times, surv = survival_matrix))
+                                        (time = fit_times, survival = survival_matrix))
     end
 end
 
