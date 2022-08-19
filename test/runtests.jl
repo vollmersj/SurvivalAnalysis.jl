@@ -7,10 +7,10 @@ using Distributions
 using DataFrames
 using StatsModels
 
-const files = filter(x -> occursin("test_", x), readdir())
+const files = setdiff(readdir(), ["runtests.jl"])
 
 for f in files
-    @testset "$(titlecase(replace(replace(f, r"test_|.jl" => ""), "_" => " ")))" begin
+    @testset "$(f)" begin
         @test include(f)
     end
 end
