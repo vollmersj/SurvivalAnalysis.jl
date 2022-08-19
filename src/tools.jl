@@ -1,4 +1,6 @@
-## tools = exported utils
+#-----------------
+# exported tools
+#-----------------
 """
     hazard(d::UnivariateDistribution, x::Real)
     hₜ(d::UnivariateDistribution, x::Real)
@@ -8,7 +10,7 @@ Compute the hazard function of distribution `d` at point `x`.
 The hazard function for random variable ``t`` is defined as
 
 ```math
-hₜ(x) = \\frac{fₜ(x)}{Sₜ(x)}
+h_t(x) = \\frac{f_t(x)}{S_t(x)}
 ```
 
 where ``fₜ`` is the pdf of ``t`` and ``Sₜ`` is the survival function of ``t``.
@@ -32,7 +34,7 @@ Compute the cumulative hazard function of distribution `d` at point `x`.
 The cumulative hazard function for random variable ``t`` is defined as
 
 ```math
-Hₜ(x) = \\int^x_0 hₜ(u) du = -log(Sₜ(x))
+H_t(x) = \\int^x_0 h_t(u) du = -log(S_t(x))
 ```
 
 where ``hₜ`` is the hazard function of ``t`` and ``Sₜ`` is the survival function of ``t``.
@@ -55,3 +57,12 @@ const survival = ccdf
 const Sₜ = ccdf
 const Hₜ = cum_hazard
 const hₜ = hazard
+
+#-------------------
+# non-exported tools
+#-------------------
+∓(x, y) = (x + y, x - y)
+∑(A) = sum(A)
+∑(A...) = sum(A)
+∏(A) = prod(A)
+∏(A...) = prod(A)

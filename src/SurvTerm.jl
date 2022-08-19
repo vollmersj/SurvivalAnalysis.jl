@@ -1,7 +1,7 @@
 # struct for behavior
 struct SurvTerm{X, Y} <: AbstractTerm
     T::X
-    Δ::Y
+    Δ::Y # leave unicode here as should never be accessed by users
     type::ConstantTerm
 end
 SurvTerm(T::X where {X<:AbstractTerm}, Δ::Y where {Y<:AbstractTerm}) =

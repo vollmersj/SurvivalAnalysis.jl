@@ -1,3 +1,6 @@
+#-------------------
+# SurvivalEstimator
+#-------------------
 abstract type SurvivalEstimator <: StatisticalModel end
 
 function StatsBase.fit(
@@ -17,9 +20,9 @@ function StatsBase.predict(fit::SurvivalEstimator, X::AbstractMatrix{<:Real})
     #  currently stratified not supported
     n = size(X, 1)
     return SurvivalPrediction(
-        ζ = fill(fit.distribution, n),
-        Ts = fit.time,
-        Ŝ = repeat(fit.survival', n)
+        distr = fill(fit.distr, n),
+        fit_times = fit.time,
+        survival_matrix = repeat(fit.survival', n)
     )
 end
 
@@ -57,36 +60,36 @@ function _fit_npe(obj::SurvivalEstimator, Surv::RCSurv, point_est::Function,
     obj.time = stats.time
     # for both NPEs variance calculated as plug-in
     obj.std = [0, std_trafo(cumsum(v), obj.survival)...]
-    # calculate pmf and create distribution - Set S(0) = 1
+    # calculate pmf and create distr - Set S(0) = 1
     pₓ = [0, abs.(diff(obj.survival))...]
-    obj.distribution = DiscreteNonParametric([0, stats.time...],  pₓ, check_args = false)
+    obj.distr = DiscreteNonParametric([0, stats.time...],  pₓ, check_args = false)
 
     return obj
 end
 
 # Calculates confidence intervals using the method of Kalbfleisch and Prentice (1980)
-function _confint_npe(npe, t, α, trafo)
-    q = quantile(Normal(), 1 - α/2)
+function _confint_npe(npe, t, level, trafo)
+    q = quantile(Normal(), 1 - (1 - level)/2)
     which = searchsortedlast(npe.time, t)
     return trafo(npe, q, which)
 end
 
 # syntactic sugar for vectorising over all times
-function StatsBase.confint(npe::SurvivalEstimator; α::Float64 = 0.05)
-    return confint.(Ref(npe), npe.time, α = α)
+function StatsBase.confint(npe::SurvivalEstimator; level::Float64 = 0.95)
+    return confint.(Ref(npe), npe.time; level = level)
 end
 
 function StatsBase.confint(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix};
-    α::Float64 = 0.05
+    level::Float64 = 0.95
 )
-    return confint.(Ref(npe.model), npe.model.time, α = α)
+    return confint.(Ref(npe.model), npe.model.time, level = level)
 end
 
 Base.time(npe::SurvivalEstimator) = npe.time
 survival(npe::SurvivalEstimator) = npe.survival
 StatsBase.std(npe::SurvivalEstimator) = npe.std
-distribution(npe::SurvivalEstimator) = npe.distribution
+distr(npe::SurvivalEstimator) = npe.distr
 
 function Base.time(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
@@ -103,8 +106,79 @@ function StatsBase.std(
 )
     return npe.model.std
 end
-function distribution(
+function distr(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix}
 )
-    return npe.model.distribution
+    return npe.model.distr
+end
+
+#-------------------
+# KaplanMeier
+#-------------------
+mutable struct KaplanMeier <: SurvivalEstimator
+    time::Vector{Float64}
+    survival::Vector{Float64}
+    std::Vector{Float64}
+    distr::DiscreteNonParametric
+
+    KaplanMeier() = new()
+end
+
+kaplan_meier(args...; kwargs...) = StatsBase.fit(KaplanMeier, args...; kwargs...)
+kaplan_meier(Y::RCSurv) = StatsBase.fit(KaplanMeier, Y)
+
+function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
+    return _fit_npe(
+        obj,
+        Y,
+        (d, n) -> 1 - (d / n),
+        (d, n) -> d / (n * (n - d)),
+        cumprod, # makes use of KM being a plug-in estimator
+        # Calculates standard error using the method of Kalbfleisch and Prentice (1980)
+        (v, p) -> map((qₜ, vₜ) -> √(vₜ / (log(qₜ)^2)), p, v)
+    )
+end
+
+function StatsBase.confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
+    return _confint_npe(
+        km, t, level,
+        (E, q, w) -> map(x -> exp(-exp(x)), log(-log(E.survival[w])) ∓ (q * E.std[w]))
+    )
+end
+
+#-------------------
+# NelsonAalen
+#-------------------
+mutable struct NelsonAalen <: SurvivalEstimator
+    time::Vector{Float64}
+    survival::Vector{Float64}
+    std::Vector{Float64}
+    distr::DiscreteNonParametric
+
+    NelsonAalen() = new()
+end
+
+nelson_aalen(args...; kwargs...) = StatsBase.fit(NelsonAalen, args...; kwargs...)
+nelson_aalen(Y::RCSurv) = StatsBase.fit(NelsonAalen, Y)
+
+function StatsBase.fit!(obj::NelsonAalen, Y::RCSurv)
+    return _fit_npe(
+        obj,
+        Y,
+        (d, n) -> d / n,
+        (d, n) -> (d * (n - d)) / (n^3),
+        # makes use of NA being a plug-in estimator then converts to survival
+        (p) -> exp.(-cumsum(p)),
+        (v, p) -> .√v
+    )
+end
+
+# Calculates pointwise confidence intervals for *survival predictions*
+# Unclear if this even needs to be a different method, could just use the confint around
+# survival for both NPEs
+function StatsBase.confint(na::NelsonAalen, t::Number; level::Float64 = 0.95)
+    return _confint_npe(
+        na, t, level,
+        (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.std[w]))
+    )
 end

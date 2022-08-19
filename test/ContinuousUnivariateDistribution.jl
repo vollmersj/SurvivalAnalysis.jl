@@ -1,6 +1,6 @@
 @testset "Test PH" begin
     d = SurvivalAnalysis.ContinuousPHDistribution(Exponential(1/5), 0.1)
-    @test params(d) == (d.ζ, d.η)
+    @test params(d) == (d.distr, d.lp)
     @test partype(d) == Float64
     @test hazard(d, 5) == 5 * exp(0.1)
     @test ccdf(d, 5) == exp(-25)^exp(0.1)
@@ -12,7 +12,7 @@ end
 
 @testset "Test AFT" begin
     d = SurvivalAnalysis.ContinuousAFTDistribution(Exponential(1/5), 0.1)
-    @test params(d) == (d.ζ, d.η)
+    @test params(d) == (d.distr, d.lp)
     @test partype(d) == Float64
     @test hazard(d, 5) == 5 * exp(-0.1)
     @test ccdf(d, 5) == exp(-5*(5/exp(0.1)))
