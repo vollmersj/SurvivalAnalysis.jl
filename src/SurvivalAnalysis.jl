@@ -28,19 +28,13 @@ module SurvivalAnalysis
     export survival, hazard, cum_hazard, Fₜ, fₜ, pₜ, Sₜ, hₜ, Hₜ
     export SurvivalPrediction
 
-    include("utils.jl")
     include("tools.jl")
     include("Surv.jl")
     include("SurvTerm.jl")
     include("SurvivalModel.jl")
     include("SurvivalPrediction.jl")
-    include("ContinuousPHDistribution.jl")
-    include("ContinuousAFTDistribution.jl")
+    include("ContinuousUnivariateDistribution.jl")
     include("ParametricSurvival.jl")
-    include("ParametricAFT.jl")
-    include("ParametricPH.jl")
     include("SurvivalEstimator.jl")
-    include("KaplanMeier.jl")
-    include("NelsonAalen.jl")
     include("plot_survivalestimator.jl")
 end

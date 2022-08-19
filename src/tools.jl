@@ -1,4 +1,6 @@
-## tools = exported utils
+#-----------------
+# exported tools
+#-----------------
 """
     hazard(d::UnivariateDistribution, x::Real)
     hₜ(d::UnivariateDistribution, x::Real)
@@ -55,3 +57,12 @@ const survival = ccdf
 const Sₜ = ccdf
 const Hₜ = cum_hazard
 const hₜ = hazard
+
+#-------------------
+# non-exported tools
+#-------------------
+∓(x, y) = (x + y, x - y)
+∑(A) = sum(A)
+∑(A...) = sum(A)
+∏(A) = prod(A)
+∏(A...) = prod(A)
