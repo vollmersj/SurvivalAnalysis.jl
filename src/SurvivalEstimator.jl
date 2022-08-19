@@ -17,9 +17,9 @@ function StatsBase.predict(fit::SurvivalEstimator, X::AbstractMatrix{<:Real})
     #  currently stratified not supported
     n = size(X, 1)
     return SurvivalPrediction(
-        ζ = fill(fit.distribution, n),
-        Ts = fit.time,
-        Ŝ = repeat(fit.survival', n)
+        distr = fill(fit.distribution, n),
+        fit_times = fit.time,
+        survival_matrix = repeat(fit.survival', n)
     )
 end
 
@@ -65,22 +65,22 @@ function _fit_npe(obj::SurvivalEstimator, Surv::RCSurv, point_est::Function,
 end
 
 # Calculates confidence intervals using the method of Kalbfleisch and Prentice (1980)
-function _confint_npe(npe, t, α, trafo)
-    q = quantile(Normal(), 1 - α/2)
+function _confint_npe(npe, t, level, trafo)
+    q = quantile(Normal(), 1 - (1 - level)/2)
     which = searchsortedlast(npe.time, t)
     return trafo(npe, q, which)
 end
 
 # syntactic sugar for vectorising over all times
-function StatsBase.confint(npe::SurvivalEstimator; α::Float64 = 0.05)
-    return confint.(Ref(npe), npe.time, α = α)
+function StatsBase.confint(npe::SurvivalEstimator; level::Float64 = 0.95)
+    return confint.(Ref(npe), npe.time; level = level)
 end
 
 function StatsBase.confint(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix};
-    α::Float64 = 0.05
+    level::Float64 = 0.95
 )
-    return confint.(Ref(npe.model), npe.model.time, α = α)
+    return confint.(Ref(npe.model), npe.model.time, level = level)
 end
 
 Base.time(npe::SurvivalEstimator) = npe.time

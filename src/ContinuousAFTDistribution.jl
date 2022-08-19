@@ -1,20 +1,22 @@
 struct ContinuousAFTDistribution <: ContinuousUnivariateDistribution
-    ζ::ContinuousUnivariateDistribution ## Baseline
-    η::Float64 # linear predictor
+    distr::ContinuousUnivariateDistribution ## Baseline
+    lp::Float64 # linear predictor
 end
 
 #@distr_support ContinuousAFTDistribution 0.0 Inf
 
-Distributions.params(d::ContinuousAFTDistribution) = (d.ζ, d.η)
+Distributions.params(d::ContinuousAFTDistribution) = (d.distr, d.lp)
 Distributions.partype(::ContinuousAFTDistribution) = Float64
 
 #### Evaluation
 
 Distributions.pdf(d::ContinuousAFTDistribution, x::Real) =
-    exp(-d.η) * hazard(d.ζ, x / exp(d.η)) * ccdf(d.ζ, x / exp(d.η))
-Distributions.cdf(d::ContinuousAFTDistribution, x::Real) = cdf(d.ζ, x / exp(d.η))
-Distributions.quantile(d::ContinuousAFTDistribution, q::Real) = quantile(d.ζ, q) * exp(d.η)
-Distributions.ccdf(d::ContinuousAFTDistribution, x::Real) = ccdf(d.ζ, x / exp(d.η))
-hazard(d::ContinuousAFTDistribution, x::Real) = exp(-d.η) * hazard(d.ζ, x / exp(d.η))
+    exp(-d.lp) * hazard(d.distr, x / exp(d.lp)) * ccdf(d.distr, x / exp(d.lp))
+Distributions.cdf(d::ContinuousAFTDistribution, x::Real) = cdf(d.distr, x / exp(d.lp))
+Distributions.quantile(d::ContinuousAFTDistribution, q::Real) =
+    quantile(d.distr, q) * exp(d.lp)
+Distributions.ccdf(d::ContinuousAFTDistribution, x::Real) = ccdf(d.distr, x / exp(d.lp))
+hazard(d::ContinuousAFTDistribution, x::Real) = exp(-d.lp) * hazard(d.distr, x / exp(d.lp))
 
-Base.show(io::IO, d::ContinuousAFTDistribution) = print(io, "AFT(ζ=$(d.ζ), η=$(d.η))")
+Base.show(io::IO, d::ContinuousAFTDistribution) =
+    print(io, "AFT(distr=$(d.distr), lp=$(d.lp))")

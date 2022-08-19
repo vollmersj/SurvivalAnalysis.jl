@@ -25,9 +25,9 @@ end
 # Calculates pointwise confidence intervals for *survival predictions*
 # Unclear if this even needs to be a different method, could just use the confint around
 # survival for both NPEs
-function StatsBase.confint(na::NelsonAalen, t::Number; α::Float64 = 0.05)
+function StatsBase.confint(na::NelsonAalen, t::Number; level::Float64 = 0.95)
     return _confint_npe(
-        na, t, α,
+        na, t, level,
         (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.std[w]))
     )
 end

@@ -22,9 +22,9 @@ function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
     )
 end
 
-function StatsBase.confint(km::KaplanMeier, t::Number; α::Float64 = 0.05)
+function StatsBase.confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
     return _confint_npe(
-        km, t, α,
+        km, t, level,
         (E, q, w) -> map(x -> exp(-exp(x)), log(-log(E.survival[w])) ∓ (q * E.std[w]))
     )
 end

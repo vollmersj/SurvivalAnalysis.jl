@@ -22,62 +22,63 @@ struct ContinuousSurvivalPrediction{T<:Float64} <: SurvivalPrediction
 end
 
 function SurvivalPrediction(;
-    ζ::Union{Nothing, Vector{<:Distribution}} = nothing,
-    η::Union{Nothing, Vector{T}}  = nothing,
-    ϕ::Union{Nothing, Vector{T}} = nothing,
-    T̂::Union{Nothing, Vector{T}} = nothing,
-    Ts::Union{Nothing, Vector{T}} = nothing,
-    Ŝ::Union{Matrix{T}, Nothing} = nothing
+    distr::Union{Nothing, Vector{<:Distribution}} = nothing,
+    lp::Union{Nothing, Vector{T}}  = nothing,
+    crank::Union{Nothing, Vector{T}} = nothing,
+    time::Union{Nothing, Vector{T}} = nothing,
+    fit_times::Union{Nothing, Vector{T}} = nothing,
+    survival_matrix::Union{Matrix{T}, Nothing} = nothing
 ) where {T<:Number}
 
     n = []
-    ζ ≠ nothing && push!(n, length(ζ))
-    η ≠ nothing && push!(n, length(η))
-    ϕ ≠ nothing && push!(n, length(ϕ))
-    T̂ ≠ nothing && push!(n, length(T̂))
-    Ŝ ≠ nothing && push!(n, size(Ŝ, 1))
+    distr ≠ nothing && push!(n, length(distr))
+    lp ≠ nothing && push!(n, length(lp))
+    crank ≠ nothing && push!(n, length(crank))
+    time ≠ nothing && push!(n, length(time))
+    survival_matrix ≠ nothing && push!(n, size(survival_matrix, 1))
     n = unique(n)
 
     length(n) === 1 || throw(ArgumentError("Supplied parameters of different lengths"))
     n = n[1]
 
     # construct distribution from matrix if available
-    if (Ts === nothing) + (Ŝ === nothing) === 1
-        throw(ArgumentError(("Either both 'Ts' should be provided 'Ŝ' or neither")))
-    elseif Ts ≠ nothing && Ŝ ≠ nothing && ζ === nothing
-        if length(Ts) != size(Ŝ, 2)
-            throw(ArgumentError("Length of 'Ts' must equal number of columns of 'Ŝ'"))
+    if (fit_times === nothing) + (survival_matrix === nothing) === 1
+        throw(ArgumentError(("Either both 'fit_times' should be provided 'survival_matrix' or neither")))
+    elseif fit_times ≠ nothing && survival_matrix ≠ nothing && distr === nothing
+        if length(fit_times) != size(survival_matrix, 2)
+            throw(ArgumentError("Length of 'fit_times' must equal number of columns of 'survival_matrix'"))
         end
-        ζₛ = Ŝ
-        ζₜ = Ts
+        ζₛ = survival_matrix
+        ζₜ = fit_times
         if ζₜ[1] ≠ 0
             # Set S(0) = 1
             ζₛ = hcat(ones(n), ζₛ)
             ζₜ = [0, ζₜ...]
         end
         # calculate pmf and create distribution
-        ζ = map(x -> DiscreteNonParametric(ζₜ, [1 - x[1], abs.(diff(x))...];
+        distr = map(x -> DiscreteNonParametric(ζₜ, [1 - x[1], abs.(diff(x))...];
                 check_args=false), eachrow(ζₛ))
     end
 
     # no transformations assumed
-    η = η === nothing ? fill(NaN, n) : η
-    ϕ = ϕ === nothing ? fill(NaN, n) : ϕ
-    T̂ = T̂ === nothing ? fill(NaN, n) : T̂
+    lp = lp === nothing ? fill(NaN, n) : lp
+    crank = crank === nothing ? fill(NaN, n) : crank
+    time = time === nothing ? fill(NaN, n) : time
 
-    if ζ === nothing
-        return DeterministicSurvivalPrediction(η, ϕ, T̂)
-    elseif ζ[1] isa ContinuousUnivariateDistribution
-        return ContinuousSurvivalPrediction(ζ, η, ϕ, T̂)
-    elseif ζ[1] isa DiscreteNonParametric
-        if Ts === nothing
-            Ts = unique(support.(ζ))
-            length(Ts) == 1 || throw(ArgumentError(
-                "Predicted distributions (ζ) must have same survival times"))
-            Ts = Ts[1]
-            Ŝ = Matrix(mapreduce(s -> 1 .- cumsum(probs(s)), hcat, ζ)')
+    if distr === nothing
+        return DeterministicSurvivalPrediction(lp, crank, time)
+    elseif distr[1] isa ContinuousUnivariateDistribution
+        return ContinuousSurvivalPrediction(distr, lp, crank, time)
+    elseif distr[1] isa DiscreteNonParametric
+        if fit_times === nothing
+            fit_times = unique(support.(distr))
+            length(fit_times) == 1 || throw(ArgumentError(
+                "Predicted distributions (distr) must have same survival times"))
+            fit_times = fit_times[1]
+            survival_matrix = Matrix(mapreduce(s -> 1 .- cumsum(probs(s)), hcat, distr)')
         end
-        return DiscreteSurvivalPrediction(ζ, η, ϕ, T̂, (time = Ts, surv = Ŝ))
+        return DiscreteSurvivalPrediction(distr, lp, crank, time,
+                                        (time = fit_times, surv = survival_matrix))
     end
 end
 

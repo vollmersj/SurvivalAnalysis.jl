@@ -55,7 +55,7 @@ function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv
 end
 
 function StatsBase.predict(fit::ParametricAFT, X::AbstractMatrix{<:Real})
-    η = X * fit.coefficients[2:end] # intercept removed
-    ζ = ContinuousAFTDistribution.(fit.baseline, η)
-    return SurvivalPrediction(ζ = ζ, η = η, ϕ = -η)
+    lp = X * fit.coefficients[2:end] # intercept removed
+    distr = ContinuousAFTDistribution.(fit.baseline, lp)
+    return SurvivalPrediction(distr = distr, lp = lp, crank = -lp)
 end

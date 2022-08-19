@@ -55,7 +55,7 @@ function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::RCSurv,
 end
 
 function StatsBase.predict(fit::ParametricPH, X::AbstractMatrix{<:Real})
-    η = X * fit.coefficients[2:end] # intercept removed
-    ζ = ContinuousPHDistribution.(fit.baseline, η)
-    return SurvivalPrediction(ζ = ζ, η = η, ϕ = η)
+    lp = X * fit.coefficients[2:end] # intercept removed
+    distr = ContinuousPHDistribution.(fit.baseline, lp)
+    return SurvivalPrediction(distr = distr, lp = lp, crank = lp)
 end
