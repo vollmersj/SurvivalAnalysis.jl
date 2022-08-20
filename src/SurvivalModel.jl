@@ -30,19 +30,6 @@ Distributions.scale(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:Abs
     mm.model.scale
 Distributions.scale(mm::SurvivalModel) = mm.scale
 
-function StatsModels.coeftable(mm::SurvivalModel)
-    header = ["(Scale)", ["x$i" for i = 0:(length(coef(mm))-1)]...]
-    header[2] = "(Intercept)"
-    data = [mm.scale coef(mm)...]
-    pretty_table(data,  header = header, vlines = :none, hlines = :none)
-end
-
-function StatsModels.coeftable(mm::StatsModels.TableStatisticalModel{<:SurvivalModel})
-    header = ["(Scale)", coefnames(mm.mf)...]
-    data = [scale(mm) coef(mm)...]
-    pretty_table(data,  header = header, vlines = :none, hlines = :none)
-end
-
 function Base.show(io::IO, mm::SurvivalModel)
     println(io, typeof(mm))
     println(io)
@@ -50,7 +37,11 @@ function Base.show(io::IO, mm::SurvivalModel)
     println(io, baseline(mm))
     println(io)
     println(io,"Coefficients:")
-    coeftable(mm)
+
+    header = ["(Scale)", ["x$i" for i = 0:(length(coef(mm))-1)]...]
+    header[2] = "(Intercept)"
+    data = [mm.scale coef(mm)...]
+    pretty_table(io, data,  header = header, vlines = :none, hlines = :none)
 end
 
 function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalModel})
@@ -62,5 +53,8 @@ function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalModel
     println(io, baseline(mm))
     println(io)
     println(io, "Coefficients:")
-    coeftable(mm)
+
+    header = ["(Scale)", coefnames(mm.mf)...]
+    data = [scale(mm) coef(mm)...]
+    pretty_table(io, data,  header = header, vlines = :none, hlines = :none)
 end

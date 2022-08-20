@@ -114,21 +114,13 @@ function distr(
     return npe.model.distr
 end
 
-function StatsModels.coeftable(mm::SurvivalEstimator)
-    pretty_table([mm.stats.n mm.stats.ncens mm.stats.nevents],
-        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
-end
-
-function StatsModels.coeftable(mm::StatsModels.TableStatisticalModel{<:SurvivalEstimator})
-    pretty_table([mm.model.stats.n mm.model.stats.ncens mm.model.stats.nevents],
-        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
-end
-
 function Base.show(io::IO, mm::SurvivalEstimator)
     println(io, typeof(mm))
     println(io)
     println(io,"Coefficients:")
-    coeftable(mm)
+    pretty_table(io, [mm.stats.n mm.stats.ncens mm.stats.nevents],
+        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
+    nothing
 end
 
 function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalEstimator})
@@ -137,7 +129,9 @@ function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalEstim
     println(io, mm.mf.f)
     println(io)
     println(io, "Coefficients:")
-    coeftable(mm)
+    pretty_table(io, [mm.model.stats.n mm.model.stats.ncens mm.model.stats.nevents],
+        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
+    nothing
 end
 
 #-------------------

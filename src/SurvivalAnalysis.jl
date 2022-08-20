@@ -14,7 +14,7 @@ module SurvivalAnalysis
     export DataFrame # DataFrames
     export scale, shape, params, Exponential, Weibull # Distributions
     export coef, confint, stderror, vcov, predict, fit, fit!, std # StatsBase
-    export @formula, coeftable # StatsModels
+    export @formula # StatsModels
     export time # Base
 
     # other exports
