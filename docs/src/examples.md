@@ -37,7 +37,8 @@ StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
 (Y,D;+) ~ 1
 
 Coefficients:
-KaplanMeier(n = 10, ncens = 6, nevents = 4)
+  n  ncens  nevents
+ 10      6        4
 ```
 
 ### 2. `fit` + Formula
@@ -49,21 +50,30 @@ StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
 (Y,D;+) ~ 1
 
 Coefficients:
-KaplanMeier(n = 10, ncens = 6, nevents = 4)
+  n  ncens  nevents
+ 10      6        4
 ```
 
 ### 3. Function + Data
 
 ```jldoctest data
 julia> f = kaplan_meier(hcat(ones(10), 1:10), Surv(data.Y, data.D, "right"))
-KaplanMeier(n = 10, ncens = 6, nevents = 4)
+KaplanMeier
+
+Coefficients:
+  n  ncens  nevents
+ 10      6        4
 ```
 
 ### 4. `fit` + Data
 
 ```jldoctest data
 julia> f = fit(KaplanMeier, hcat(ones(10), 1:10), Surv(data.Y, data.D, "right"))
-KaplanMeier(n = 10, ncens = 6, nevents = 4)
+KaplanMeier
+
+Coefficients:
+  n  ncens  nevents
+ 10      6        4
 ```
 
 ## Predicting

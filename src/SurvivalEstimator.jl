@@ -114,6 +114,32 @@ function distr(
     return npe.model.distr
 end
 
+function StatsModels.coeftable(mm::SurvivalEstimator)
+    pretty_table([mm.stats.n mm.stats.ncens mm.stats.nevents],
+        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
+end
+
+function StatsModels.coeftable(mm::StatsModels.TableStatisticalModel{<:SurvivalEstimator})
+    pretty_table([mm.model.stats.n mm.model.stats.ncens mm.model.stats.nevents],
+        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
+end
+
+function Base.show(io::IO, mm::SurvivalEstimator)
+    println(io, typeof(mm))
+    println(io)
+    println(io,"Coefficients:")
+    coeftable(mm)
+end
+
+function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalEstimator})
+    println(io, typeof(mm))
+    println(io)
+    println(io, mm.mf.f)
+    println(io)
+    println(io, "Coefficients:")
+    coeftable(mm)
+end
+
 #-------------------
 # KaplanMeier
 #-------------------
@@ -148,8 +174,6 @@ function StatsBase.confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
         (E, q, w) -> map(x -> exp(-exp(x)), log(-log(E.survival[w])) ∓ (q * E.std[w]))
     )
 end
-
-Base.show(io::IO, npe::KaplanMeier) = print(io, "KaplanMeier$(npe.stats)")
 
 #-------------------
 # NelsonAalen
@@ -188,5 +212,3 @@ function StatsBase.confint(na::NelsonAalen, t::Number; level::Float64 = 0.95)
         (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.std[w]))
     )
 end
-
-Base.show(io::IO, npe::NelsonAalen) = print(io, "NelsonAalen$(npe.stats)")
