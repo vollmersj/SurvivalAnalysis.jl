@@ -27,6 +27,9 @@ na = nelson_aalen(@formula(Srv(time, status) ~ 1), data)
     @test confint(na) == confint(na.model)
     @test std(na) isa Vector{Float64}
     @test std(na) === std(na.model)
+
+    @test show(km) === nothing
+    @test show(na) === nothing
 end
 
 @testset "Alignment with R" begin
