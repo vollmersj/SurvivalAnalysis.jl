@@ -82,12 +82,29 @@ function SurvivalPrediction(;
     end
 end
 
-Base.show(io::IO, sp::T where {T <: DeterministicSurvivalPrediction}) =
-    print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time))
-Base.show(io::IO, sp::T where {T <: DiscreteSurvivalPrediction}) =
-    print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time,
-                        "distr" => sp.distr,
-                        "mat" => sp.survival_matrix))
-Base.show(io::IO, sp::T where {T <: ContinuousSurvivalPrediction}) =
-    print(io, DataFrame("lp" => sp.lp, "crank" => sp.crank, "time" => sp.time,
-                        "distr" => sp.distr))
+function Base.show(io::IO, sp::T where {T <: DeterministicSurvivalPrediction})
+    out = DataFrame()
+    out = all(sp.lp .=== NaN) ? out : hcat(out, DataFrame(lp=sp.lp))
+    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=p,crank))
+    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=p,time))
+    print(io, out)
+end
+
+function Base.show(io::IO, sp::T where {T <: DiscreteSurvivalPrediction})
+    out = DataFrame()
+    out = all(sp.lp .=== NaN) ? out : hcat(out, DataFrame(lp=sp.lp))
+    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=p,crank))
+    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=p,time))
+    out = hcat(out, DataFrame(distr=sp.distr))
+    out = hcat(out, DataFrame(survival_matrix=map(identity, eachrow(sp.survival_matrix.survival))))
+    print(io, out)
+end
+
+function Base.show(io::IO, sp::T where {T <: ContinuousSurvivalPrediction})
+    out = DataFrame()
+    out = all(sp.lp .=== NaN) ? out : hcat(out, DataFrame(lp=sp.lp))
+    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=p,crank))
+    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=p,time))
+    out = hcat(out, DataFrame(distr=sp.distr))
+    print(io, out)
+end

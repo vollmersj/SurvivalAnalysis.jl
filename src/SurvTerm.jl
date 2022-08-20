@@ -43,4 +43,4 @@ end
 # StatsModels.termvars(t::SurvTerm) = [StatsModels.termvars(t.T), StatsModels.termvars(t.Δ),
 #                                         StatsModels.termvars(t.type)]
 # StatsModels.width(t::SurvTerm) = 1
-# StatsBase.coefnames(t::SurvTerm) = [coefnames(t.T), coefnames(t.Δ), "(type)"]
+StatsBase.coefnames(t::SurvTerm) = [coefnames(t.T), coefnames(t.Δ), "(type)"]

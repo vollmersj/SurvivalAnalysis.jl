@@ -7,7 +7,10 @@ function StatsBase.fit(
     obj::Type{<:SurvivalEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
     # TODO - need to add something here to check if rhs is intercept only or stratified
     #  currently stratified not supported
-    return fit!(obj(), Y)
+    obj = obj()
+    obj.stats = (n = Y.stats.nrisk[1], ncens = sum(Y.stats.ncens),
+        nevents = sum(Y.stats.nevents))
+    return fit!(obj, Y)
 end
 
 StatsBase.fit(obj::Type{<:SurvivalEstimator}, Y::RCSurv) = fit!(obj(), Y)
@@ -43,7 +46,6 @@ function StatsModels.predict(
     end
     return predict(mm.model, new_x; kwargs...)
 end
-
 
 function _fit_npe(obj::SurvivalEstimator, Surv::RCSurv, point_est::Function,
     var_est::Function, surv_trafo::Function, std_trafo::Function)
@@ -120,6 +122,7 @@ mutable struct KaplanMeier <: SurvivalEstimator
     survival::Vector{Float64}
     std::Vector{Float64}
     distr::DiscreteNonParametric
+    stats::NamedTuple
 
     KaplanMeier() = new()
 end
@@ -146,6 +149,8 @@ function StatsBase.confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
     )
 end
 
+Base.show(io::IO, npe::KaplanMeier) = print(io, "KaplanMeier$(npe.stats)")
+
 #-------------------
 # NelsonAalen
 #-------------------
@@ -154,6 +159,7 @@ mutable struct NelsonAalen <: SurvivalEstimator
     survival::Vector{Float64}
     std::Vector{Float64}
     distr::DiscreteNonParametric
+    stats::NamedTuple
 
     NelsonAalen() = new()
 end
@@ -182,3 +188,5 @@ function StatsBase.confint(na::NelsonAalen, t::Number; level::Float64 = 0.95)
         (E, q, w) -> map(x -> min(1, max(0, exp(-x))), -log(E.survival[w]) ∓ (q * E.std[w]))
     )
 end
+
+Base.show(io::IO, npe::NelsonAalen) = print(io, "NelsonAalen$(npe.stats)")

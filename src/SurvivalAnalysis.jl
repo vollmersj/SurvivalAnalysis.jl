@@ -8,12 +8,13 @@ module SurvivalAnalysis
     using RecipesBase
     using StatsBase
     using StatsModels
+    using PrettyTables: pretty_table
 
     # reexports
     export DataFrame # DataFrames
     export scale, shape, params, Exponential, Weibull # Distributions
     export coef, confint, stderror, vcov, predict, fit, fit!, std # StatsBase
-    export @formula # StatsModels
+    export @formula, coeftable # StatsModels
     export time # Base
 
     # other exports
