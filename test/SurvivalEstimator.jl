@@ -29,7 +29,7 @@ na = nelson_aalen(@formula(Srv(time, status) ~ 1), data)
     @test std(na) === std(na.model)
 
     @test show(km) === nothing
-    @test show(na) === nothing
+    @test show(na.model) === nothing
 end
 
 @testset "Alignment with R" begin
