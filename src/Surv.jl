@@ -62,10 +62,17 @@ function Surv(time::Union{Vector{T}, T} where T <: Number,
     return type == "right" ? RCSurv(time, status) : LCSurv(time, status)
 end
 
-Base.show(io::IO, oss::OneSidedSurv) =
-    print(io, map((t, δ) -> string(t, δ ? "" : "+"), oss.time, oss.status))
-Base.show(io::IO, oss::TwoSidedSurv) =
-    print(io, "(", oss.start, ", ", oss.stop, "]")
+function Base.show(io::IO, oss::OneSidedSurv)
+    print(io,
+        map((t, δ) -> string(round(t; digits=3), δ ? "" : oss.symbol), oss.time, oss.status)
+    )
+end
+
+function Base.show(io::IO, oss::TwoSidedSurv)
+    print(io,
+        map((t0, t1) -> (round(t0; digits=3), round(t1; digits=3)), oss.start, oss.stop)
+    )
+end
 
 outcome_times(v::OneSidedSurv) = v.time
 outcome_times(v::TwoSidedSurv) = [v.start, v.stop]

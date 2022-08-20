@@ -8,6 +8,7 @@ module SurvivalAnalysis
     using RecipesBase
     using StatsBase
     using StatsModels
+    using PrettyTables: pretty_table
 
     # reexports
     export DataFrame # DataFrames

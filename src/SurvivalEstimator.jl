@@ -7,7 +7,10 @@ function StatsBase.fit(
     obj::Type{<:SurvivalEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
     # TODO - need to add something here to check if rhs is intercept only or stratified
     #  currently stratified not supported
-    return fit!(obj(), Y)
+    obj = obj()
+    obj.stats = (n = Y.stats.nrisk[1], ncens = sum(Y.stats.ncens),
+        nevents = sum(Y.stats.nevents))
+    return fit!(obj, Y)
 end
 
 StatsBase.fit(obj::Type{<:SurvivalEstimator}, Y::RCSurv) = fit!(obj(), Y)
@@ -43,7 +46,6 @@ function StatsModels.predict(
     end
     return predict(mm.model, new_x; kwargs...)
 end
-
 
 function _fit_npe(obj::SurvivalEstimator, Surv::RCSurv, point_est::Function,
     var_est::Function, surv_trafo::Function, std_trafo::Function)
@@ -112,6 +114,26 @@ function distr(
     return npe.model.distr
 end
 
+function Base.show(io::IO, mm::SurvivalEstimator)
+    println(io, typeof(mm))
+    println(io)
+    println(io,"Coefficients:")
+    pretty_table(io, [mm.stats.n mm.stats.ncens mm.stats.nevents],
+        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
+    nothing
+end
+
+function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalEstimator})
+    println(io, typeof(mm))
+    println(io)
+    println(io, mm.mf.f)
+    println(io)
+    println(io, "Coefficients:")
+    pretty_table(io, [mm.model.stats.n mm.model.stats.ncens mm.model.stats.nevents],
+        header = ["n", "ncens", "nevents"], vlines = :none, hlines = :none)
+    nothing
+end
+
 #-------------------
 # KaplanMeier
 #-------------------
@@ -120,6 +142,7 @@ mutable struct KaplanMeier <: SurvivalEstimator
     survival::Vector{Float64}
     std::Vector{Float64}
     distr::DiscreteNonParametric
+    stats::NamedTuple
 
     KaplanMeier() = new()
 end
@@ -154,6 +177,7 @@ mutable struct NelsonAalen <: SurvivalEstimator
     survival::Vector{Float64}
     std::Vector{Float64}
     distr::DiscreteNonParametric
+    stats::NamedTuple
 
     NelsonAalen() = new()
 end
