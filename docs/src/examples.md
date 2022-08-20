@@ -11,7 +11,8 @@ end
 Models can be fit in one of four ways but we only recommend the first.
 
 ```jldoctest data
-julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false])10×2 DataFrame
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false])
+10×2 DataFrame
  Row │ Y      D
      │ Int64  Bool
 ─────┼──────────────
