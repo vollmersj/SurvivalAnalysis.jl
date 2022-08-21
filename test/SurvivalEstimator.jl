@@ -64,9 +64,9 @@ end
 
 @testset "Non-formula interface works" begin
     # test non-formula interface
-    na = nelson_aalen(Surv(T, Δ, "right"))
-    @test kaplan_meier(Surv(T, Δ, "right")) isa SurvivalAnalysis.KaplanMeier
-    @test fit(KaplanMeier, Surv(T, Δ, "right")) isa SurvivalAnalysis.KaplanMeier
+    na = nelson_aalen(Surv(T, Δ, :r))
+    @test kaplan_meier(Surv(T, Δ, :r)) isa SurvivalAnalysis.KaplanMeier
+    @test fit(KaplanMeier, Surv(T, Δ, :r)) isa SurvivalAnalysis.KaplanMeier
     @test na isa SurvivalAnalysis.NelsonAalen
 
     p = predict(na, DataFrame(x = randn(10)))

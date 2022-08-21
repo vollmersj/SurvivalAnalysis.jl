@@ -35,7 +35,7 @@ end
 function StatsModels.modelcols(t::SurvTerm, d::NamedTuple)
     T = modelcols(t.T, d)
     Δ = modelcols(t.Δ, d)
-    return Surv(T, Δ, t.type.n == 1 ? "right" : "left")
+    return Surv(T, Δ, t.type.n == 1 ? :right : :left)
 end
 
 # TODO - UNCLEAR IF CODE BELOW NEEDED

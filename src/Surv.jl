@@ -6,29 +6,26 @@ struct RCSurv <: OneSidedSurv
     time::Vector{Float64}
     status::Vector{Bool}
     symbol::Char
-    type::String
     stats::NamedTuple{(:time, :nrisk, :ncens, :nevents, :noutcomes),
         Tuple{Vector{Float64}, Vector{Int64}, Vector{Int64}, Vector{Int64}, Vector{Int64}}}
     RCSurv(time::Vector{Float64}, status::BitVector) =
-        new(time, status, '+', "right", _tabulate_surv(time, status))
+        new(time, status, '+', _tabulate_surv(time, status))
 end
 
 struct LCSurv <: OneSidedSurv
     time::Vector{Float64}
     status::Vector{Bool}
     symbol::Char
-    type::String
     stats::NamedTuple{(:time, :nrisk, :ncens, :nevents, :noutcomes),
         Tuple{Vector{Float64}, Vector{Int64}, Vector{Int64}, Vector{Int64}, Vector{Int64}}}
     LCSurv(time::Vector{Float64}, status::BitVector) =
-        new(time, status, '-', "left", _tabulate_surv(time, status))
+        new(time, status, '-', _tabulate_surv(time, status))
 end
 
 struct IntSurv <: TwoSidedSurv
     start::Vector{Float64}
     stop::Vector{Float64}
-    type::String
-    IntSurv(start::Vector{Float64}, stop::Vector{Float64}) = new(start, stop, "interval")
+    IntSurv(start::Vector{Float64}, stop::Vector{Float64}) = new(start, stop)
 end
 
 """
@@ -46,20 +43,22 @@ function Surv(start::Union{Vector{T}, T} where T <: Number,
     return IntSurv(start, stop)
 end
 
-Surv(time::Union{Vector{T}, T} where T <: Number) = Surv(time, trues(length(time)), "right")
+Surv(time::Union{Vector{T}, T} where T <: Number) = Surv(time, trues(length(time)), :right)
 
 
 function Surv(time::Union{Vector{T}, T} where T <: Number,
             status::Union{BitVector, Vector{Bool}, Bool, Int, Vector{Int}},
-            type::String)
-    @assert type in ["left", "right"]
+            type::Symbol)
+
+    type in [:left, :right, :l, :r] ||
+        throw(ArgumentError("`type` must be one of `:right`, `:r`, `:left`, `:l`"))
 
     time = time isa Vector ? convert(Vector{Float64}, time) :
         convert(Vector{Float64}, [time])
     status = (status isa Bool || status isa Int) ? convert(BitVector, [status]) :
         convert(BitVector, status)
 
-    return type == "right" ? RCSurv(time, status) : LCSurv(time, status)
+    return (type === :right || type === :r) ? RCSurv(time, status) : LCSurv(time, status)
 end
 
 function Base.show(io::IO, oss::OneSidedSurv)
@@ -128,13 +127,13 @@ function _tabulate_surv(T, Δ)
 end
 
 function Base.merge(A::OneSidedSurv...)
-    type = map(v -> v.type, A)
-    @assert length(unique(type)) == 1
+    length(unique(map(typeof, A))) > 1 &&
+        throw(ArgumentError("Objects to merge must either be all `RCSurv` or `LCSurv`"))
     T = zeros(0)
-    Δ = falses(0)
+    Δ = BitVector()
     foreach(v -> push!(T, v.time...), A)
     foreach(v -> push!(Δ, v.status...), A)
-    return Surv(T, Δ, type[1])
+    return typeof(A[1])(T, Δ)
 end
 
 function Base.merge(A::TwoSidedSurv...)
