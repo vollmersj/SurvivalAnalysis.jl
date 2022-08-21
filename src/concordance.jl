@@ -18,6 +18,8 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number}, weights:
     tie_pred=0.5, tie_time=0, cutoff=nothing, train=nothing, rev=false,
     custom_weights::Union{Nothing, ConcordanceWeights}=nothing)
 
+    @assert length(truth) == length(prediction)
+
     # if everything is tied or no events then return 0.5
     ((length(unique(prediction)) == 1) || (length(unique_times(truth)) == 1) ||
       (total_events(truth) == 0)) && return 0.5
@@ -36,10 +38,8 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number}, weights:
       weights = ConcordanceWeights(1, -1, tie_pred, tie_time)
     elseif weights === :S || weights === :Peto
       weights = ConcordanceWeights(1, 0, tie_pred, tie_time)
-    elseif weights == :G
-      weights = ConcordanceWeights(0, -1, tie_pred, tie_time)
     else
-      throw(AssertionError("`weights` must be one of `:I`, `:G`, `:G2`, :`SG:, `:S`, `:Uno`,
+      throw(ArgumentError("`weights` must be one of `:I`, `:G`, `:G2`, :`SG:, `:S`, `:Uno`,
 `:Harrell`, `:GH`, `:Gonen`, `:Schemper`, `:Peto`"))
     end
 
@@ -67,7 +67,7 @@ function _concordance(time, idx, crank, cutoff, weights, cens, surv, tie_pred, t
   for i in idx # only calculate when earlier time is an event
     time[i] > cutoff && break
     for j in (i+1):length(time)
-      if time[i] == time[j] && tie_time == 0
+      if (time[i] == time[j] && tie_time == 0) || (crank[i] == crank[j] && tie_pred == 0)
         continue
       else
         weight_G = (weights.G == 0 || time[i] < cens.time[1]) ? 1 :

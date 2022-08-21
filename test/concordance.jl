@@ -19,9 +19,15 @@ pred = rand(ℰ, n);
     @test_throws ArgumentError ConcordanceWeights(0,0,1,2)
 end
 
-@testset "Check functions" begin
+@testset "Concordance functions" begin
     @test concordance(truth, pred, :I) isa Number
     @test concordance(truth, pred, :GH) isa Number
+end
+
+@testset "Concordance fails as expected" begin
+    @test_throws ArgumentError concordance(truth, pred, :I, tie_pred = 2)
+    @test_throws ArgumentError concordance(truth, pred, :P)
+    @test_throws AssertionError concordance(truth, [1], :I)
 end
 
 @testset "Check basic results" begin
@@ -71,6 +77,31 @@ end
     @test J_Csg isa Number
     @test J_Cgh isa Number
     @test J_Cs isa Number
+end
+
+@testset "ties work as expected" begin
+    Y = Surv([1,2,3], trues(3), :r)
+    # compatible pairs: [1, 2], [1, 3], [2, 3]
+    # tied preds
+    # when tie_pred=0 only compatible with crank different
+    @test concordance(Y, [2, 2, 3], :I; tie_pred = 0) === 1.0
+    # concordant pairs: [0.5, 1, 1] = 2.5
+    @test concordance(Y, [2, 2, 3], :I; tie_pred = 0.5) === 2.5/3
+    # concordant pairs: [1, 1, 1] = 3
+    @test concordance(Y, [2, 2, 3], :I; tie_pred = 1) === 1.0
+
+    # tied times
+    Y = Surv([1,1,2], trues(3), :r)
+    p = [1,2,3]
+    # compatible pairs: [1, 2] [1, 2]
+    # concordant pairs: [1, 1] = 2
+    @test concordance(Y, p, :I; tie_time = 0) === 1.0
+    # compatible pairs: [1, 1] [1, 2] [1, 2]
+    # concordant pairs: [0.5, 1, 1] = 2.5
+    @test concordance(Y, p, :I; tie_time = 0.5) === 2.5/3
+    # compatible pairs: [1, 1] [1, 2] [1, 2]
+    # concordant pairs: [1, 1, 1] = 3
+    @test concordance(Y, p, :I; tie_time = 1) === 1.0
 end
 
 true

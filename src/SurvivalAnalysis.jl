@@ -15,7 +15,7 @@ module SurvivalAnalysis
     export scale, shape, params, Exponential, Weibull # Distributions
     export coef, confint, stderror, vcov, predict, fit, fit!, std # StatsBase
     export @formula # StatsModels
-    export time, reverse # Base
+    export time, reverse, length # Base
 
     # other exports
     export Surv, outcome_times, event_times, outcome_status, unique_times

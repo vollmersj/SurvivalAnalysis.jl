@@ -2,7 +2,7 @@ abstract type Surv end
 abstract type OneSidedSurv <: Surv end
 abstract type TwoSidedSurv <:Surv end
 
-mutable struct RCSurv <: OneSidedSurv
+struct RCSurv <: OneSidedSurv
     time::Vector{Float64}
     status::Vector{Bool}
     symbol::Char
@@ -12,7 +12,7 @@ mutable struct RCSurv <: OneSidedSurv
         new(time, status, '+', _tabulate_surv(time, status))
 end
 
-mutable struct LCSurv <: OneSidedSurv
+struct LCSurv <: OneSidedSurv
     time::Vector{Float64}
     status::Vector{Bool}
     symbol::Char
@@ -72,6 +72,8 @@ function Base.show(io::IO, oss::TwoSidedSurv)
         map((t0, t1) -> (round(t0; digits=3), round(t1; digits=3)), oss.start, oss.stop)
     )
 end
+
+Base.length(oss::OneSidedSurv) = length(oss.time)
 
 outcome_times(v::OneSidedSurv) = v.time
 outcome_times(v::TwoSidedSurv) = [v.start, v.stop]
@@ -145,4 +147,3 @@ function Base.merge(A::TwoSidedSurv...)
 end
 
 Base.reverse(oss::OneSidedSurv) = typeof(oss)(oss.time, .!oss.status)
-Base.reverse!(oss::OneSidedSurv) = (oss.status = .!oss.status; return oss)
