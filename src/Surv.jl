@@ -25,7 +25,7 @@ end
 struct IntSurv <: TwoSidedSurv
     start::Vector{Float64}
     stop::Vector{Float64}
-    IntSurv(start::Vector{Float64}, stop::Vector{Float64}) = new(start, stop, "interval")
+    IntSurv(start::Vector{Float64}, stop::Vector{Float64}) = new(start, stop)
 end
 
 """
