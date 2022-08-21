@@ -3,9 +3,15 @@ T = [2, 2, 5, 9, 10]
 T2 = T .+ 1
 Δ2 = [false, false, true, true, false]
 
+@testset "Surv errors when expected" begin
+    @test_throws ArgumentError Surv(1, 0, :int)
+    @test_throws ArgumentError merge(Surv(1, true, :r), Surv(1, false, :l))
+end
+
 @testset "OneSidedSurv" begin
     # can construct LCSurv
-    @test Surv(T, trues(5), "left") isa SurvivalAnalysis.LCSurv
+    @test Surv(T, trues(5), :left) isa SurvivalAnalysis.LCSurv
+    @test Surv(T, trues(5), :l) isa SurvivalAnalysis.LCSurv
     # can construct RCSurv without censoring
     srv = Surv(T)
     @test srv isa SurvivalAnalysis.RCSurv
@@ -13,9 +19,9 @@ T2 = T .+ 1
     @test srv.stats.ncens == zeros(4)
     @test show(srv) === nothing
     # can construct RCSurv from scalar
-    @test Surv(1, 0, "right").time == [1]
+    @test Surv(1, 0, :r).time == [1]
     # methods
-    srv = Surv(T, Δ, "right")
+    srv = Surv(T, Δ, :right)
     @test outcome_times(srv) == T
     @test outcome_status(srv) == Δ
     @test event_times(srv) == [2, 2, 10]
@@ -38,7 +44,7 @@ T2 = T .+ 1
     @test total_risk(srv, 50) == 0
     @test total_risk(srv, 2) == 5
     @test total_risk(srv, 5) == 3
-    srv2 = merge(srv, Surv(T2, Δ2, "right"))
+    srv2 = merge(srv, Surv(T2, Δ2, :r))
     @test srv2.time == [T..., T2...]
     @test srv2.status == [Δ..., Δ2...]
 end

@@ -57,7 +57,7 @@ Coefficients:
 ### 3. Function + Data
 
 ```jldoctest data
-julia> f = kaplan_meier(hcat(ones(10), 1:10), Surv(data.Y, data.D, "right"))
+julia> f = kaplan_meier(hcat(ones(10), 1:10), Surv(data.Y, data.D, :r))
 KaplanMeier
 
 Coefficients:
@@ -68,7 +68,7 @@ Coefficients:
 ### 4. `fit` + Data
 
 ```jldoctest data
-julia> f = fit(KaplanMeier, hcat(ones(10), 1:10), Surv(data.Y, data.D, "right"))
+julia> f = fit(KaplanMeier, hcat(ones(10), 1:10), Surv(data.Y, data.D, :right))
 KaplanMeier
 
 Coefficients:

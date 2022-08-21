@@ -118,11 +118,11 @@ end
 end
 
 @testset "Check non-formula interface" begin
-    fit = ph(Matrix(data[:,1:3]), Surv(data.T_Exp, data.δ, "right"), Exponential)
+    fit = ph(Matrix(data[:,1:3]), Surv(data.T_Exp, data.δ, :r), Exponential)
     @test baseline(fit) isa Exponential{Float64}
     @test predict(fit, data[:,1:3]) isa SurvivalAnalysis.ContinuousSurvivalPrediction
 
-    fit = aft(Matrix(data[:,1:3]), Surv(data.T_Exp, data.δ, "right"), Exponential)
+    fit = aft(Matrix(data[:,1:3]), Surv(data.T_Exp, data.δ, :r), Exponential)
     @test baseline(fit) isa Exponential{Float64}
     @test predict(fit, data[:,1:3]) isa SurvivalAnalysis.ContinuousSurvivalPrediction
 end
