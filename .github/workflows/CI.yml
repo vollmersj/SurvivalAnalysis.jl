@@ -29,6 +29,8 @@ jobs:
           arch: ${{ matrix.arch }}
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
+      - name: Install R libraries
+        run: Rscript -e "install.packages('remotes', type = 'source'); remote::install_github("mlr-org/mlr3proba")"
       - run: echo "LD_LIBRARY_PATH=$(R RHOME)/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         if: matrix.os == 'ubuntu-latest'
       - name: Restore cache
