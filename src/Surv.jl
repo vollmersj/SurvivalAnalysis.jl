@@ -2,7 +2,7 @@ abstract type Surv end
 abstract type OneSidedSurv <: Surv end
 abstract type TwoSidedSurv <:Surv end
 
-struct RCSurv <: OneSidedSurv
+mutable struct RCSurv <: OneSidedSurv
     time::Vector{Float64}
     status::Vector{Bool}
     symbol::Char
@@ -12,7 +12,7 @@ struct RCSurv <: OneSidedSurv
         new(time, status, '+', _tabulate_surv(time, status))
 end
 
-struct LCSurv <: OneSidedSurv
+mutable struct LCSurv <: OneSidedSurv
     time::Vector{Float64}
     status::Vector{Bool}
     symbol::Char
@@ -143,3 +143,6 @@ function Base.merge(A::TwoSidedSurv...)
     foreach(v -> push!(stop, v.stop...), A)
     return Surv(start, stop)
 end
+
+Base.reverse(oss::OneSidedSurv) = typeof(oss)(oss.time, .!oss.status)
+Base.reverse!(oss::OneSidedSurv) = (oss.status = .!oss.status; return oss)

@@ -66,3 +66,4 @@ const hₜ = hazard
 ∑(A...) = sum(A)
 ∏(A) = prod(A)
 ∏(A...) = prod(A)
+test_proportion(x) = x <= 1 && x>= 0
