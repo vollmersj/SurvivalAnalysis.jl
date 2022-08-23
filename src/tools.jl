@@ -67,3 +67,43 @@ const hₜ = hazard
 ∏(A) = prod(A)
 ∏(A...) = prod(A)
 test_proportion(x) = x <= 1 && x>= 0
+
+function pstring(s, p)
+    p == 0 && return "1"
+    p == 1 && return s
+    p == -1 && return string("/", s)
+
+    if p < 0
+        s = string("/", s)
+        p = abs(p)
+    end
+
+    if p > 0
+        str = string(p)
+        str = replace(str, "1" => Char('\U000B9'))
+        str = replace(str, "2" => Char('\U000B2'))
+        str = replace(str, "3" => Char('\U000B3'))
+        str = replace(str, "4" => Char('\U02074'))
+        str = replace(str, "5" => Char('\U02075'))
+        str = replace(str, "6" => Char('\U02076'))
+        str = replace(str, "7" => Char('\U02077'))
+        str = replace(str, "8" => Char('\U02078'))
+        str = replace(str, "9" => Char('\U02079'))
+        str = replace(str, "0" => Char('\U02070'))
+        s = string(s, str)
+    end
+
+    return s
+end
+
+function c_pstring(s1, s2)
+    s1 == "1" && s2 == "1" && return "1"
+    # cleanup
+    if first(s1) == '/' && first(s2) != '/'
+        tmp = s2
+        s2 = s1
+        s1 = tmp
+    end
+
+    return first(s1) == '/' ? string("1", s1, s2) : string(s1, s2)
+end

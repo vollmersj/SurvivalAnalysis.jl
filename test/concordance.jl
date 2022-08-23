@@ -20,8 +20,9 @@ pred = rand(ℰ, n);
 end
 
 @testset "Concordance functions" begin
-    @test concordance(truth, pred, :I) isa Number
-    @test concordance(truth, pred, :GH) isa Number
+    @test concordance(truth, pred, :I) isa SurvivalAnalysis.Concordance
+    @test concordance(truth, pred, :I).C isa Number
+    @test concordance(truth, pred, :GH) isa SurvivalAnalysis.Concordance
 end
 
 @testset "Concordance fails as expected" begin
@@ -30,18 +31,40 @@ end
     @test_throws AssertionError concordance(truth, [1], :I)
 end
 
-@testset "Check basic results" begin
+@testset "Check fallback results" begin
     # 0.5 if: all pred same, all times same, no events
-    @test concordance(truth, fill(10, n), :I) === 0.5
-    @test concordance(Surv(fill(1, n), trues(n), :r), pred, :I) === 0.5
-    @test concordance(Surv(randn(n), falses(n), :r), pred, :I) === 0.5
+    @test concordance(truth, fill(10, n), :I).C === 0.5
+    @test concordance(truth, fill(10, n), :I).weights.name ===
+        "Fallback (all predictions equal)"
+    @test concordance(Surv(fill(1, n), trues(n), :r), pred, :I).C === 0.5
+    @test concordance(Surv(fill(1, n), trues(n), :r), pred, :I).weights.name ===
+        "Fallback (all observed event times equal)"
+    @test concordance(Surv(randn(n), falses(n), :r), pred, :I).C === 0.5
+    @test concordance(Surv(randn(n), falses(n), :r), pred, :I).weights.name ===
+        "Fallback (no observed events)"
+end
 
+@testset "Check names" begin
+    @test concordance(truth, pred, :I).weights.name === "Harrell's"
+    @test concordance(truth, pred, :Harrell).weights.name === "Harrell's"
+    @test concordance(truth, pred, :G).weights.name === ""
+    @test concordance(truth, pred, :G2).weights.name === "Uno's"
+    @test concordance(truth, pred, :Uno).weights.name === "Uno's"
+    @test concordance(truth, pred, :GH).weights.name === "Gonen-Heller's"
+    @test concordance(truth, pred, :Gonen).weights.name === "Gonen-Heller's"
+    @test concordance(truth, pred, :SG).weights.name === "Schemper's"
+    @test concordance(truth, pred, :Schemper).weights.name === "Schemper's"
+    @test concordance(truth, pred, :S).weights.name === "Peto-Wilcoxon's"
+    @test concordance(truth, pred, :Peto).weights.name === "Peto-Wilcoxon's"
+end
+
+@testset "Check basic results" begin
     # perfect prediction
-    @test concordance(truth, truth.time, :I) === 1.0
-    @test concordance(truth, truth.time, :I, rev=true) === 0.0
+    @test concordance(truth, truth.time, :I).C === 1.0
+    @test concordance(truth, truth.time, :I, rev=true).C === 0.0
 
     # worst prediction
-    @test concordance(truth, 1 .- truth.time, :I) === 0.0
+    @test concordance(truth, 1 .- truth.time, :I).C === 0.0
 end
 
 ## comparing to {survival} is quick as it's bundled with R but
@@ -61,12 +84,12 @@ end
     R_Cng = rcopy(R"Cng");
     R_Cng2 = rcopy(R"Cng2");
 
-    J_Ci = concordance(truth, pred, :I, tie_time=0);
-    J_Cs = concordance(truth, pred, :S, tie_time=0);
-    J_Csg = concordance(truth, pred, :SG, tie_time=0);
-    J_Cng = concordance(truth, pred, :G, tie_time=0);
-    J_Cng2 = concordance(truth, pred, :G2, tie_time=0);
-    J_Cgh = concordance(truth, pred, :GH, tie_time=0);
+    J_Ci = concordance(truth, pred, :I, tie_time=0).C;
+    J_Cs = concordance(truth, pred, :S, tie_time=0).C;
+    J_Csg = concordance(truth, pred, :SG, tie_time=0).C;
+    J_Cng = concordance(truth, pred, :G, tie_time=0).C;
+    J_Cng2 = concordance(truth, pred, :G2, tie_time=0).C;
+    J_Cgh = concordance(truth, pred, :GH, tie_time=0).C;
 
     @test J_Ci ≈ R_Ci
     @test J_Cng ≈ R_Cng
@@ -84,24 +107,26 @@ end
     # compatible pairs: [1, 2], [1, 3], [2, 3]
     # tied preds
     # when tie_pred=0 only compatible with crank different
-    @test concordance(Y, [2, 2, 3], :I; tie_pred = 0) === 1.0
+    @test concordance(Y, [2, 2, 3], :I; tie_pred = 0).C === 1.0
     # concordant pairs: [0.5, 1, 1] = 2.5
-    @test concordance(Y, [2, 2, 3], :I; tie_pred = 0.5) === 2.5/3
+    @test concordance(Y, [2, 2, 3], :I; tie_pred = 0.5).C === 2.5/3
     # concordant pairs: [1, 1, 1] = 3
-    @test concordance(Y, [2, 2, 3], :I; tie_pred = 1) === 1.0
+    @test concordance(Y, [2, 2, 3], :I; tie_pred = 1).C === 1.0
 
     # tied times
     Y = Surv([1,1,2], trues(3), :r)
     p = [1,2,3]
     # compatible pairs: [1, 2] [1, 2]
     # concordant pairs: [1, 1] = 2
-    @test concordance(Y, p, :I; tie_time = 0) === 1.0
+    @test concordance(Y, p, :I; tie_time = 0).C === 1.0
     # compatible pairs: [1, 1] [1, 2] [1, 2]
     # concordant pairs: [0.5, 1, 1] = 2.5
-    @test concordance(Y, p, :I; tie_time = 0.5) === 2.5/3
+    @test concordance(Y, p, :I; tie_time = 0.5).C === 2.5/3
     # compatible pairs: [1, 1] [1, 2] [1, 2]
     # concordant pairs: [1, 1, 1] = 3
-    @test concordance(Y, p, :I; tie_time = 1) === 1.0
+    @test concordance(Y, p, :I; tie_time = 1).C === 1.0
 end
+
+## todo - add tests for counts info and weights info
 
 true
