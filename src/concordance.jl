@@ -74,7 +74,7 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number}, weights:
 
     if msg !== nothing
       msg = string("Fallback ($(msg))")
-      return Concordance(0.5, ConcordanceWeights(0, 0, 0, 0, msg), 0, 0, 0, 0, 0, 0, false)
+      return Concordance(0.5, ConcordanceWeights(0, 0, 0, 0, msg), 0, 0, 0, 0, 0, 0, n_pairs, false)
     end
 
     if custom_weights !== nothing
