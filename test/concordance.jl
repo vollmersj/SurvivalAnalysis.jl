@@ -28,7 +28,7 @@ end
 @testset "Concordance fails as expected" begin
     @test_throws ArgumentError concordance(truth, pred, :I, tie_pred = 2)
     @test_throws ArgumentError concordance(truth, pred, :P)
-    @test_throws AssertionError concordance(truth, [1], :I)
+    @test_throws ArgumentError concordance(truth, [1], :I)
 end
 
 @testset "Check fallback results" begin
