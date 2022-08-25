@@ -52,6 +52,12 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number}, weights:
     tie_pred=0.5, tie_time=0, cutoff=nothing, train=nothing, rev=false,
     custom_weights::Union{Nothing, ConcordanceWeights}=nothing)
 
+    n_truth = length(truth)
+    n_pred = length(prediction)
+    n_truth != n_pred &&
+      throw(ArgumentError(
+        "`truth` (n=$(n_truth)) and `prediction` (n=$(n_pred)) unequal lengths"))
+
     # if everything is tied or no events then return 0.5
     msg = nothing
     if length(unique(prediction)) == 1
@@ -66,8 +72,6 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number}, weights:
       msg = string("Fallback ($(msg))")
       return Concordance(0.5, ConcordanceWeights(0, 0, 0, 0, msg), 0, 0, 0, 0, 0, 0, false)
     end
-
-    @assert length(truth) == length(prediction)
 
     if custom_weights !== nothing
       weights = custom_weights
@@ -179,7 +183,7 @@ function gonen(pred, tie, rev)
 
     C = rev ? (2 * ghci) / (n * (n - 1)) : 1 - (2 * ghci) / (n * (n - 1))
     N₋ = N₌ - N₊ - Nₚ # disconcordant
-    return Concordance(C, ConcordanceWeights(0, 0, 0, 0, "Gönen-Heller's C"),
+    return Concordance(C, ConcordanceWeights(0, 0, 0, 0, "Gönen-Heller's"),
                       0, Nₚ, 0, N₌, N₊, N₋, rev)
 end
 
