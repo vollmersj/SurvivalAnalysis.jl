@@ -69,31 +69,24 @@ const hₜ = hazard
 test_proportion(x) = x <= 1 && x>= 0
 
 function pstring(s, p)
-    p == 0 && return "1"
-    p == 1 && return s
-    p == -1 && return string("/", s)
+    s = p < 0 ? string("/", s) : s
+    str = string(abs(p))
 
-    if p < 0
-        s = string("/", s)
-        p = abs(p)
-    end
+    str == "0" && return "1"
+    str == "1" && return s
 
-    if p > 0
-        str = string(p)
-        str = replace(str, "1" => Char('\U000B9'))
-        str = replace(str, "2" => Char('\U000B2'))
-        str = replace(str, "3" => Char('\U000B3'))
-        str = replace(str, "4" => Char('\U02074'))
-        str = replace(str, "5" => Char('\U02075'))
-        str = replace(str, "6" => Char('\U02076'))
-        str = replace(str, "7" => Char('\U02077'))
-        str = replace(str, "8" => Char('\U02078'))
-        str = replace(str, "9" => Char('\U02079'))
-        str = replace(str, "0" => Char('\U02070'))
-        s = string(s, str)
-    end
+    str = replace(str, "1" => Char('\U000B9'))
+    str = replace(str, "2" => Char('\U000B2'))
+    str = replace(str, "3" => Char('\U000B3'))
+    str = replace(str, "4" => Char('\U02074'))
+    str = replace(str, "5" => Char('\U02075'))
+    str = replace(str, "6" => Char('\U02076'))
+    str = replace(str, "7" => Char('\U02077'))
+    str = replace(str, "8" => Char('\U02078'))
+    str = replace(str, "9" => Char('\U02079'))
+    str = replace(str, "0" => Char('\U02070'))
 
-    return s
+    return string(s, str)
 end
 
 function c_pstring(s1, s2)
