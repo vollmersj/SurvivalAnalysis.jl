@@ -1,8 +1,8 @@
 struct ConcordanceWeights
   S::Int8
   G::Int8
-  tied_preds::Float16
-  tied_times::Float16
+  tied_preds::Float64
+  tied_times::Float64
   name::String
 
   ConcordanceWeights(S, G, tied_preds, tied_times) =
@@ -14,21 +14,23 @@ struct ConcordanceWeights
       throw(ArgumentError("Expected 0≤`tied_preds`≤1, got $(tied_preds)"))
     test_proportion(tied_times) ||
       throw(ArgumentError("Expected 0≤`tied_times`≤1, got $(tied_times)"))
-    new(convert(Int8, S), convert(Int8, G), convert(Float16, tied_preds),
-      convert(Float16, tied_times), name)
+    new(convert(Int8, S), convert(Int8, G), convert(Float64, tied_preds),
+      convert(Float64, tied_times), name)
   end
 end
 
 struct Concordance
   C::Float64
+  numerator::Float64
+  denominator::Float64
   weights::ConcordanceWeights
   tied_times::Int64
   tied_preds::Int64
   tied_both::Int64
+  pairs::Int64
   comparable::Int64
   concordant::Int64
   disconcordant::Int64
-  pairs::Int64
   reversed::Bool
 end
 
@@ -37,9 +39,6 @@ function Base.show(io::IO, C::Concordance)
   println(io)
   println(io, lstrip("$(C.weights.name) C = $(C.C)"), " (reversed)"^C.reversed)
   println(io)
-  println(io, "Ties:")
-  pretty_table(io, [C.tied_times C.tied_preds C.tied_both],
-      header = ["Times", "Preds", "Both"], vlines = :none, hlines = :none)
   println(io, "Counts:")
   pretty_table(io, [C.pairs C.comparable C.concordant C.disconcordant],
     header = ["Pairs", "Comparable", "Concordant", "Disconcordant"], vlines = :none,
@@ -48,6 +47,12 @@ function Base.show(io::IO, C::Concordance)
   str = c_pstring(pstring("S", C.weights.S), pstring("G", C.weights.G))
   pretty_table(io, [str C.weights.tied_preds C.weights.tied_times],
     header = ["IPCW", "Tied preds", "Tied times"], vlines = :none, hlines = :none)
+  println(io, "Ties:")
+  pretty_table(io, [C.tied_times C.tied_preds C.tied_both],
+      header = ["Times", "Preds", "Both"], vlines = :none, hlines = :none)
+  println(io, "Weighted calculation:")
+  pretty_table(io, [C.numerator C.denominator C.C],
+      header = ["Numerator", "Denominator", "C"], vlines = :none, hlines = :none)
   nothing
 end
 
@@ -57,7 +62,7 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number}, weights:
 
     n_truth = length(truth)
     n_pred = length(prediction)
-    n_pairs = binomial(n_pred, 2)
+    n_pairs = binomial(n_pred, 2)*2
     n_truth != n_pred &&
       throw(ArgumentError(
         "`truth` (n=$(n_truth)) and `prediction` (n=$(n_pred)) unequal lengths"))
@@ -73,44 +78,66 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number}, weights:
     end
 
     if msg !== nothing
-      msg = string("Fallback ($(msg))")
-      return Concordance(0.5, ConcordanceWeights(0, 0, 0, 0, msg), 0, 0, 0, 0, 0, 0, n_pairs, false)
-    end
-
-    if custom_weights !== nothing
-      weights = custom_weights
-    elseif weights === :I || weights === :Harrell
-      weights = ConcordanceWeights(0, 0, tied_preds, tied_times, "Harrell's")
-    elseif weights === :G
-      weights = ConcordanceWeights(0, -1, tied_preds, tied_times)
-    elseif weights === :G2 || weights === :Uno
-      weights = ConcordanceWeights(0, -2, tied_preds, tied_times, "Uno's")
-    elseif weights === :GH || weights === :Gonen
-      return gonen(sort(prediction), tied_preds, rev)
-    elseif weights === :SG || weights === :Schemper
-      weights = ConcordanceWeights(1, -1, tied_preds, tied_times, "Schemper's")
-    elseif weights === :S || weights === :Peto
-      weights = ConcordanceWeights(1, 0, tied_preds, tied_times, "Peto-Wilcoxon's")
+      weights = ConcordanceWeights(0, 0, 0, 0, string("Fallback ($(msg))"))
+      out = (numerator=0, denominator=0, tied_times=0, tied_preds=0, tied_both=0,
+        comparable=0, concordant=0, disconcordant=0)
+      C = 0.5
     else
-      throw(ArgumentError("`weights` must be one of `:I`, `:G`, `:G2`, :`SG:, `:S`, `:Uno`,
-`:Harrell`, `:GH`, `:Gonen`, `:Schemper`, `:Peto`"))
+      if custom_weights !== nothing
+        weights = custom_weights
+      elseif weights === :I || weights === :Harrell
+        weights = ConcordanceWeights(0, 0, tied_preds, tied_times, "Harrell's")
+      elseif weights === :G
+        weights = ConcordanceWeights(0, -1, tied_preds, tied_times)
+      elseif weights === :G2 || weights === :Uno
+        weights = ConcordanceWeights(0, -2, tied_preds, tied_times, "Uno's")
+      elseif weights === :GH || weights === :Gonen
+        weights = ConcordanceWeights(0, 0, 0, 0, "Gönen-Heller's")
+        out = gonen(sort(prediction), tied_preds)
+      elseif weights === :SG || weights === :Schemper
+        weights = ConcordanceWeights(1, -1, tied_preds, tied_times, "Schemper's")
+      elseif weights === :S || weights === :Peto
+        weights = ConcordanceWeights(1, 0, tied_preds, tied_times, "Peto-Wilcoxon's")
+      else
+        throw(ArgumentError("`weights` must be one of `:I`, `:G`, `:G2`, :`SG:, `:S`, `:Uno`,
+  `:Harrell`, `:GH`, `:Gonen`, `:Schemper`, `:Peto`"))
+      end
+
+      if weights.name != "Gönen-Heller's"
+        ord = sortperm(truth.time)
+        time = truth.time[ord]
+        prediction = prediction[ord]
+        idx = findall(!iszero, truth.status[ord])
+
+        train = train === nothing ? truth : train
+        surv = weights.S != 0 ? fit(KaplanMeier, zeros(0,0), train) : nothing
+        cens = weights.G != 0 ? fit(KaplanMeier, zeros(0,0), reverse(train)) : nothing
+
+        cutoff = cutoff === nothing ? maximum(time) + 1 : cutoff
+
+        out = _concordance(time, idx, prediction, cutoff, weights, cens, surv)
+      end
+
+      C = rev ? 1 - out.numerator/out.denominator : out.numerator/out.denominator
     end
 
-    ord = sortperm(truth.time)
-    time = truth.time[ord]
-    prediction = prediction[ord]
-    idx = findall(!iszero, truth.status[ord])
-
-    train = train === nothing ? truth : train
-    surv = weights.S != 0 ? fit(KaplanMeier, zeros(0,0), train) : nothing
-    cens = weights.G != 0 ? fit(KaplanMeier, zeros(0,0), reverse(train)) : nothing
-
-    cutoff = cutoff === nothing ? maximum(time) + 1 : cutoff
-
-    return _concordance(time, idx, prediction, cutoff, weights, cens, surv, rev, n_pairs)
+    return Concordance(
+      C,
+      out.numerator,
+      out.denominator,
+      weights,
+      out.tied_times,
+      out.tied_preds,
+      out.tied_both,
+      n_pairs,
+      out.comparable,
+      out.concordant,
+      out.disconcordant,
+      rev
+    )
 end
 
-function _concordance(time, idx, pred, cutoff, wts, cens, surv, rev, n_pairs)
+function _concordance(time, idx, pred, cutoff, wts, cens, surv)
   num = 0 # weighted numerator
   den = 0 # weighted denominator
   Nₜ = 0 # numbered tied time
@@ -164,11 +191,11 @@ function _concordance(time, idx, pred, cutoff, wts, cens, surv, rev, n_pairs)
     end
   end
 
-  C = rev ? 1 - num/den : num/den
-  return Concordance(C, wts, Nₜ, Nₚ, Nₜₚ, N₌, N₊, N₋, n_pairs, rev)
+  return (numerator=num, denominator=den, tied_times=Nₜ, tied_preds=Nₚ, tied_both=Nₜₚ,
+    comparable=N₌, concordant=N₊, disconcordant=N₋)
 end
 
-function gonen(pred, tie, rev)
+function gonen(pred, tie)
     # we assume pred to be sorted
     n = length(pred)
     ghci = 0.0
@@ -190,10 +217,13 @@ function gonen(pred, tie, rev)
       end
     end
 
-    C = rev ? (2 * ghci) / (n * (n - 1)) : 1 - (2 * ghci) / (n * (n - 1))
+    num = (n * (n - 1)) - (2 * ghci) / (n * (n - 1))
+    den = (n * (n - 1))
 
-    return Concordance(C, ConcordanceWeights(0, 0, 0, 0, "Gönen-Heller's"),
-                      0, Nₚ, 0, N₌, N₊, 0, N₌ - N₊, rev)
+    N₋ = N₌ - N₊
+
+    return (numerator=num, denominator=den, tied_times=0, tied_preds=Nₚ, tied_both=0,
+      comparable=N₌, concordant=N₊, disconcordant=N₋)
 end
 
 const cindex = concordance

@@ -1,4 +1,3 @@
-seed!(42)
 n = 50
 ℰ = Exponential()
 𝓑 = Bernoulli()
@@ -62,19 +61,19 @@ end
     @test concordance(truth, 1 .- truth.time, :I).C === 0.0
 
     # show returns nothing
-    @test concordance(truth, 1 .- truth.time, :I).show === nothing
+    @test show(concordance(truth, 1 .- truth.time, :I)) === nothing
 
     # overwrite as expected
     C = concordance(truth, pred, :I, tied_times = 0.1, tied_preds = 0.9)
-    @test C.weights.tied_times == Float16(0.1)
-    @test C.weights.tied_preds == Float16(0.9)
+    @test C.weights.tied_times == 0.1
+    @test C.weights.tied_preds == 0.9
     @test C.weights.G == 0
     @test C.weights.S == 0
 
     C = concordance(truth, pred, :I, tied_times = 0.1, tied_preds = 0.9,
         custom_weights = ConcordanceWeights(1, 2, 0.2, 0.8, ""))
-    @test C.weights.tied_times == Float16(0.8)
-    @test C.weights.tied_preds == Float16(0.2)
+    @test C.weights.tied_times == 0.8
+    @test C.weights.tied_preds == 0.2
     @test C.weights.G == 2
     @test C.weights.S == 1
 end
@@ -144,7 +143,7 @@ end
     p = [1, 2, 3, 3, 2.5, 2.5]
 
     C = concordance(Y, p, :I);
-    @test C.pairs == 15
+    @test C.pairs == 30
     @test C.tied_times === 1
     @test C.tied_preds === 1
     @test C.tied_both === 1
@@ -153,7 +152,7 @@ end
     @test C.disconcordant === 4
 
     C = concordance(Y, p, :GH);
-    @test C.pairs == 15
+    @test C.pairs == 30
     @test C.tied_times === 0
     @test C.tied_preds === 2
     @test C.tied_both === 0
@@ -162,7 +161,7 @@ end
     @test C.disconcordant === 2
 
     C = concordance(Y, p, :I, tied_preds = 1, tied_times = 1);
-    @test C.pairs == 15
+    @test C.pairs == 30
     @test C.tied_times === 1
     @test C.tied_preds === 1
     @test C.tied_both === 1
