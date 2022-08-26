@@ -72,8 +72,8 @@ end
     @test C.weights.G == 0
     @test C.weights.S == 0
 
-    C = concordance(truth, pred, :I, tied_times = 0.1, tied_preds = 0.9,
-        weights = ConcordanceWeights(1, 2, 0.2, 0.8, ""))
+    C = concordance(truth, pred, ConcordanceWeights(1, 2, 0.2, 0.8, ""),
+        tied_times = 0.1, tied_preds = 0.9)
     @test C.weights.tied_times == 0.8
     @test C.weights.tied_preds == 0.2
     @test C.weights.G == 2
