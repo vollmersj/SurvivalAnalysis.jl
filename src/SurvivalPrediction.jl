@@ -61,6 +61,7 @@ julia> SurvivalPrediction(fit_times = randn(5), survival_matrix = randn((2, 5)))
 
 # ContinuousSurvivalPrediction
 julia> SurvivalPrediction(distr = fill(Exponential(), 2));
+
 ```
 """
 function SurvivalPrediction(;
