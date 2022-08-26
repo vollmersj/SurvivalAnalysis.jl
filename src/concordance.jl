@@ -156,7 +156,7 @@ SurvivalAnalysis.Concordance
 
 Uno's C = 0.6221374045801525
 
-Cutoff: T ≤ 21.0
+Cutoff: T ≤ 20.0
 Counts:
  Pairs  Comparable  Concordant  Disconcordant
     90          39          23             14
@@ -175,7 +175,7 @@ SurvivalAnalysis.Concordance
 
 Silly Weights C = 0.6070334788405888
 
-Cutoff: T ≤ 21.0
+Cutoff: T ≤ 20.0
 Counts:
  Pairs  Comparable  Concordant  Disconcordant
     90          40          23             14
@@ -201,6 +201,7 @@ function concordance(truth::OneSidedSurv, prediction::Vector{<:Number},
     n_truth != n_pred &&
         throw(ArgumentError(
             "`truth` (n=$(n_truth)) and `prediction` (n=$(n_pred)) unequal lengths"))
+    cutoff = cutoff === nothing ? maximum(truth.time) : cutoff
 
     # if everything is tied or no events then return 0.5
     msg = nothing
@@ -240,6 +241,7 @@ object"))
         if weights.name != "Gönen-Heller's"
             ord = sortperm(truth.time)
             time = truth.time[ord]
+
             prediction = prediction[ord]
             idx = findall(!iszero, truth.status[ord])
 
@@ -247,7 +249,7 @@ object"))
             surv = weights.S != 0 ? fit(KaplanMeier, zeros(0,0), train) : nothing
             cens = weights.G != 0 ? fit(KaplanMeier, zeros(0,0), reverse(train)) : nothing
 
-            cutoff = cutoff === nothing ? maximum(time) + 1 : cutoff
+
 
             out = _concordance(time, idx, prediction, cutoff, weights, cens, surv)
         end
