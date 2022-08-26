@@ -122,76 +122,72 @@ survival time. In this case a prediction is concordant with the survival time if
 ``ϕᵢ < ϕⱼ ⟺ Tᵢ > Tⱼ``. To do this within the function just set `rev=true`.
 
 ```jldoctest
-julia> using Random
+julia> T = [1.0,0.1,pi,0.9,0.4,20,1,5,9,2.5];
 
-julia> Random.seed!(24);
+julia> ϕ = [0.1,0.2,0.1,0.9,0.25,exp(2),8,log(9),2,8];
 
-julia> T = randn(50);
-
-julia> ϕ = randn(50);
-
-julia> Δ = [trues(25)..., falses(25)...];
+julia> Δ = [true,true,false,true,true,false,true,false,true,true];
 
 julia> Y = Surv(T, Δ, :r);
 
-julia> train = Surv(randn(50), Δ, :r);
+julia> train = Surv([3,3,9,12,2,1,8,4,10,8], Δ, :r);
 
 julia> concordance(Y, ϕ, cutoff = threshold_risk(Y, 0.8)) # Harrell's C cutoff when 80% data is censored or dead
 SurvivalAnalysis.Concordance
 
-Harrell's C = 0.5672913117546848
+Harrell's C = 0.6153846153846154
 
-Cutoff: T ≤ 1.0750367414109951
+Cutoff: T ≤ 9.0
 Counts:
  Pairs  Comparable  Concordant  Disconcordant
-  2450         587         333            254
+    90          39          23             14
 Weights:
  IPCW  Tied preds  Tied times
     1         0.5         0.0
 Ties:
  Times  Preds  Both
-     0      0     0
+     1      2     0
 Weighted calculation:
  Numerator  Denominator         C
-     333.0        587.0  0.567291
+      24.0         39.0  0.615385
 
 julia> concordance(Y, ϕ, :Uno, train=train) # Uno's C
 SurvivalAnalysis.Concordance
 
-Uno's C = 0.5995620751688556
+Uno's C = 0.6221374045801525
 
-Cutoff: T ≤ 3.236680510541948
+Cutoff: T ≤ 21.0
 Counts:
  Pairs  Comparable  Concordant  Disconcordant
-  2450         601         341            260
+    90          39          23             14
 Weights:
  IPCW  Tied preds  Tied times
  1/G²         0.5         0.0
 Ties:
  Times  Preds  Both
-     0      0     0
+     1      2     0
 Weighted calculation:
  Numerator  Denominator         C
-   935.153      1559.73  0.599562
+   28.1728       45.284  0.622137
 
 julia> cindex(Y, ϕ, ConcordanceWeights(5, -3, 0.5, 0.5, "Silly Weights"); train=train) # Custom weights
 SurvivalAnalysis.Concordance
 
-Silly Weights C = 0.5422688440989026
+Silly Weights C = 0.6070334788405888
 
-Cutoff: T ≤ 3.236680510541948
+Cutoff: T ≤ 21.0
 Counts:
  Pairs  Comparable  Concordant  Disconcordant
-  2450         601         341            260
+    90          40          23             14
 Weights:
   IPCW  Tied preds  Tied times
  S⁵/G³         0.5         0.5
 Ties:
  Times  Preds  Both
-     0      0     0
+     1      2     0
 Weighted calculation:
  Numerator  Denominator         C
-   228.816      421.961  0.542269
+   25.6265       42.216  0.607033
 ```
 """
 function concordance(truth::OneSidedSurv, prediction::Vector{<:Number},
