@@ -9,7 +9,6 @@ module SurvivalAnalysis
     using StatsBase
     using StatsModels
     using PrettyTables: pretty_table
-    using Crayons
 
     # reexports
     export DataFrame # DataFrames
