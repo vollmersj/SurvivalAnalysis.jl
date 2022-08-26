@@ -9,6 +9,7 @@ module SurvivalAnalysis
     using StatsBase
     using StatsModels
     using PrettyTables: pretty_table
+    using Crayons
 
     # reexports
     export DataFrame # DataFrames
@@ -18,7 +19,7 @@ module SurvivalAnalysis
     export time, reverse, length # Base
 
     # other exports
-    export Surv, outcome_times, event_times, outcome_status, unique_times
+    export Surv, outcome_times, event_times, outcome_status, unique_times, threshold_risk
     export unique_event_times
     export total_events, total_censored, total_outcomes, total_risk, surv_stats
     export Srv

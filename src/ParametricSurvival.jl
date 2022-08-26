@@ -53,16 +53,16 @@ function _fitParametricSurvival(obj, X, Y, init, llik, dtrafo)
 end
 
 
-baseline(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
+baseline(mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
     mm.model.baseline
-baseline(mm::SurvivalModel) = mm.baseline
+baseline(mm::ParametricSurvival) = mm.baseline
 
 Distributions.scale(
-    mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
+    mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
     mm.model.scale
-Distributions.scale(mm::SurvivalModel) = mm.scale
+Distributions.scale(mm::ParametricSurvival) = mm.scale
 
-function Base.show(io::IO, mm::SurvivalModel)
+function Base.show(io::IO, mm::ParametricSurvival)
     println(io, typeof(mm))
     println(io)
     println(io, "Distr:")
@@ -76,7 +76,7 @@ function Base.show(io::IO, mm::SurvivalModel)
     pretty_table(io, data,  header = header, vlines = :none, hlines = :none)
 end
 
-function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalModel})
+function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:ParametricSurvival})
     println(io, typeof(mm))
     println(io)
     println(io, mm.mf.f)

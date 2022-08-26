@@ -111,6 +111,12 @@ total_risk(v::OneSidedSurv, t::Number) = _total_outcome(v, t, "nrisk")
 surv_stats(v::OneSidedSurv; events_only = false) =
     events_only ? (w = map(x -> x > 0, v.stats.nevents); map(s -> s[w], v.stats)) : v.stats
 
+function threshold_risk(oss::OneSidedSurv, p::Number)
+    test_proportion(p) || throw(ArgumentError("Expected 0≤`p`≤1, got $(p)"))
+    p == 1 && return oss.stats.time[end]
+    oss.stats.time[searchsortedfirst(1 .- oss.stats.nrisk / length(oss), p)]
+end
+
 function _tabulate_surv(T, Δ)
     ut = sort(unique(T))
     n = length(ut)

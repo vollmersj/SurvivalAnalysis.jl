@@ -25,9 +25,9 @@ struct ConcordanceWeights
     function ConcordanceWeights(S::Int, G::Int, tied_preds::Number, tied_times::Number,
         name::String)
         test_proportion(tied_preds) ||
-        throw(ArgumentError("Expected 0≤`tied_preds`≤1, got $(tied_preds)"))
+            throw(ArgumentError("Expected 0≤`tied_preds`≤1, got $(tied_preds)"))
         test_proportion(tied_times) ||
-        throw(ArgumentError("Expected 0≤`tied_times`≤1, got $(tied_times)"))
+            throw(ArgumentError("Expected 0≤`tied_times`≤1, got $(tied_times)"))
         new(convert(Int8, S), convert(Int8, G), convert(Float64, tied_preds),
         convert(Float64, tied_times), name)
     end
@@ -46,6 +46,7 @@ struct Concordance
     concordant::Int64
     disconcordant::Int64
     reversed::Bool
+    cutoff::Float64
 end
 
 function Base.show(io::IO, C::Concordance)
@@ -53,6 +54,7 @@ function Base.show(io::IO, C::Concordance)
     println(io)
     println(io, lstrip("$(C.weights.name) C = $(C.C)"), " (reversed)"^C.reversed)
     println(io)
+    println(io, "Cutoff: T ≤ $(C.cutoff)")
     println(io, "Counts:")
     pretty_table(io, [C.pairs C.comparable C.concordant C.disconcordant],
         header = ["Pairs", "Comparable", "Concordant", "Disconcordant"], vlines = :none,
@@ -67,7 +69,7 @@ function Base.show(io::IO, C::Concordance)
     println(io, "Weighted calculation:")
     pretty_table(io, [C.numerator C.denominator C.C],
         header = ["Numerator", "Denominator", "C"], vlines = :none, hlines = :none)
-        nothing
+    return nothing
 end
 
 """
@@ -120,25 +122,29 @@ survival time. In this case a prediction is concordant with the survival time if
 ``ϕᵢ < ϕⱼ ⟺ Tᵢ > Tⱼ``. To do this within the function just set `rev=true`.
 
 ```jldoctest
+julia> using Random
+
+julia> Random.seed!(24);
+
 julia> T = randn(50);
 
-julia> pred = randn(50);
+julia> ϕ = randn(50);
 
 julia> Δ = [trues(25)..., falses(25)...];
 
-julia> truth = Surv(T, Δ, :r);
+julia> Y = Surv(T, Δ, :r);
 
 julia> train = Surv(randn(50), Δ, :r);
 
-# Harrell's C
-julia> concordance(truth, pred)
+julia> concordance(Y, ϕ, cutoff = threshold_risk(Y, 0.8)) # Harrell's C cutoff when 80% data is censored or dead
 SurvivalAnalysis.Concordance
 
-Harrell's C = 0.406993006993007
+Harrell's C = 0.5672913117546848
 
+Cutoff: T ≤ 1.0750367414109951
 Counts:
  Pairs  Comparable  Concordant  Disconcordant
-  2450         715         291            424
+  2450         587         333            254
 Weights:
  IPCW  Tied preds  Tied times
     1         0.5         0.0
@@ -147,17 +153,17 @@ Ties:
      0      0     0
 Weighted calculation:
  Numerator  Denominator         C
-     291.0        715.0  0.406993
+     333.0        587.0  0.567291
 
-# Uno's C
-julia> concordance(truth, pred, :Uno, train=train)
+julia> concordance(Y, ϕ, :Uno, train=train) # Uno's C
 SurvivalAnalysis.Concordance
 
-Uno's C = 0.43901992144339247
+Uno's C = 0.5995620751688556
 
+Cutoff: T ≤ 3.236680510541948
 Counts:
  Pairs  Comparable  Concordant  Disconcordant
-  2450         715         291            424
+  2450         601         341            260
 Weights:
  IPCW  Tied preds  Tied times
  1/G²         0.5         0.0
@@ -165,29 +171,27 @@ Ties:
  Times  Preds  Both
      0      0     0
 Weighted calculation:
- Numerator  Denominator        C
-     472.7      1076.72  0.43902
-```
+ Numerator  Denominator         C
+   935.153      1559.73  0.599562
 
-# Custom weights
-julia> cindex(truth, pred, ConcordanceWeights(5, -3, 0.5, 0.5, "Silly Weights");
-    train=train)
+julia> cindex(Y, ϕ, ConcordanceWeights(5, -3, 0.5, 0.5, "Silly Weights"); train=train) # Custom weights
 SurvivalAnalysis.Concordance
 
-Silly Weights C = 0.6103807809801938
+Silly Weights C = 0.5422688440989026
 
+Cutoff: T ≤ 3.236680510541948
 Counts:
-    Pairs  Comparable  Concordant  Disconcordant
-    2450         572         338            234
+ Pairs  Comparable  Concordant  Disconcordant
+  2450         601         341            260
 Weights:
-    IPCW  Tied preds  Tied times
-    S⁵/G³         0.5         0.5
+  IPCW  Tied preds  Tied times
+ S⁵/G³         0.5         0.5
 Ties:
-    Times  Preds  Both
-        0      0     0
+ Times  Preds  Both
+     0      0     0
 Weighted calculation:
-    Numerator  Denominator         C
-    228.464      374.298  0.610381
+ Numerator  Denominator         C
+   228.816      421.961  0.542269
 ```
 """
 function concordance(truth::OneSidedSurv, prediction::Vector{<:Number},
@@ -267,7 +271,8 @@ object"))
         out.comparable,
         out.concordant,
         out.disconcordant,
-        rev
+        rev,
+        cutoff
     )
 end
 

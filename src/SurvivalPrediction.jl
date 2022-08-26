@@ -53,15 +53,11 @@ vice versa.
 
 # Examples
 ```jldoctest
-# DeterministicSurvivalPrediction
-julia> SurvivalPrediction(time = randn(5));
+julia> SurvivalPrediction(time = randn(5)); # DeterministicSurvivalPrediction
 
-# DiscreteSurvivalPrediction
-julia> SurvivalPrediction(fit_times = randn(5), survival_matrix = randn((2, 5)));
+julia> SurvivalPrediction(fit_times = randn(5), survival_matrix = randn((2, 5))); # DiscreteSurvivalPrediction
 
-# ContinuousSurvivalPrediction
-julia> SurvivalPrediction(distr = fill(Exponential(), 2));
-
+julia> SurvivalPrediction(distr = fill(Exponential(), 2)); # ContinuousSurvivalPrediction
 ```
 """
 function SurvivalPrediction(;
