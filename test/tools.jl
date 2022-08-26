@@ -14,4 +14,18 @@ end
     @test cum_hazard(d, π) == Hₜ(d, π) == -log(ccdf(d, π))
 end
 
+@testset "pstring" begin
+    @test SurvivalAnalysis.pstring("G", 0) === "1"
+    @test SurvivalAnalysis.pstring("G", 1) === "G"
+    @test SurvivalAnalysis.pstring("G", -1) === "/G"
+    @test SurvivalAnalysis.pstring("G", -1234567890) === "/G¹²³⁴⁵⁶⁷⁸⁹⁰"
+end
+
+@testset "c_pstring" begin
+    @test SurvivalAnalysis.c_pstring("1", "1") === "1"
+    @test SurvivalAnalysis.c_pstring("A", "/B") === "A/B"
+    @test SurvivalAnalysis.c_pstring("/A", "B") === "B/A"
+    @test SurvivalAnalysis.c_pstring("/A", "/B") === "1/A/B"
+end
+
 true

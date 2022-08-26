@@ -8,7 +8,9 @@ on:
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -20,6 +22,9 @@ jobs:
         arch:
           - x64
 
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Setup Julia
@@ -30,7 +35,6 @@ jobs:
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
       - run: echo "LD_LIBRARY_PATH=$(R RHOME)/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-        if: matrix.os == 'ubuntu-latest'
       - name: Restore cache
         uses: actions/cache@v1
         env:
@@ -47,7 +51,6 @@ jobs:
       - name: Test
         uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-        if: matrix.os == 'ubuntu-latest'
       - name: Codecov
         uses: codecov/codecov-action@v3.1.0
         if: matrix.version == '1.0' && success()

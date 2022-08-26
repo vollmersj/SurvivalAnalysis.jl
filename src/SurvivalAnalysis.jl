@@ -15,7 +15,7 @@ module SurvivalAnalysis
     export scale, shape, params, Exponential, Weibull # Distributions
     export coef, confint, stderror, vcov, predict, fit, fit!, std # StatsBase
     export @formula # StatsModels
-    export time # Base
+    export time, reverse, length # Base
 
     # other exports
     export Surv, outcome_times, event_times, outcome_status, unique_times
@@ -28,6 +28,7 @@ module SurvivalAnalysis
     export baseline
     export survival, hazard, cum_hazard, Fₜ, fₜ, pₜ, Sₜ, hₜ, Hₜ
     export SurvivalPrediction
+    export concordance, cindex, ConcordanceWeights
 
     include("tools.jl")
     include("Surv.jl")
@@ -38,4 +39,5 @@ module SurvivalAnalysis
     include("ParametricSurvival.jl")
     include("SurvivalEstimator.jl")
     include("plot_survivalestimator.jl")
+    include("concordance.jl")
 end

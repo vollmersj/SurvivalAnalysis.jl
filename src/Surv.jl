@@ -73,6 +73,8 @@ function Base.show(io::IO, oss::TwoSidedSurv)
     )
 end
 
+Base.length(oss::OneSidedSurv) = length(oss.time)
+
 outcome_times(v::OneSidedSurv) = v.time
 outcome_times(v::TwoSidedSurv) = [v.start, v.stop]
 
@@ -143,3 +145,5 @@ function Base.merge(A::TwoSidedSurv...)
     foreach(v -> push!(stop, v.stop...), A)
     return Surv(start, stop)
 end
+
+Base.reverse(oss::OneSidedSurv) = typeof(oss)(oss.time, .!oss.status)
