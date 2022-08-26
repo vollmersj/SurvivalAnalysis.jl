@@ -22,6 +22,7 @@ module SurvivalAnalysis
     export unique_event_times
     export total_events, total_censored, total_outcomes, total_risk, surv_stats
     export Srv
+    export SurvivalModel
     export kaplan_meier, nelson_aalen, ph, aft, KaplanMeier, NelsonAalen
     export survival, distr
     export ParametricPH, ParametricAFT

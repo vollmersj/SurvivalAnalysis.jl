@@ -63,6 +63,9 @@ end
     # show returns nothing
     @test show(concordance(truth, 1 .- truth.time, :I)) === nothing
 
+    # alias as expected
+    @test concordance(truth, pred, :I) === cindex(truth, pred, :I)
+
     # overwrite as expected
     C = concordance(truth, pred, :I, tied_times = 0.1, tied_preds = 0.9)
     @test C.weights.tied_times == 0.1
@@ -71,7 +74,7 @@ end
     @test C.weights.S == 0
 
     C = concordance(truth, pred, :I, tied_times = 0.1, tied_preds = 0.9,
-        custom_weights = ConcordanceWeights(1, 2, 0.2, 0.8, ""))
+        weights = ConcordanceWeights(1, 2, 0.2, 0.8, ""))
     @test C.weights.tied_times == 0.8
     @test C.weights.tied_preds == 0.2
     @test C.weights.G == 2

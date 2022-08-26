@@ -1,3 +1,9 @@
+"""
+    SurvivalModel
+
+    Abstract type for all models implemented in, or extending, this package. Type 'inherits'
+from JuliaStats.StatisticalModel to enable formula fitting and predicting interface.
+"""
 abstract type SurvivalModel <: StatisticalModel end
 
 # Stripped down version of https://github.com/JuliaStats/StatsModels.jl/blob/5299399a903cdb8ea4b9492a9c09db72f703c7b7/src/statsmodel.jl#L172
@@ -19,42 +25,6 @@ function StatsModels.predict(
     return StatsModels.predict(mm.model, new_x; kwargs...)
 end
 
-StatsBase.coef(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
+StatsBase.coef(
+    mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
     coef(mm.model)
-
-baseline(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
-    mm.model.baseline
-baseline(mm::SurvivalModel) = mm.baseline
-
-Distributions.scale(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
-    mm.model.scale
-Distributions.scale(mm::SurvivalModel) = mm.scale
-
-function Base.show(io::IO, mm::SurvivalModel)
-    println(io, typeof(mm))
-    println(io)
-    println(io, "Distr:")
-    println(io, baseline(mm))
-    println(io)
-    println(io,"Coefficients:")
-
-    header = ["(Scale)", ["x$i" for i = 0:(length(coef(mm))-1)]...]
-    header[2] = "(Intercept)"
-    data = [mm.scale coef(mm)...]
-    pretty_table(io, data,  header = header, vlines = :none, hlines = :none)
-end
-
-function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:SurvivalModel})
-    println(io, typeof(mm))
-    println(io)
-    println(io, mm.mf.f)
-    println(io)
-    println(io, "Distr:")
-    println(io, baseline(mm))
-    println(io)
-    println(io, "Coefficients:")
-
-    header = ["(Scale)", coefnames(mm.mf)...]
-    data = [scale(mm) coef(mm)...]
-    pretty_table(io, data,  header = header, vlines = :none, hlines = :none)
-end

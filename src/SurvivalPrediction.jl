@@ -21,6 +21,48 @@ struct ContinuousSurvivalPrediction{T<:Float64} <: SurvivalPrediction
     time::Vector{T}
 end
 
+"""
+    SurvivalPrediction(;
+        distr::Union{Nothing, Vector{<:Distribution}} = nothing,
+        lp::Union{Nothing, Vector{T}}  = nothing,
+        crank::Union{Nothing, Vector{T}} = nothing,
+        time::Union{Nothing, Vector{T}} = nothing,
+        fit_times::Union{Nothing, Vector{T}} = nothing,
+        survival_matrix::Union{Matrix{T}, Nothing} = nothing
+        ) where {T<:Number}
+
+Survival models can make multiple types of predictions including:
+
+* `distr` - A survival time distribution (implemented with `Distributions.jl`)
+* `lp` - A linear predictor (usually Xβ, i.e. covariates * fitted coefficients)
+* `crank` - A generic continuous relative risk ranking
+* `time` - A survival time
+* `survival_matrix` - A matrix of predicted survival probabilities where rows are
+observations and columns are fitted survival times corresponding to `fit_times`.
+
+These predictions can only exist in a finite number of combinations so they are aggregated
+in types within this package (and automatically determined within this function):
+
+* DeterministicSurvivalPrediction(lp, crank, time)
+* DiscreteSurvivalPrediction(distr, lp, crank, time, survival_matrix)
+* ContinuousSurvivalPrediction(distr, lp, crank, time)
+
+Absolutely no transformations take require assumptions take place within this function but
+it does transform `survival_matrix` to a `Distributions.DiscreteNonParametric` and
+vice versa.
+
+# Examples
+```jldoctest
+# DeterministicSurvivalPrediction
+julia> SurvivalPrediction(time = randn(5));
+
+# DiscreteSurvivalPrediction
+julia> SurvivalPrediction(fit_times = randn(5), survival_matrix = randn((2, 5)));
+
+# ContinuousSurvivalPrediction
+julia> SurvivalPrediction(distr = fill(Exponential(), 2));
+```
+"""
 function SurvivalPrediction(;
     distr::Union{Nothing, Vector{<:Distribution}} = nothing,
     lp::Union{Nothing, Vector{T}}  = nothing,
@@ -85,16 +127,16 @@ end
 function Base.show(io::IO, sp::T where {T <: DeterministicSurvivalPrediction})
     out = DataFrame()
     out = all(sp.lp .=== NaN) ? out : hcat(out, DataFrame(lp=sp.lp))
-    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=p,crank))
-    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=p,time))
+    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=sp.crank))
+    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=sp.time))
     print(io, out)
 end
 
 function Base.show(io::IO, sp::T where {T <: DiscreteSurvivalPrediction})
     out = DataFrame()
     out = all(sp.lp .=== NaN) ? out : hcat(out, DataFrame(lp=sp.lp))
-    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=p,crank))
-    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=p,time))
+    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=sp.crank))
+    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=sp.time))
     out = hcat(out, DataFrame(distr=sp.distr))
     out = hcat(out, DataFrame(survival_matrix=map(identity, eachrow(sp.survival_matrix.survival))))
     print(io, out)
@@ -103,8 +145,8 @@ end
 function Base.show(io::IO, sp::T where {T <: ContinuousSurvivalPrediction})
     out = DataFrame()
     out = all(sp.lp .=== NaN) ? out : hcat(out, DataFrame(lp=sp.lp))
-    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=p,crank))
-    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=p,time))
+    out = all(sp.crank .=== NaN) ? out : hcat(out, DataFrame(crank=sp.crank))
+    out = all(sp.time .=== NaN) ? out : hcat(out, DataFrame(time=sp.time))
     out = hcat(out, DataFrame(distr=sp.distr))
     print(io, out)
 end
