@@ -1,4 +1,4 @@
-# SurvivalAnalysis
+# SurvivalAnalysis.jl: A survival analysis interface for Julia
 
 | Testing | Coverage | Docs | Style | Lifecycle | Licence |
 | ------- | -------- | ---- | ----- | --------- | ------- |
