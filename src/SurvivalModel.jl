@@ -24,16 +24,9 @@ function StatsModels.predict(
     return StatsModels.predict(mm.model, new_x; kwargs...)
 end
 
-StatsBase.coef(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
-    coef(mm.model)
-
 """
-    coef(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix})
-    coef(mm::SurvivalModel)
+    coef(obj::SurvivalModel)
 
 Extract coefficients from fitted [`SurvivalModel`](@ref) object.
 """
-StatsBase.coef(
-    mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
-    mm.model.coefficients
 StatsBase.coef(obj::SurvivalModel) = obj.coefficients
