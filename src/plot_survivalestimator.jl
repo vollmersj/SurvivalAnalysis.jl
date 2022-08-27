@@ -42,7 +42,7 @@ julia> plot(nelson_aalen(@formula(Srv(t, d) ~ 1), data).model);
 end
 
 @recipe function f(
-        npe::StatsModels.TableStatisticalModel{SurvivalEstimator, Matrix{Float64}},
+        npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, Matrix{Float64}},
         plot_confint::Bool = true; level = 0.95
         )
         test_proportion(level) || throw(ArgumentError("level must be a number in [0, 1]"))
