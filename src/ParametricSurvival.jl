@@ -214,7 +214,7 @@ julia> D = [true, false, false, false, true, false, false, true, true, false];
 
 julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
-julia> data = DataFrame(Y, D, X);
+julia> data = DataFrame(Y = Y, D = D, X = X);
 
 julia> f = ph(@formula(Srv(Y, D) ~ X), data, Exponential)
 StatsModels.TableStatisticalModel{ParametricPH{Exponential}, Matrix{Float64}}
@@ -296,7 +296,7 @@ julia> D = [true, false, false, false, true, false, false, true, true, false];
 
 julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
-julia> data = DataFrame(Y, D, X);
+julia> data = DataFrame(Y = Y, D = D, X = X);
 
 julia> f = ph(@formula(Srv(Y, D) ~ X), data, Weibull);
 
@@ -381,7 +381,7 @@ julia> D = [true, false, false, false, true, false, false, true, true, false];
 
 julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
-julia> data = DataFrame(Y, D, X);
+julia> data = DataFrame(Y = Y, D = D, X = X);
 
 julia> f = aft(@formula(Srv(Y, D) ~ X), data, Weibull)
 StatsModels.TableStatisticalModel{ParametricAFT{Weibull}, Matrix{Float64}}
@@ -461,7 +461,7 @@ julia> D = [true, false, false, false, true, false, false, true, true, false];
 
 julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
-julia> data = DataFrame(Y, D, X);
+julia> data = DataFrame(Y = Y, D = D, X = X);
 
 julia> f = aft(@formula(Srv(Y, D) ~ X), data, Exponential);
 
