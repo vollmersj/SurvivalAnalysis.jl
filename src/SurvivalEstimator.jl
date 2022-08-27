@@ -212,7 +212,7 @@ Return estimated survival distribution from a [`SurvivalEstimator`](@ref).
 julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
 
 julia> distr(km(@formula(Srv(Y, D) ~ 1), data))
-Distributions.DiscreteNonParametric{Float64, Float64, Vector{Float64}, Vector{Float64}}(
+DiscreteNonParametric{Float64, Float64, Vector{Float64}, Vector{Float64}}(
 support: [0.0, 1.0, 4.0, 5.0, 8.0]
 p: [0.0, 0.11250000000000004, 0.15749999999999997, 0.20999999999999996]
 )
@@ -353,7 +353,6 @@ julia> confint(km(@formula(Srv(Y, D) ~ 1), data))
  (0.38088152320549545, 0.9425909522237038)
  (0.21830025822743343, 0.8691223292427415)
  (0.0700802713627666, 0.7534316354804488)
-)
 ```
 """
 function StatsBase.confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
@@ -452,7 +451,6 @@ julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, fal
 
 julia> confint(na(@formula(Srv(Y, D) ~ 1), data), 10)
 (0.23186692958834798, 0.9464141496254767)
-)
 ```
 """
 function StatsBase.confint(na::NelsonAalen, t::Number; level::Float64 = 0.95)
