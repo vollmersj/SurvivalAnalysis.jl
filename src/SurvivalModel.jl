@@ -1,5 +1,5 @@
 """
-    SurvivalModel
+    SurvivalModel <: StatisticalModel
 
 Abstract type for all models implemented in, or extending, this package. Type 'inherits'
 from JuliaStats.StatisticalModel to enable formula fitting and predicting interface.

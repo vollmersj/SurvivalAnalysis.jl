@@ -1,6 +1,13 @@
 #-------------------
 # ParametricSurvival
 #-------------------
+"""
+    ParametricSurvival <: SurvivalModel
+
+Abstract type for all fully-parametric survival models implemented in, or extending, this
+package. Type 'inherits' [`SurvivalModel`](@ref).
+from JuliaStats.StatisticalModel to enable formula fitting and predicting interface.
+"""
 abstract type ParametricSurvival <: SurvivalModel end
 
 StatsBase.coef(obj::ParametricSurvival) = obj.coefficients
