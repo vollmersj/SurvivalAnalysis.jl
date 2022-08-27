@@ -24,6 +24,5 @@ function StatsModels.predict(
     return StatsModels.predict(mm.model, new_x; kwargs...)
 end
 
-StatsBase.coef(
-    mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
+StatsBase.coef(mm::StatsModels.TableStatisticalModel{<:SurvivalModel, <:AbstractMatrix}) =
     coef(mm.model)
