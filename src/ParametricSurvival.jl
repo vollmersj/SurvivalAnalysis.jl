@@ -208,9 +208,13 @@ Future additions:
 Function returns a [`ParametricPH`](@ref) struct.
 
 ```jldoctest
-julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10],
-    D = [true, false, false, false, true, false, false, true, true, false],
-    X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+
+julia> data = DataFrame(Y, D, X);
 
 julia> f = ph(@formula(Srv(Y, D) ~ X), data, Exponential)
 StatsModels.TableStatisticalModel{ParametricPH{Exponential}, Matrix{Float64}}
@@ -286,9 +290,13 @@ Future updates will add transformation methods for more prediction types [#12](@
 Function returns a [`SurvivalPrediction`](@ref) struct.
 
 ```jldoctest
-julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10],
-    D = [true, false, false, false, true, false, false, true, true, false],
-    X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+
+julia> data = DataFrame(Y, D, X);
 
 julia> f = ph(@formula(Srv(Y, D) ~ X), data, Weibull);
 
@@ -367,9 +375,13 @@ Future additions:
 Function returns a [`ParametricAFT`](@ref) struct.
 
 ```jldoctest
-julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10],
-    D = [true, false, false, false, true, false, false, true, true, false],
-    X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+
+julia> data = DataFrame(Y, D, X);
 
 julia> f = aft(@formula(Srv(Y, D) ~ X), data, Weibull)
 StatsModels.TableStatisticalModel{ParametricAFT{Weibull}, Matrix{Float64}}
@@ -443,9 +455,13 @@ Future updates will add transformation methods for more prediction types [#12](@
 Function returns a [`SurvivalPrediction`](@ref) struct.
 
 ```jldoctest
-julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10],
-    D = [true, false, false, false, true, false, false, true, true, false],
-    X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+
+julia> data = DataFrame(Y, D, X);
 
 julia> f = aft(@formula(Srv(Y, D) ~ X), data, Exponential);
 

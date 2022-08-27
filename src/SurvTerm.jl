@@ -20,22 +20,19 @@ for left-censoring.
 
 # Examples
 ```jldoctest
-julia> using DataFrames
-
-julia> data = DataFrame(t = [1, 2, 3], d = [1, 0, 0])
-
 julia> @formula(Srv(t, d) ~ 1) # right-censoring
 FormulaTerm
 Response:
-(t,d)->Srv(t, d)
+  (t,d)->Srv(t, d)
 Predictors:
-1
+  1
 
-julia> Srv(t, d, -1) # left-censoring
+julia> @formula(Srv(t, d, -1) ~ X) # left-censoring
+FormulaTerm
 Response:
-(t,d)->Srv(t, d, -1)
+  (t,d)->Srv(t, d, -1)
 Predictors:
-1
+  X(unknown)
 ```
 """
 Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type))

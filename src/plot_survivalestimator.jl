@@ -7,15 +7,14 @@ Recipe for plotting fitted non-parametric estimators, `npe`. If `plot_confint` t
 confidence intervals also plotted at a `level`% confidence level.
 
 # Examples
-```jldoctest
-julia> using Plots
 
-julia> data = DataFrame(t = randn(10), d = [trues(5)..., falses(5)...]);
+    julia> using Plots
 
-julia> plot(kaplan_meier(@formula(Srv(t, d) ~ 1), data));
+    julia> data = DataFrame(t = randn(10), d = [trues(5)..., falses(5)...]);
 
-julia> plot(nelson_aalen(@formula(Srv(t, d) ~ 1), data).model);
-```
+    julia> plot(kaplan_meier(@formula(Srv(t, d) ~ 1), data));
+
+    julia> plot(nelson_aalen(@formula(Srv(t, d) ~ 1), data).model);
 """
 @recipe function f(npe::SurvivalEstimator, plot_confint::Bool = true; level = 0.95)
     test_proportion(level) || throw(ArgumentError("level must be a number in [0, 1]"))
