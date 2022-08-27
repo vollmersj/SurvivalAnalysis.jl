@@ -138,7 +138,7 @@ function StatsBase.confint(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix};
     level::Float64 = 0.95
 )
-    return confint.(Ref(npe.model), npe.model.time, level = level)
+    return confint.(Ref(npe.model), npe.model.time; level = level)
 end
 
 """
