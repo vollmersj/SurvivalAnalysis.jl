@@ -13,30 +13,27 @@ Base.show(io::IO, t::SurvTerm) =
 """
     Srv(T::Symbol, Δ::Symbol, type::Int = 1)
 
-    Create a `SurvTerm` object for internal use for fitting models. Arguments, `T` and `Δ`
-    should be a reference to the name of the time and status variables in a `DataFrame`
-    respectively. `type` should be `1` (or omitted) for right-censoring or `-1`
-    for left-censoring.
+Create a `SurvTerm` object for internal use for fitting models. Arguments, `T` and `Δ`
+should be a reference to the name of the time and status variables in a `DataFrame`
+respectively. `type` should be `1` (or omitted) for right-censoring or `-1`
+for left-censoring.
 
-    # Examples
-    ```jldoctest
-    julia> using DataFrames
+# Examples
+```jldoctest
+julia> @formula(Srv(t, d) ~ 1) # right-censoring
+FormulaTerm
+Response:
+  (t,d)->Srv(t, d)
+Predictors:
+  1
 
-    julia> data = DataFrame(t = [1, 2, 3], d = [1, 0, 0])
-
-    julia> @formula(Srv(t, d) ~ 1)
-    FormulaTerm
-    Response:
-    (t,d)->Srv(t, d)
-    Predictors:
-    1
-
-    julia> Srv(t, d, -1)
-    Response:
-    (t,d)->Srv(t, d, -1)
-    Predictors:
-    1
-    ```
+julia> @formula(Srv(t, d, -1) ~ X) # left-censoring
+FormulaTerm
+Response:
+  (t,d)->Srv(t, d, -1)
+Predictors:
+  X(unknown)
+```
 """
 Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type))
 

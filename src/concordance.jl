@@ -1,14 +1,14 @@
 """
     ConcordanceWeights(S::Int8, G::Int8, tied_preds::Float64 tied_times::Float64)
 
-Weights used in the [`concordance`](@concordance) function. `S` and `G` reflect the power
+Weights used in the [`concordance`](@ref) function. `S` and `G` reflect the power
 applied to the Kaplan-Meier estimates of the survival and censoring distributions of the
 fitted data used to apply weighting at a given time. For example
 `ConcordanceWeights(1, -2, 0.5, 0.5)` will tell the `concordance` function to multiply
 concordant pairs at time `t` by `S(t)/G(t)²`. `tied_preds` and `tied_times` determine how to
 handle ties in predictions and observed times respectively.
 
-See [`concordance`](@concordance) for full examples.
+See [`concordance`](@ref) for full examples.
 
 Note❗  It is strongly recommended that `S ≥ 0` and `G ≤ 0`.
 """
@@ -97,14 +97,14 @@ where `tᵢ,tⱼ` are true survival times, `yᵢ,yⱼ` are predictions, `τ` is 
 ensure stability even when censoring is high, `δᵢ` is the censoring indicator and `W` is a
 weighting function determined by `weights` as follows:
 
-    * `:I` or `:Harrell` - Harrell's C - ``W(tᵢ) = 1``
-    * `:G2` or `:Uno` - Uno's C - ``W(tᵢ) = 1/G(tᵢ)``
-    * `:SG` or `:Schemper` - Schemper's C - ``W(tᵢ) = S(tᵢ)/G(tᵢ)``
-    * `:S` or `:Peto` - Peto-Wilcoxon's C - ``W(tᵢ) = S(tᵢ)``
+* `:I` or `:Harrell` - Harrell's C - ``W(tᵢ) = 1``
+* `:G2` or `:Uno` - Uno's C - ``W(tᵢ) = 1/G(tᵢ)``
+* `:SG` or `:Schemper` - Schemper's C - ``W(tᵢ) = S(tᵢ)/G(tᵢ)``
+* `:S` or `:Peto` - Peto-Wilcoxon's C - ``W(tᵢ) = S(tᵢ)``
 
 where `S(tᵢ)` and `G(tᵢ)` are respectively the Kaplan-Meier estimates of the survival and
 censoring distributions of the training data at time `tᵢ`. For any other combination of
-weights pass a [`ConcordanceWeights`](@ConcordanceWeights) object to `weights`.
+weights pass a [`ConcordanceWeights`](@ref) object to `weights`.
 Note❗ If training data is not provided to `train` then `truth` is used to estimate `S` and
 `G` but it is strongly recommended to provide the training data if possibe.
 
@@ -116,7 +116,7 @@ to avoid misuse.
 There is open debate about how to handle ties when calculating the concordance. Ties can
 occur in predictions and in the observed survival times. The defaults here `tied_preds=0.5`
 and `tied_times=0` are set as these seem to be the most common but they can be changed.
-Note❗ If you pass a [`ConcordanceWeights`](@ConcordanceWeights) object then the tied
+Note❗ If you pass a [`ConcordanceWeights`](@ref) object then the tied
 weights specified in this will take priority.
 
 Note❗ For predictions from PH models or any model where the prediction represents a relative

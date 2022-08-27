@@ -1,10 +1,51 @@
 #-------------------
 # ParametricSurvival
 #-------------------
+"""
+    ParametricSurvival <: SurvivalModel
+
+Abstract type for all fully-parametric survival models implemented in, or extending, this
+package. Type 'inherits' [`SurvivalModel`](@ref). Available methods
+
+* `coef` - Extract fitted coefficients
+* `fit` and `predict` - Fit model and make predictions from fitted model with `@formula` or
+`matrix` interface, see [How to fit and predict](@ref)
+* `baseline` - Extract fitted baseline distribution, see [ph](@ref) and [aft](@ref) for more
+* `scale` - Extract scale parameter of fitted distribution
+
+All distributions are fitted with the Kalbfleisch-Prentice parametrisation and then
+converted as required to make use of `Distributions.jl`
+
+Objects inheriting from this should have the following fields
+
+* coefficients::Vector{Float64} - Fitted coefficients
+* scale::Float64 - Fitted scale parameter for baseline distribution *before* transformation
+* hessian::Matrix - Hessian from `Optim`
+* var_cov::Matrix - Covariance matrix
+* tstats::Vector - t-statistics
+* baseline<:ContinuousUnivariateDistribution - Fitted baseline distribution
+* routine - Optimisation routine from `Optim`
+"""
 abstract type ParametricSurvival <: SurvivalModel end
 
+"""
+    coef(mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix})
+    coef(mm::ParametricSurvival)
+
+Extract coefficients from fitted [`ParametricSurvival`](@ref) object.
+"""
+StatsBase.coef(
+    mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
+    mm.model.coefficients
 StatsBase.coef(obj::ParametricSurvival) = obj.coefficients
 
+"""
+    fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
+        d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
+
+Fit a [`ParametricSurvival`] survival model using matrix interface. It is recommended
+to use [`ph`](@ref) or [`aft`](@ref) directly instead.
+"""
 function StatsBase.fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
     d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
     @assert d in [Weibull, Exponential]
@@ -52,11 +93,23 @@ function _fitParametricSurvival(obj, X, Y, init, llik, dtrafo)
     return obj
 end
 
+"""
+    baseline(mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix})
+    baseline(mm::ParametricSurvival)
 
+Extract baseline distribution from fitted [`ParametricSurvival`](@ref) object.
+"""
 baseline(mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
     mm.model.baseline
 baseline(mm::ParametricSurvival) = mm.baseline
 
+"""
+    scale(mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix})
+    scale(mm::ParametricSurvival)
+
+Extract estimated scale parameter (*before* transformation) for baseline distribution from
+fitted [`ParametricSurvival`](@ref) object.
+"""
 Distributions.scale(
     mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
     mm.model.scale
@@ -94,7 +147,11 @@ end
 #-------------------
 # ParametricPH
 #-------------------
+"""
+    ParametricPH{<:ContinuousUnivariateDistribution} <: ParametricSurvival
 
+See [`ParametricSurvival`](@ref).
+"""
 mutable struct ParametricPH{T} <: ParametricSurvival where
     {T <: ContinuousUnivariateDistribution}
     coefficients::Vector{Float64}
@@ -119,7 +176,61 @@ function ParametricPH(d::Type{T}, X) where {T <: ContinuousUnivariateDistributio
     )
 end
 
+"""
+    ph(f::@formula, data::DataFrames.DataFrame, d::Type{T}; init::Number = 1)
+    ph(X::AbstractMatrix{<:Real}, Y::RCSurv, d::Type{T}; init::Number = 1)
+    fit(ParametricPH, X::AbstractMatrix{<:Real}, Y::RCSurv, d::Type{T}; init::Number = 1)
+
+Fit a fully-parametric proportional hazards (PH) model with baseline distribution `d`.
+See [How to fit and predict](@ref) and examples below for fitting interfaces, we recommend
+using `ph(::@formula...)`.
+
+Fully-parametric PH models are defined by
+
+```math
+h(t) = h₀(t)exp(Xβ)
+```
+
+where ``β`` are coefficients to be estimated, ``X`` are covariates, and `h₀` is the hazard
+function of an assumed baseline distribution, `d`. Available choices for distributions are:
+
+* Distributions.Exponential
+* Distributions.Weibull
+
+No other distributions have the PH assumption, which assumes that the risk of an event
+taking place is constant over time.
+
+Future additions:
+
+* Methods for testing if the assumption is valid for your data [#11](@ref).
+* Methods to calculate hazards ratios and add to `show` [#40](@ref).
+
+Function returns a [`ParametricPH`](@ref) struct.
+
+```jldoctest
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
+
+julia> data = DataFrame(Y = Y, D = D, X = X);
+
+julia> f = ph(@formula(Srv(Y, D) ~ X), data, Exponential)
+StatsModels.TableStatisticalModel{ParametricPH{Exponential}, Matrix{Float64}}
+
+(Y,D;+) ~ 1 + X
+
+Distr:
+Exponential{Float64}(θ=17.121272620254064)
+
+Coefficients:
+ (Scale)  (Intercept)          X
+     1.0     -2.84032  0.0101247
+```
+"""
 ph(args...; kwargs...) = fit(ParametricPH, args...; kwargs...)
+
 
 function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::RCSurv,
                         init::Number)
@@ -151,6 +262,47 @@ function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::RCSurv,
     )
 end
 
+"""
+    predict(fit::ParametricPH, X::AbstractMatrix{<:Real})
+    predict(fit::StatsModels.TableStatisticalModel{ParametricPH, Matrix{Float64}},
+        data::DataFrames.DataFrame)
+
+Make predictions from a fitted [`ParametricPH`](@ref) model. See
+[How to fit and predict](@ref) and examples below for predicting interfaces, we recommend
+using `predict(fit, data::DataFrame)`.
+
+Three prediction types can be made from a fitted PH model:
+
+* `lp` - ``Xβ̂``
+* `crank` - ``Xβ̂``
+* `distr` - ``F(t) = 1 - Ŝ₀(t)^{exp(Xβ̂)}``
+
+where ``β̂`` are estimated coefficients, ``X`` are covariates from the new data, and ``Ŝ₀``
+is the estimated baseline distribution survival function. Predicted distributions are returned
+as `ContinuousPHDistribution <: Distributions.ContinuousUnivariateDistribution`.
+
+Note❗ the PH model assumes that a higher linear predictor means a higher risk of event and
+therefore a lower survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) > hⱼ(t)` - hence `crank = lp`.
+This means when calculating [`concordance`](@ref) you *must* include `rev = true`.
+
+Future updates will add transformation methods for more prediction types [#12](@ref).
+
+Function returns a [`SurvivalPrediction`](@ref) struct.
+
+```jldoctest
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
+
+julia> data = DataFrame(Y = Y, D = D, X = X);
+
+julia> f = ph(@formula(Srv(Y, D) ~ X), data, Weibull);
+
+julia> predict(f, DataFrame(X = [2,9,1,1,exp(8),log(9),2^3,5^exp(2),1]));
+```
+"""
 function StatsBase.predict(fit::ParametricPH, X::AbstractMatrix{<:Real})
     lp = X * fit.coefficients[2:end] # intercept removed
     distr = ContinuousPHDistribution.(fit.baseline, lp)
@@ -160,7 +312,11 @@ end
 #-------------------
 # ParametricAFT
 #-------------------
+"""
+    ParametricAFT{<:ContinuousUnivariateDistribution} <: ParametricSurvival
 
+See [`ParametricSurvival`](@ref).
+"""
 mutable struct ParametricAFT{T} <: ParametricSurvival where
     {T <: ContinuousUnivariateDistribution}
     coefficients::Vector{Float64}
@@ -185,6 +341,61 @@ function ParametricAFT(d::Type{T}, X) where {T <: ContinuousUnivariateDistributi
     )
 end
 
+"""
+    aft(f::@formula, data::DataFrames.DataFrame, d::Type{T}; init::Number = 1)
+    aft(X::AbstractMatrix{<:Real}, Y::RCSurv, d::Type{T}; init::Number = 1)
+    fit(ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv, d::Type{T}; init::Number = 1)
+
+Fit a fully-parametric accelerated failure time (AFT) model with baseline distribution `d`.
+See [How to fit and predict](@ref) and examples below for fitting interfaces, we recommend
+using `aft(::@formula...)`.
+
+Fully-parametric AFT models are defined by
+
+```math
+h(t) = e^{-Xβ} h₀(t e^{-Xβ})
+```
+
+where ``β`` are coefficients to be estimated, ``X`` are covariates, and `h₀` is the hazard
+function of an assumed baseline distribution, `d`. Available choices for distributions are:
+
+* Distributions.Exponential
+* Distributions.Weibull
+
+AFT models assumes that an increase in a covariate results in an acceleration of the
+event by a constant. This is best explained by example. The above formula can also be
+expressed as ``S(t) = S₀(exp(-η)t)`` then let ``ηᵢ = log(2)`` and ``ηⱼ = log(1)`` so
+``ηᵢ > ηⱼ``. Then Sᵢ(t) = S₀(0.5t) and Sⱼ(t) = S₀(t) and so for all ``t``, Sᵢ(t) ≥ Sⱼ(t) as
+S is a decreasing function.
+
+Future additions:
+
+* More baseline distributions [#15](@ref)
+
+Function returns a [`ParametricAFT`](@ref) struct.
+
+```jldoctest
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
+
+julia> data = DataFrame(Y = Y, D = D, X = X);
+
+julia> f = aft(@formula(Srv(Y, D) ~ X), data, Weibull)
+StatsModels.TableStatisticalModel{ParametricAFT{Weibull}, Matrix{Float64}}
+
+(Y,D;+) ~ 1 + X
+
+Distr:
+Weibull{Float64}(α=1.7439548025959823, θ=11.754846456706442)
+
+Coefficients:
+  (Scale)  (Intercept)            X
+ 0.573409      2.46427  -0.00741527
+```
+"""
 aft(args...; kwargs...) = fit(ParametricAFT, args...; kwargs...)
 
 function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv,
@@ -217,6 +428,46 @@ function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv
     )
 end
 
+"""
+    predict(fit::ParametricAFT, X::AbstractMatrix{<:Real})
+    predict(fit::StatsModels.TableStatisticalModel{ParametricAFT, Matrix{Float64}},
+        data::DataFrames.DataFrame)
+
+Make predictions from a fitted [`ParametricAFT`](@ref) model. See
+[How to fit and predict](@ref) and examples below for predicting interfaces, we recommend
+using `predict(fit, data::DataFrame)`.
+
+Three prediction types can be made from a fitted AFT model:
+
+* `lp` - ``Xβ̂``
+* `crank` - ``-Xβ̂``
+* `distr` - ``F(t) = F̂₀(t/exp(Xβ̂))``
+
+where ``β̂`` are estimated coefficients, ``X`` are covariates from the new data, and ``F̂₀``
+is the estimated baseline distribution CDF function. Predicted distributions are returned
+as `ContinuousAFTDistribution <: Distributions.ContinuousUnivariateDistribution`.
+
+Note❗ the AFT model assumes that a higher linear predictor means a lower risk of event and
+therefore a higher survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) < hⱼ(t)` - hence `crank = -lp`.
+
+Future updates will add transformation methods for more prediction types [#12](@ref).
+
+Function returns a [`SurvivalPrediction`](@ref) struct.
+
+```jldoctest
+julia> Y = [1,1,4,6,8,4,9,4,5,10];
+
+julia> D = [true, false, false, false, true, false, false, true, true, false];
+
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
+
+julia> data = DataFrame(Y = Y, D = D, X = X);
+
+julia> f = aft(@formula(Srv(Y, D) ~ X), data, Exponential);
+
+julia> predict(f, DataFrame(X = [2,9,1,1,exp(8),log(9),2^3,5^exp(2),1]));
+```
+"""
 function StatsBase.predict(fit::ParametricAFT, X::AbstractMatrix{<:Real})
     lp = X * fit.coefficients[2:end] # intercept removed
     distr = ContinuousAFTDistribution.(fit.baseline, lp)
