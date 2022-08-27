@@ -201,8 +201,8 @@ taking place is constant over time.
 
 Future additions:
 
-* Methods for testing if the assumption is valid for your data [#11](@ref).
-* Methods to calculate hazards ratios and add to `show` [#40](@ref).
+* Methods for testing if the assumption is valid for your data (see [#11](@ref)).
+* Methods to calculate hazards ratios and add to `show` (see [#40](@ref)).
 
 Function returns a [`ParametricPH`](@ref) struct.
 
@@ -280,7 +280,7 @@ where ``β̂`` are estimated coefficients, ``X`` are covariates from the new dat
 
 Note❗The PH model assumes that a higher linear predictor means a higher risk of event and therefore a lower survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) > hⱼ(t)` - hence `crank = lp`. This means when calculating [`concordance`](@ref) you *must* include `rev = true`.
 
-Future updates will add transformation methods for more prediction types [#12](@ref).
+Future updates will add transformation methods for more prediction types (see [#12](@ref)).
 
 Function returns a [`SurvivalPrediction`](@ref) struct.
 
