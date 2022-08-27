@@ -30,17 +30,6 @@ Objects inheriting from this should have the following fields:
 abstract type ParametricSurvival <: SurvivalModel end
 
 """
-    coef(mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix})
-    coef(mm::ParametricSurvival)
-
-Extract coefficients from fitted [`ParametricSurvival`](@ref) object.
-"""
-StatsBase.coef(
-    mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
-    mm.model.coefficients
-StatsBase.coef(obj::ParametricSurvival) = obj.coefficients
-
-"""
     fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
         d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
 
