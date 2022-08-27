@@ -10,7 +10,7 @@ handle ties in predictions and observed times respectively.
 
 See [`concordance`](@ref) for full examples.
 
-Note❗  It is strongly recommended that `S ≥ 0` and `G ≤ 0`.
+Note❗It is strongly recommended that `S ≥ 0` and `G ≤ 0`.
 """
 struct ConcordanceWeights
     S::Int8
@@ -105,21 +105,21 @@ weighting function determined by `weights` as follows:
 where `S(tᵢ)` and `G(tᵢ)` are respectively the Kaplan-Meier estimates of the survival and
 censoring distributions of the training data at time `tᵢ`. For any other combination of
 weights pass a [`ConcordanceWeights`](@ref) object to `weights`.
-Note❗ If training data is not provided to `train` then `truth` is used to estimate `S` and
+Note❗If training data is not provided to `train` then `truth` is used to estimate `S` and
 `G` but it is strongly recommended to provide the training data if possibe.
 
 We also include an implementation of Gönen-Heller's C with `weights = :GH` or `:Gonen`.
-Note❗ this is actually a very different method from the others and calculates concordance
+Note❗This is actually a very different method from the others and calculates concordance
 for predictions from a Cox PH model only. We may move this to its own function in the future
 to avoid misuse.
 
 There is open debate about how to handle ties when calculating the concordance. Ties can
 occur in predictions and in the observed survival times. The defaults here `tied_preds=0.5`
 and `tied_times=0` are set as these seem to be the most common but they can be changed.
-Note❗ If you pass a [`ConcordanceWeights`](@ref) object then the tied
+Note❗If you pass a [`ConcordanceWeights`](@ref) object then the tied
 weights specified in this will take priority.
 
-Note❗ For predictions from PH models or any model where the prediction represents a relative
+Note❗For predictions from PH models or any model where the prediction represents a relative
 risk then a higher value of ϕ implies a higher risk of event which will result in a *lower*
 survival time. In this case a prediction is concordant with the survival time if
 ``ϕᵢ < ϕⱼ ⟺ Tᵢ > Tⱼ``. To do this within the function just set `rev=true`.

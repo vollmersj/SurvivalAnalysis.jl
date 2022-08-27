@@ -6,7 +6,7 @@ DocTestSetup = quote
 end
 ```
 
-# How to fit and predict
+# Fitting and predicting
 
 ## Fitting
 

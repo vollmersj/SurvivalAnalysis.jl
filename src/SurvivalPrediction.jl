@@ -43,9 +43,9 @@ observations and columns are fitted survival times corresponding to `fit_times`.
 These predictions can only exist in a finite number of combinations so they are aggregated
 in types within this package (and automatically determined within this function):
 
-* DeterministicSurvivalPrediction(lp, crank, time)
-* DiscreteSurvivalPrediction(distr, lp, crank, time, survival_matrix)
-* ContinuousSurvivalPrediction(distr, lp, crank, time)
+* `DeterministicSurvivalPrediction(lp, crank, time)`
+* `DiscreteSurvivalPrediction(distr, lp, crank, time, survival_matrix)`
+* `ContinuousSurvivalPrediction(distr, lp, crank, time)`
 
 Absolutely no transformations take require assumptions take place within this function but
 it does transform `survival_matrix` to a `Distributions.DiscreteNonParametric` and

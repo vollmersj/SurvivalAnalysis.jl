@@ -6,13 +6,6 @@ DocTestSetup = quote
 end
 ```
 
-## Modules
-
-```@autodocs
-Modules = [SurvivalAnalysis]
-Order   = [:module]
-```
-
 ## Types
 
 ```@autodocs
@@ -25,11 +18,4 @@ Order   = [:type]
 ```@autodocs
 Modules = [SurvivalAnalysis]
 Order   = [:function]
-```
-
-## Macros and Constants
-
-```@autodocs
-Modules = [SurvivalAnalysis]
-Order   = [:macro, :constant]
 ```
