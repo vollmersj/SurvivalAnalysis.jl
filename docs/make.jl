@@ -12,6 +12,7 @@ makedocs(
         "How-to guides" => "howto.md"
         "Explanations" => "explanations.md"
         "Reference (API)" => "api.md"
+        "Changelog" => "news.md"
     ],
     doctest = true,
     strict = :doctest,
