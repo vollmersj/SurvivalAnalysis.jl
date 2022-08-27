@@ -20,10 +20,10 @@ Pkg.add(url="https://github.com/RaphaelS1/SurvivalAnalysis.jl.git")
 
 Throughout this package we have tried to adhere to the [Diátaxis](https://diataxis.fr/) documentation style. This means clearly separating:
 
-* [Tutorials](tutorials.md)
-* [How-to guides](howto.md)
-* [Explanations](explanations.md)
-* [Reference](api.md)
+* [Tutorials](tutorials.md) - Learning-oriented lessons guiding reader through steps required to complete a project.
+* [How-to guides](howto.md) - Goal-oriented directions taking reader through steps required to solve a real-world problem.
+* [Explanations](explanations.md) - Understanding-oriented discussion to clarify and illuminate a particular topic.
+* [Reference](api.md) - Information-oriented technical descriptions of the software and how to operate it.
 
 [![Diataxis](https://diataxis.fr/_images/diataxis.png)](https://diataxis.fr/)
 
