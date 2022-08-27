@@ -1,8 +1,36 @@
 #-------------------
 # SurvivalEstimator
 #-------------------
+"""
+    SurvivalEstimator <: StatisticalModel
+
+Abstract type for all non-parametric estimators implemented in, or extending, this package. Type 'inherits' from [StatsAPI.StatisticalModel](https://github.com/JuliaStats/StatsAPI.jl/blob/main/src/statisticalmodel.jl) to enable formula fitting and predicting interface. Note❗This may be abstracted further into `ConditionalSurvivalEstimator <: SurvivalEstimator`` and `UnconditionalSurvivalEstimator <: SurvivalEstimator`.
+
+Available methods:
+
+* [`fit`](@ref) and [`predict`](@ref) - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
+* [`confint`](@ref) - Calculate confidence intervals around estimates
+* [`time`](@ref) - Extract fitted times
+* [`survival`](@ref) - Extract estimated survival probabilities
+* [`std`](@ref) - Extract computed standard deviation
+* [`distr`](@ref) - Extract fitted survival distribution
+
+Objects inheriting from this should have the following fields:
+
+* `time::Vector{Float64}` - Fitted survival times
+* `survival::Vector{Float64}` - Estimated survival probabilities
+* `std::Vector{Float64}` - Computed standard deviation
+* `distr::DiscreteNonParametric` - Fitted survival distribution
+* `stats::NamedTuple` - Summary statistics such as numbers at risk, dead, censored
+"""
 abstract type SurvivalEstimator <: StatisticalModel end
 
+"""
+    fit(obj::Type{<:SurvivalEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
+
+Fit a [`SurvivalEstimator`](@ref) survival model using matrix interface. It is recommended
+to use [`kaplan_meier`](@ref) or [`nelson_aalen`](@ref) directly instead.
+"""
 function StatsBase.fit(
     obj::Type{<:SurvivalEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
     # TODO - need to add something here to check if rhs is intercept only or stratified
@@ -15,6 +43,31 @@ end
 
 StatsBase.fit(obj::Type{<:SurvivalEstimator}, Y::RCSurv) = fit!(obj(), Y)
 
+"""
+    predict(fit::SurvivalEstimator, X::AbstractMatrix{<:Real})
+    predict(fit::StatsModels.TableStatisticalModel{SurvivalEstimator, Matrix{Float64}},
+        data::DataFrames.DataFrame)
+
+Make predictions from a fitted [`SurvivalEstimator`](@ref) model. See [Fitting and predicting](@ref) and examples below for predicting interfaces, we recommend using `predict(fit, data::DataFrame)`.
+
+Two prediction types can be made from a non-parametric estimator:
+
+* `distr` - See [`kaplan_meier`](@ref) or [`nelson_aalen`](@ref) for formulae
+* `survival_matrix` - Matrix of survival probabilities
+
+Predicted distributions are returned as `Distributions.DiscreteNonParametric`.
+
+Function returns a [`SurvivalPrediction`](@ref) struct.
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> f = km(@formula(Srv(Y, D) ~ 1), data);
+
+julia> predict(f, DataFrame(X = [2,9,1,1,exp(8),log(9),2^3,5^exp(2),1]));
+```
+"""
 StatsBase.predict(fit::SurvivalEstimator, data::DataFrame; kwargs...) =
     predict(fit, Matrix(data); kwargs...)
 
@@ -61,7 +114,7 @@ function _fit_npe(obj::SurvivalEstimator, Surv::RCSurv, point_est::Function,
     obj.survival = surv_trafo(p)
     obj.time = stats.time
     # for both NPEs variance calculated as plug-in
-    obj.std = [0, std_trafo(cumsum(v), obj.survival)...]
+    obj.std = std_trafo(cumsum(v), obj.survival)
     # calculate pmf and create distr - Set S(0) = 1
     pₓ = [0, abs.(diff(obj.survival))...]
     obj.distr = DiscreteNonParametric([0, stats.time...],  pₓ, check_args = false)
@@ -85,12 +138,86 @@ function StatsBase.confint(
     npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix};
     level::Float64 = 0.95
 )
-    return confint.(Ref(npe.model), npe.model.time, level = level)
+    return confint.(Ref(npe.model), npe.model.time; level = level)
 end
 
+"""
+    time(npe::SurvivalEstimator)
+    time(npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix})
+
+Return fitted times from a [`SurvivalEstimator`](@ref).
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> time(km(@formula(Srv(Y, D) ~ 1), data))
+4-element Vector{Float64}:
+ 1.0
+ 4.0
+ 5.0
+ 8.0
+```
+"""
 Base.time(npe::SurvivalEstimator) = npe.time
+
+"""
+    survival(npe::SurvivalEstimator)
+    survival(npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix})
+
+Return fitted survival probabilities from a [`SurvivalEstimator`](@ref).
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> survival(km(@formula(Srv(Y, D) ~ 1), data))
+4-element Vector{Float64}:
+ 0.9
+ 0.7875
+ 0.63
+ 0.42000000000000004
+```
+"""
 survival(npe::SurvivalEstimator) = npe.survival
+
+"""
+    std(npe::SurvivalEstimator)
+    std(npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix})
+
+Return computed standard deviation from a [`SurvivalEstimator`](@ref).
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> std(km(@formula(Srv(Y, D) ~ 1), data))
+4-element Vector{Float64}:
+ 1.0004625991132958
+ 0.712458742539604
+ 0.6082063644330836
+ 0.5713145523891875
+```
+"""
 StatsBase.std(npe::SurvivalEstimator) = npe.std
+
+"""
+    distr(npe::SurvivalEstimator)
+    distr(npe::StatsModels.TableStatisticalModel{<:SurvivalEstimator, <:AbstractMatrix})
+
+Return estimated survival distribution from a [`SurvivalEstimator`](@ref).
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> distr(km(@formula(Srv(Y, D) ~ 1), data))
+DiscreteNonParametric{Float64, Float64, Vector{Float64}, Vector{Float64}}(
+support: [0.0, 1.0, 4.0, 5.0, 8.0]
+p: [0.0, 0.11250000000000004, 0.15749999999999997, 0.20999999999999996]
+)
+```
+"""
 distr(npe::SurvivalEstimator) = npe.distr
 
 function Base.time(
@@ -137,6 +264,11 @@ end
 #-------------------
 # KaplanMeier
 #-------------------
+"""
+    KaplanMeier <: SurvivalEstimator
+
+See [`SurvivalEstimator`](@ref).
+"""
 mutable struct KaplanMeier <: SurvivalEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
@@ -147,8 +279,51 @@ mutable struct KaplanMeier <: SurvivalEstimator
     KaplanMeier() = new()
 end
 
+"""
+    kaplan_meier(Y::RCSurv)
+    kaplan_meier(f::@formula, data::DataFrames.DataFrame)
+    kaplan_meier(X::AbstractMatrix{<:Real}, Y::RCSurv)
+    fit(KaplanMeier, X::AbstractMatrix{<:Real}, Y::RCSurv)
+
+    Aliases: km, kaplan
+
+Fit a non-parametric Kaplan-Meier estimator on a right-censored survival outcome. See [Fitting and predicting](@ref) and examples below for fitting interfaces, we recommend using `kaplan_meier(::@formula...)` (or aliases).
+
+The Kaplan-Meier Estimator is defined by
+
+```math
+Ŝ(τ) = ∏_{i:tᵢ≤τ} (1 - \frac{dᵢ}{nᵢ})
+```
+
+where ``dᵢ`` and ``nᵢ`` are the number of events and nunber at risk at time ``tᵢ`` respectively.
+
+Standard deviation is calculated using the pointwise method of Kalbfleisch and Prentice (1980).
+
+Future additions:
+
+* Support for other censoring types (see [#46](@ref))
+* Support for stratified estimator (see [#47](@ref))
+
+Function returns a [`KaplanMeier`](@ref) struct.
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> f = kaplan_meier(@formula(Srv(Y, D) ~ 1), data)
+StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
+
+(Y,D;+) ~ 1
+
+Coefficients:
+  n  ncens  nevents
+ 10      6        4
+```
+"""
 kaplan_meier(args...; kwargs...) = StatsBase.fit(KaplanMeier, args...; kwargs...)
 kaplan_meier(Y::RCSurv) = StatsBase.fit(KaplanMeier, Y)
+const kaplan = kaplan_meier
+const km = kaplan_meier
 
 function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
     return _fit_npe(
@@ -162,6 +337,24 @@ function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
     )
 end
 
+"""
+    confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
+
+Calculate the confidence interval (CI) around a fitted Kaplan-Meier estimate to `level`% confidence. If `t` provided then returns CI at that time, otherwise returns CI at all fitted times.
+Standard deviation is calculated using the pointwise method of Kalbfleisch and Prentice (1980).
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> confint(km(@formula(Srv(Y, D) ~ 1), data))
+4-element Vector{Tuple{Float64, Float64}}:
+ (0.473009271362049, 0.9852813933673431)
+ (0.38088152320549545, 0.9425909522237038)
+ (0.21830025822743343, 0.8691223292427415)
+ (0.0700802713627666, 0.7534316354804488)
+```
+"""
 function StatsBase.confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
     return _confint_npe(
         km, t, level,
@@ -172,6 +365,11 @@ end
 #-------------------
 # NelsonAalen
 #-------------------
+"""
+    NelsonAalen <: SurvivalEstimator
+
+See [`SurvivalEstimator`](@ref).
+"""
 mutable struct NelsonAalen <: SurvivalEstimator
     time::Vector{Float64}
     survival::Vector{Float64}
@@ -182,8 +380,49 @@ mutable struct NelsonAalen <: SurvivalEstimator
     NelsonAalen() = new()
 end
 
+"""
+    nelson_aalen(Y::RCSurv)
+    nelson_aalen(f::@formula, data::DataFrames.DataFrame)
+    nelson_aalen(X::AbstractMatrix{<:Real}, Y::RCSurv)
+    fit(NelsonAalen, X::AbstractMatrix{<:Real}, Y::RCSurv)
+
+    Aliases: na, nelson
+
+Fit a non-parametric Nelson-NelsonAalen estimator on a right-censored survival outcome. See [Fitting and predicting](@ref) and examples below for fitting interfaces, we recommend using `nelson_aalen(::@formula...)` (or aliases).
+
+The Nelson-Aalen Estimator is defined by
+
+```math
+Ĥ(τ) = ∑_{i:tᵢ≤τ} \frac{dᵢ}{nᵢ}
+```
+
+where ``dᵢ`` and ``nᵢ`` are the number of events and nunber at risk at time ``tᵢ`` respectively and Ĥ is the estimated cumulative hazard function. The survival function is then Ŝ = exp(-Ĥ).
+
+Future additions:
+
+* Support for other censoring types (see [#46](@ref))
+* Support for stratified estimator (see [#47](@ref))
+
+Function returns a [`NelsonAalen`](@ref) struct.
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> f = nelson_aalen(@formula(Srv(Y, D) ~ 1), data)
+StatsModels.TableStatisticalModel{NelsonAalen, Matrix{Float64}}
+
+(Y,D;+) ~ 1
+
+Coefficients:
+  n  ncens  nevents
+ 10      6        4
+```
+"""
 nelson_aalen(args...; kwargs...) = StatsBase.fit(NelsonAalen, args...; kwargs...)
 nelson_aalen(Y::RCSurv) = StatsBase.fit(NelsonAalen, Y)
+const na = nelson_aalen
+const nelson = nelson_aalen
 
 function StatsBase.fit!(obj::NelsonAalen, Y::RCSurv)
     return _fit_npe(
@@ -200,6 +439,20 @@ end
 # Calculates pointwise confidence intervals for *survival predictions*
 # Unclear if this even needs to be a different method, could just use the confint around
 # survival for both NPEs
+"""
+    confint(km::NelsonAalen, t::Number; level::Float64 = 0.95)
+
+
+Calculate the confidence interval (CI) around a fitted Nelson-Aalen estimate to `level`% confidence. If `t` provided then returns CI at that time, otherwise returns CI at all fitted times.
+
+# Examples
+```jldoctest
+julia> data = DataFrame(Y = [1,1,4,6,8,4,9,4,5,10], D = [true, false, false, false, true, false, false, true, true, false]);
+
+julia> confint(na(@formula(Srv(Y, D) ~ 1), data), 10)
+(0.23186692958834798, 0.9464141496254767)
+```
+"""
 function StatsBase.confint(na::NelsonAalen, t::Number; level::Float64 = 0.95)
     return _confint_npe(
         na, t, level,

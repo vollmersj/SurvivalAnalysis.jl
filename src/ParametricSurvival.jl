@@ -5,17 +5,19 @@
     ParametricSurvival <: SurvivalModel
 
 Abstract type for all fully-parametric survival models implemented in, or extending, this
-package. Type 'inherits' [`SurvivalModel`](@ref). Available methods
+package. Type 'inherits' [`SurvivalModel`](@ref).
 
-* `coef` - Extract fitted coefficients
-* `fit` and `predict` - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
-* `baseline` - Extract fitted baseline distribution, see [ph](@ref) and [aft](@ref) for more
-* `scale` - Extract scale parameter of fitted distribution
+Available methods:
+
+* [`coef`](@ref) - Extract fitted coefficients
+* [`fit`](@ref) and [`predict`](@predict) - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
+* [`baseline`](@ref) - Extract fitted baseline distribution, see [ph](@ref) and [aft](@ref) for more
+* [`scale`](@ref) - Extract scale parameter of fitted distribution
 
 All distributions are fitted with the Kalbfleisch-Prentice parametrisation and then
 converted as required to make use of `Distributions.jl`
 
-Objects inheriting from this should have the following fields
+Objects inheriting from this should have the following fields:
 
 * `coefficients::Vector{Float64}` - Fitted coefficients
 * `scale::Float64` - Fitted scale parameter for baseline distribution *before* transformation
@@ -201,11 +203,12 @@ taking place is constant over time.
 
 Future additions:
 
-* Methods for testing if the assumption is valid for your data [#11](@ref).
-* Methods to calculate hazards ratios and add to `show` [#40](@ref).
+* Methods for testing if the assumption is valid for your data (see [#11](@ref)).
+* Methods to calculate hazards ratios and add to `show` (see [#40](@ref)).
 
 Function returns a [`ParametricPH`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
@@ -280,10 +283,11 @@ where ``β̂`` are estimated coefficients, ``X`` are covariates from the new dat
 
 Note❗The PH model assumes that a higher linear predictor means a higher risk of event and therefore a lower survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) > hⱼ(t)` - hence `crank = lp`. This means when calculating [`concordance`](@ref) you *must* include `rev = true`.
 
-Future updates will add transformation methods for more prediction types [#12](@ref).
+Future updates will add transformation methods for more prediction types (see [#12](@ref)).
 
 Function returns a [`SurvivalPrediction`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
@@ -362,6 +366,7 @@ Future additions:
 
 Function returns a [`ParametricAFT`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
@@ -437,6 +442,7 @@ Future updates will add transformation methods for more prediction types (see [#
 
 Function returns a [`SurvivalPrediction`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
