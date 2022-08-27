@@ -1,7 +1,7 @@
 name = "SurvivalAnalysis"
 uuid = "d1dd7d07-e5c2-418a-8652-e20add45d312"
 authors = ["Raphael Sonabend <raphaelsonabend@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
