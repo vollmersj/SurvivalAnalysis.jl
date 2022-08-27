@@ -60,7 +60,6 @@ end
     @test srv.stop == T .+ 10
     @test show(srv) === nothing
     @test outcome_times(srv) == [srv.start, srv.stop]
-    @test event_times(srv) == T .+ 10
     srv2 = merge(srv, Surv(T2, T2 .+ 10))
     @test srv2.start == [T..., T2...]
     @test srv2.stop == [(T .+ 10)..., (T2 .+ 10)...]
