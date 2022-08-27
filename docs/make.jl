@@ -11,7 +11,7 @@ makedocs(
         "Tutorials" => "tutorials.md"
         "How-to guides" => "howto.md"
         "Explanations" => "explanations.md"
-        "Reference" => "api.md"
+        "Reference (API)" => "api.md"
     ],
     doctest = true,
     strict = :doctest,

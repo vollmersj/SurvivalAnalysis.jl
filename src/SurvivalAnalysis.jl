@@ -18,7 +18,7 @@ module SurvivalAnalysis
     export time, reverse, length # Base
 
     # other exports
-    export Surv, outcome_times, event_times, outcome_status, unique_times, threshold_risk
+    export Surv, outcome_times, event_times, outcome_status, unique_outcome_times, threshold_risk
     export unique_event_times
     export total_events, total_censored, total_outcomes, total_risk, surv_stats
     export Srv

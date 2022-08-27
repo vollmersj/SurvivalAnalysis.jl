@@ -29,7 +29,7 @@ end
     @test outcome_times(srv) == T
     @test outcome_status(srv) == Δ
     @test event_times(srv) == [2, 2, 10]
-    @test unique_times(srv) == [2, 5, 9, 10]
+    @test unique_outcome_times(srv) == [2, 5, 9, 10]
     @test unique_event_times(srv) == [2, 10]
     @test total_events(srv) == 3
     @test total_censored(srv) == 2
@@ -60,7 +60,6 @@ end
     @test srv.stop == T .+ 10
     @test show(srv) === nothing
     @test outcome_times(srv) == [srv.start, srv.stop]
-    @test event_times(srv) == T .+ 10
     srv2 = merge(srv, Surv(T2, T2 .+ 10))
     @test srv2.start == [T..., T2...]
     @test srv2.stop == [(T .+ 10)..., (T2 .+ 10)...]
