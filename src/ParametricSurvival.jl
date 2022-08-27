@@ -212,7 +212,7 @@ julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
 julia> D = [true, false, false, false, true, false, false, true, true, false];
 
-julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
 julia> data = DataFrame(Y, D, X);
 
@@ -294,7 +294,7 @@ julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
 julia> D = [true, false, false, false, true, false, false, true, true, false];
 
-julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
 julia> data = DataFrame(Y, D, X);
 
@@ -379,7 +379,7 @@ julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
 julia> D = [true, false, false, false, true, false, false, true, true, false];
 
-julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
 julia> data = DataFrame(Y, D, X);
 
@@ -459,7 +459,7 @@ julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
 julia> D = [true, false, false, false, true, false, false, true, true, false];
 
-julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0]);
+julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
 
 julia> data = DataFrame(Y, D, X);
 
