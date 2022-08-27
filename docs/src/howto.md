@@ -1,4 +1,8 @@
-# Examples
+# How-to guides
+
+More coming soon...
+
+# Fitting and predicting
 
 ```@meta
 DocTestSetup = quote
@@ -6,7 +10,6 @@ DocTestSetup = quote
 end
 ```
 
-# How to fit and predict
 
 ## Fitting
 

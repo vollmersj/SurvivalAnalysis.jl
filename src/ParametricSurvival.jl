@@ -8,8 +8,7 @@ Abstract type for all fully-parametric survival models implemented in, or extend
 package. Type 'inherits' [`SurvivalModel`](@ref). Available methods
 
 * `coef` - Extract fitted coefficients
-* `fit` and `predict` - Fit model and make predictions from fitted model with `@formula` or
-`matrix` interface, see [How to fit and predict](@ref)
+* `fit` and `predict` - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
 * `baseline` - Extract fitted baseline distribution, see [ph](@ref) and [aft](@ref) for more
 * `scale` - Extract scale parameter of fitted distribution
 
@@ -18,13 +17,13 @@ converted as required to make use of `Distributions.jl`
 
 Objects inheriting from this should have the following fields
 
-* coefficients::Vector{Float64} - Fitted coefficients
-* scale::Float64 - Fitted scale parameter for baseline distribution *before* transformation
-* hessian::Matrix - Hessian from `Optim`
-* var_cov::Matrix - Covariance matrix
-* tstats::Vector - t-statistics
-* baseline<:ContinuousUnivariateDistribution - Fitted baseline distribution
-* routine - Optimisation routine from `Optim`
+* `coefficients::Vector{Float64}` - Fitted coefficients
+* `scale::Float64` - Fitted scale parameter for baseline distribution *before* transformation
+* `hessian::Matrix` - Hessian from `Optim`
+* `var_cov::Matrix` - Covariance matrix
+* `tstats::Vector` - t-statistics
+* `baseline<:ContinuousUnivariateDistribution` - Fitted baseline distribution
+* `routine` - Optimisation routine from `Optim`
 """
 abstract type ParametricSurvival <: SurvivalModel end
 
@@ -43,7 +42,7 @@ StatsBase.coef(obj::ParametricSurvival) = obj.coefficients
     fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
         d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
 
-Fit a [`ParametricSurvival`] survival model using matrix interface. It is recommended
+Fit a [`ParametricSurvival`](@ref) survival model using matrix interface. It is recommended
 to use [`ph`](@ref) or [`aft`](@ref) directly instead.
 """
 function StatsBase.fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
@@ -182,7 +181,7 @@ end
     fit(ParametricPH, X::AbstractMatrix{<:Real}, Y::RCSurv, d::Type{T}; init::Number = 1)
 
 Fit a fully-parametric proportional hazards (PH) model with baseline distribution `d`.
-See [How to fit and predict](@ref) and examples below for fitting interfaces, we recommend
+See [Fitting and predicting](@ref) and examples below for fitting interfaces, we recommend
 using `ph(::@formula...)`.
 
 Fully-parametric PH models are defined by
@@ -268,7 +267,7 @@ end
         data::DataFrames.DataFrame)
 
 Make predictions from a fitted [`ParametricPH`](@ref) model. See
-[How to fit and predict](@ref) and examples below for predicting interfaces, we recommend
+[Fitting and predicting](@ref) and examples below for predicting interfaces, we recommend
 using `predict(fit, data::DataFrame)`.
 
 Three prediction types can be made from a fitted PH model:
@@ -277,13 +276,9 @@ Three prediction types can be made from a fitted PH model:
 * `crank` - ``Xβ̂``
 * `distr` - ``F(t) = 1 - Ŝ₀(t)^{exp(Xβ̂)}``
 
-where ``β̂`` are estimated coefficients, ``X`` are covariates from the new data, and ``Ŝ₀``
-is the estimated baseline distribution survival function. Predicted distributions are returned
-as `ContinuousPHDistribution <: Distributions.ContinuousUnivariateDistribution`.
+where ``β̂`` are estimated coefficients, ``X`` are covariates from the new data, and ``Ŝ₀`` is the estimated baseline distribution survival function. Predicted distributions are returned as `ContinuousPHDistribution <: Distributions.ContinuousUnivariateDistribution`.
 
-Note❗ the PH model assumes that a higher linear predictor means a higher risk of event and
-therefore a lower survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) > hⱼ(t)` - hence `crank = lp`.
-This means when calculating [`concordance`](@ref) you *must* include `rev = true`.
+Note❗The PH model assumes that a higher linear predictor means a higher risk of event and therefore a lower survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) > hⱼ(t)` - hence `crank = lp`. This means when calculating [`concordance`](@ref) you *must* include `rev = true`.
 
 Future updates will add transformation methods for more prediction types [#12](@ref).
 
@@ -346,9 +341,7 @@ end
     aft(X::AbstractMatrix{<:Real}, Y::RCSurv, d::Type{T}; init::Number = 1)
     fit(ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv, d::Type{T}; init::Number = 1)
 
-Fit a fully-parametric accelerated failure time (AFT) model with baseline distribution `d`.
-See [How to fit and predict](@ref) and examples below for fitting interfaces, we recommend
-using `aft(::@formula...)`.
+Fit a fully-parametric accelerated failure time (AFT) model with baseline distribution `d`. See [Fitting and predicting](@ref) and examples below for fitting interfaces, we recommend using `aft(::@formula...)`.
 
 Fully-parametric AFT models are defined by
 
@@ -356,21 +349,16 @@ Fully-parametric AFT models are defined by
 h(t) = e^{-Xβ} h₀(t e^{-Xβ})
 ```
 
-where ``β`` are coefficients to be estimated, ``X`` are covariates, and `h₀` is the hazard
-function of an assumed baseline distribution, `d`. Available choices for distributions are:
+where ``β`` are coefficients to be estimated, ``X`` are covariates, and `h₀` is the hazard function of an assumed baseline distribution, `d`. Available choices for distributions are:
 
 * Distributions.Exponential
 * Distributions.Weibull
 
-AFT models assumes that an increase in a covariate results in an acceleration of the
-event by a constant. This is best explained by example. The above formula can also be
-expressed as ``S(t) = S₀(exp(-η)t)`` then let ``ηᵢ = log(2)`` and ``ηⱼ = log(1)`` so
-``ηᵢ > ηⱼ``. Then Sᵢ(t) = S₀(0.5t) and Sⱼ(t) = S₀(t) and so for all ``t``, Sᵢ(t) ≥ Sⱼ(t) as
-S is a decreasing function.
+AFT models assumes that an increase in a covariate results in an acceleration of the event by a constant. This is best explained by example. The above formula can also be expressed as ``S(t) = S₀(exp(-η)t)`` then let ``ηᵢ = log(2)`` and ``ηⱼ = log(1)`` so ``ηᵢ > ηⱼ``. Then Sᵢ(t) = S₀(0.5t) and Sⱼ(t) = S₀(t) and so for all ``t``, ``Sᵢ(t) ≥ Sⱼ(t)`` as S is a decreasing function.
 
 Future additions:
 
-* More baseline distributions [#15](@ref)
+* More baseline distributions (see [#15](@ref))
 
 Function returns a [`ParametricAFT`](@ref) struct.
 
@@ -433,9 +421,7 @@ end
     predict(fit::StatsModels.TableStatisticalModel{ParametricAFT, Matrix{Float64}},
         data::DataFrames.DataFrame)
 
-Make predictions from a fitted [`ParametricAFT`](@ref) model. See
-[How to fit and predict](@ref) and examples below for predicting interfaces, we recommend
-using `predict(fit, data::DataFrame)`.
+Make predictions from a fitted [`ParametricAFT`](@ref) model. See [Fitting and predicting](@ref) and examples below for predicting interfaces, we recommend using `predict(fit, data::DataFrame)`.
 
 Three prediction types can be made from a fitted AFT model:
 
@@ -443,14 +429,11 @@ Three prediction types can be made from a fitted AFT model:
 * `crank` - ``-Xβ̂``
 * `distr` - ``F(t) = F̂₀(t/exp(Xβ̂))``
 
-where ``β̂`` are estimated coefficients, ``X`` are covariates from the new data, and ``F̂₀``
-is the estimated baseline distribution CDF function. Predicted distributions are returned
-as `ContinuousAFTDistribution <: Distributions.ContinuousUnivariateDistribution`.
+where ``β̂`` are estimated coefficients, ``X`` are covariates from the new data, and ``F̂₀`` is the estimated baseline distribution CDF function. Predicted distributions are returned as `ContinuousAFTDistribution <: Distributions.ContinuousUnivariateDistribution`.
 
-Note❗ the AFT model assumes that a higher linear predictor means a lower risk of event and
-therefore a higher survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) < hⱼ(t)` - hence `crank = -lp`.
+Note❗The AFT model assumes that a higher linear predictor means a lower risk of event and therefore a higher survival time, i.e., ``βXᵢ > βXⱼ → hᵢ(t) < hⱼ(t)`` - hence `crank = -lp`.
 
-Future updates will add transformation methods for more prediction types [#12](@ref).
+Future updates will add transformation methods for more prediction types (see [#12](@ref)).
 
 Function returns a [`SurvivalPrediction`](@ref) struct.
 

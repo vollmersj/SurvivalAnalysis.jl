@@ -1,8 +1,7 @@
 """
     SurvivalModel <: StatisticalModel
 
-Abstract type for all models implemented in, or extending, this package. Type 'inherits'
-from JuliaStats.StatisticalModel to enable formula fitting and predicting interface.
+Abstract type for all models implemented in, or extending, this package. Type 'inherits' from [StatsAPI.StatisticalModel](https://github.com/JuliaStats/StatsAPI.jl/blob/main/src/statisticalmodel.jl) to enable formula fitting and predicting interface.
 """
 abstract type SurvivalModel <: StatisticalModel end
 

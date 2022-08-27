@@ -8,8 +8,10 @@ makedocs(
     modules  = [SurvivalAnalysis],
     pages=[
         "Home" => "index.md"
-        "Examples" => "examples.md"
-        "API" => "api.md"
+        "Tutorials" => "tutorials.md"
+        "How-to guides" => "howto.md"
+        "Explanations" => "explanations.md"
+        "Reference" => "api.md"
     ],
     doctest = true,
     strict = :doctest,
