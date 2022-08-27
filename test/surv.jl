@@ -29,7 +29,7 @@ end
     @test outcome_times(srv) == T
     @test outcome_status(srv) == Δ
     @test event_times(srv) == [2, 2, 10]
-    @test unique_times(srv) == [2, 5, 9, 10]
+    @test unique_outcome_times(srv) == [2, 5, 9, 10]
     @test unique_event_times(srv) == [2, 10]
     @test total_events(srv) == 3
     @test total_censored(srv) == 2
