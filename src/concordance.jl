@@ -97,10 +97,10 @@ where `tᵢ,tⱼ` are true survival times, `yᵢ,yⱼ` are predictions, `τ` is 
 ensure stability even when censoring is high, `δᵢ` is the censoring indicator and `W` is a
 weighting function determined by `weights` as follows:
 
-    * `:I` or `:Harrell` - Harrell's C - ``W(tᵢ) = 1``
-    * `:G2` or `:Uno` - Uno's C - ``W(tᵢ) = 1/G(tᵢ)``
-    * `:SG` or `:Schemper` - Schemper's C - ``W(tᵢ) = S(tᵢ)/G(tᵢ)``
-    * `:S` or `:Peto` - Peto-Wilcoxon's C - ``W(tᵢ) = S(tᵢ)``
+* `:I` or `:Harrell` - Harrell's C - ``W(tᵢ) = 1``
+* `:G2` or `:Uno` - Uno's C - ``W(tᵢ) = 1/G(tᵢ)``
+* `:SG` or `:Schemper` - Schemper's C - ``W(tᵢ) = S(tᵢ)/G(tᵢ)``
+* `:S` or `:Peto` - Peto-Wilcoxon's C - ``W(tᵢ) = S(tᵢ)``
 
 where `S(tᵢ)` and `G(tᵢ)` are respectively the Kaplan-Meier estimates of the survival and
 censoring distributions of the training data at time `tᵢ`. For any other combination of
