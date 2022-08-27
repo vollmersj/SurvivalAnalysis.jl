@@ -99,8 +99,6 @@ weighting function determined by `weights` as follows:
 
     * `:I` or `:Harrell` - Harrell's C - ``W(tᵢ) = 1``
     * `:G2` or `:Uno` - Uno's C - ``W(tᵢ) = 1/G(tᵢ)``
-    * `:GH` or `:Gonen` - Gönen-Heller's C - this is a very different method and should
-    only be used for predictions from a Cox PH model
     * `:SG` or `:Schemper` - Schemper's C - ``W(tᵢ) = S(tᵢ)/G(tᵢ)``
     * `:S` or `:Peto` - Peto-Wilcoxon's C - ``W(tᵢ) = S(tᵢ)``
 
@@ -109,6 +107,11 @@ censoring distributions of the training data at time `tᵢ`. For any other combi
 weights pass a [`ConcordanceWeights`](@ConcordanceWeights) object to `weights`.
 Note❗ If training data is not provided to `train` then `truth` is used to estimate `S` and
 `G` but it is strongly recommended to provide the training data if possibe.
+
+We also include an implementation of Gönen-Heller's C with `weights = :GH` or `:Gonen`.
+Note❗ this is actually a very different method from the others and calculates concordance
+for predictions from a Cox PH model only. We may move this to its own function in the future
+to avoid misuse.
 
 There is open debate about how to handle ties when calculating the concordance. Ties can
 occur in predictions and in the observed survival times. The defaults here `tied_preds=0.5`
