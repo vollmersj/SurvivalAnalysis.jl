@@ -6,6 +6,8 @@ DocTestSetup = quote
 end
 ```
 
+# How to fit and predict
+
 ## Fitting
 
 Models can be fit in one of four ways but we only recommend the first.
