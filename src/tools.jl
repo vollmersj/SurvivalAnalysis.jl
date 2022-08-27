@@ -3,7 +3,8 @@
 #-----------------
 """
     hazard(d::UnivariateDistribution, x::Real)
-    hₜ(d::UnivariateDistribution, x::Real)
+
+    Aliases: hₜ
 
 Compute the hazard function of distribution `d` at point `x`.
 
@@ -27,7 +28,8 @@ hazard(d::UnivariateDistribution, x::Real) = pdf(d, x) / survival(d, x)
 
 """
     cum_hazard(d::UnivariateDistribution, x::Real)
-    Hₜ(d::UnivariateDistribution, x::Real)
+
+    Aliases: Hₜ
 
 Compute the cumulative hazard function of distribution `d` at point `x`.
 

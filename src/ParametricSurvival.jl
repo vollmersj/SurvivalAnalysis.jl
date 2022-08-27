@@ -5,17 +5,19 @@
     ParametricSurvival <: SurvivalModel
 
 Abstract type for all fully-parametric survival models implemented in, or extending, this
-package. Type 'inherits' [`SurvivalModel`](@ref). Available methods
+package. Type 'inherits' [`SurvivalModel`](@ref).
 
-* `coef` - Extract fitted coefficients
-* `fit` and `predict` - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
-* `baseline` - Extract fitted baseline distribution, see [ph](@ref) and [aft](@ref) for more
-* `scale` - Extract scale parameter of fitted distribution
+Available methods:
+
+* [`coef`](@ref) - Extract fitted coefficients
+* [`fit`](@ref) and [`predict`](@predict) - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
+* [`baseline`](@ref) - Extract fitted baseline distribution, see [ph](@ref) and [aft](@ref) for more
+* [`scale`](@ref) - Extract scale parameter of fitted distribution
 
 All distributions are fitted with the Kalbfleisch-Prentice parametrisation and then
 converted as required to make use of `Distributions.jl`
 
-Objects inheriting from this should have the following fields
+Objects inheriting from this should have the following fields:
 
 * `coefficients::Vector{Float64}` - Fitted coefficients
 * `scale::Float64` - Fitted scale parameter for baseline distribution *before* transformation
@@ -206,6 +208,7 @@ Future additions:
 
 Function returns a [`ParametricPH`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
@@ -284,6 +287,7 @@ Future updates will add transformation methods for more prediction types (see [#
 
 Function returns a [`SurvivalPrediction`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
@@ -362,6 +366,7 @@ Future additions:
 
 Function returns a [`ParametricAFT`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
@@ -437,6 +442,7 @@ Future updates will add transformation methods for more prediction types (see [#
 
 Function returns a [`SurvivalPrediction`](@ref) struct.
 
+# Examples
 ```jldoctest
 julia> Y = [1,1,4,6,8,4,9,4,5,10];
 

@@ -77,10 +77,8 @@ end
         truth::OneSidedSurv, prediction::Vector{<:Number}, weights::Union{Symbol, ConcordanceWeights};
         tied_preds=0.5, tied_times=0, cutoff=nothing, train::OneSidedSurv=nothing, rev=false
     )
-    cindex(
-        truth::OneSidedSurv, prediction::Vector{<:Number}, weights::Union{Symbol, ConcordanceWeights};
-        tied_preds=0.5, tied_times=0, cutoff=nothing, train::OneSidedSurv=nothing, rev=false
-    )
+
+    Aliases: cindex
 
 Generic function to call any concordance index method. Concordance is a measure of
 discrimination which evaluates if a prediction is concordant with the truth, i.e.
@@ -124,6 +122,7 @@ risk then a higher value of ϕ implies a higher risk of event which will result 
 survival time. In this case a prediction is concordant with the survival time if
 ``ϕᵢ < ϕⱼ ⟺ Tᵢ > Tⱼ``. To do this within the function just set `rev=true`.
 
+# Examples
 ```jldoctest
 julia> T = [1.0,0.1,pi,0.9,0.4,20,1,5,9,2.5];
 
