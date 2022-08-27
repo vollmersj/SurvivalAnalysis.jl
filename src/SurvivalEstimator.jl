@@ -4,7 +4,7 @@
 """
     SurvivalEstimator <: StatisticalModel
 
-Abstract type for all non-parametric estimators implemented in, or extending, this package. Type 'inherits' from [StatsAPI.StatisticalModel](https://github.com/JuliaStats/StatsAPI.jl/blob/main/src/statisticalmodel.jl) to enable formula fitting and predicting interface. Note❗This may be abstracted further into `ConditionalSurvivalEstimator <: SurvivalEstimator`` and `UnconditionalSurvivalEstimator <: SurvivalEstimator`.
+Abstract type for all non-parametric estimators implemented in, or extending, this package. Type 'inherits' from [StatsAPI.StatisticalModel](https://github.com/JuliaStats/StatsAPI.jl/blob/main/src/statisticalmodel.jl) to enable formula fitting and predicting interface. Note❗This may be abstracted further into `ConditionalSurvivalEstimator <: SurvivalEstimator` and `UnconditionalSurvivalEstimator <: SurvivalEstimator`.
 
 Available methods:
 
@@ -292,7 +292,7 @@ Fit a non-parametric Kaplan-Meier estimator on a right-censored survival outcome
 The Kaplan-Meier Estimator is defined by
 
 ```math
-Ŝ(τ) = ∏_{i:tᵢ≤τ} (1 - \frac{dᵢ}{nᵢ})
+Ŝ(τ) = ∏_{i:tᵢ≤τ} (1 - \\frac{dᵢ}{nᵢ})
 ```
 
 where ``dᵢ`` and ``nᵢ`` are the number of events and nunber at risk at time ``tᵢ`` respectively.
@@ -338,6 +338,7 @@ function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
 end
 
 """
+    confint(km::KaplanMeier; level::Float64 = 0.95)
     confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
 
 Calculate the confidence interval (CI) around a fitted Kaplan-Meier estimate to `level`% confidence. If `t` provided then returns CI at that time, otherwise returns CI at all fitted times.
@@ -393,7 +394,7 @@ Fit a non-parametric Nelson-NelsonAalen estimator on a right-censored survival o
 The Nelson-Aalen Estimator is defined by
 
 ```math
-Ĥ(τ) = ∑_{i:tᵢ≤τ} \frac{dᵢ}{nᵢ}
+Ĥ(τ) = ∑_{i:tᵢ≤τ} \\frac{dᵢ}{nᵢ}
 ```
 
 where ``dᵢ`` and ``nᵢ`` are the number of events and nunber at risk at time ``tᵢ`` respectively and Ĥ is the estimated cumulative hazard function. The survival function is then Ŝ = exp(-Ĥ).
@@ -440,7 +441,8 @@ end
 # Unclear if this even needs to be a different method, could just use the confint around
 # survival for both NPEs
 """
-    confint(km::NelsonAalen, t::Number; level::Float64 = 0.95)
+    confint(na::NelsonAalen; level::Float64 = 0.95)
+    confint(na::NelsonAalen, t::Number; level::Float64 = 0.95)
 
 
 Calculate the confidence interval (CI) around a fitted Nelson-Aalen estimate to `level`% confidence. If `t` provided then returns CI at that time, otherwise returns CI at all fitted times.
