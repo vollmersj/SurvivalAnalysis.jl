@@ -22,6 +22,10 @@ end
     @test Surv(1, 0, :r).time == [1]
     # methods
     srv = Surv(T, Δ, :right)
+    @test length(srv) === 5
+    @test threshold_risk(srv, 1) === 10.0
+    @test threshold_risk(srv, 0.6) === 9.0
+    @test_throws ArgumentError threshold_risk(srv, 2)
     @test outcome_times(srv) == T
     @test outcome_status(srv) == Δ
     @test event_times(srv) == [2, 2, 10]

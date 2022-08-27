@@ -41,7 +41,6 @@ end
 @testset "Check names" begin
     @test concordance(truth, pred, :I).weights.name === "Harrell's"
     @test concordance(truth, pred, :Harrell).weights.name === "Harrell's"
-    @test concordance(truth, pred, :G).weights.name === ""
     @test concordance(truth, pred, :G2).weights.name === "Uno's"
     @test concordance(truth, pred, :Uno).weights.name === "Uno's"
     @test concordance(truth, pred, :GH).weights.name === "Gönen-Heller's"
@@ -63,6 +62,9 @@ end
     # show returns nothing
     @test show(concordance(truth, 1 .- truth.time, :I)) === nothing
 
+    # alias as expected
+    @test concordance(truth, pred, :I) === cindex(truth, pred, :I)
+
     # overwrite as expected
     C = concordance(truth, pred, :I, tied_times = 0.1, tied_preds = 0.9)
     @test C.weights.tied_times == 0.1
@@ -70,8 +72,8 @@ end
     @test C.weights.G == 0
     @test C.weights.S == 0
 
-    C = concordance(truth, pred, :I, tied_times = 0.1, tied_preds = 0.9,
-        custom_weights = ConcordanceWeights(1, 2, 0.2, 0.8, ""))
+    C = concordance(truth, pred, ConcordanceWeights(1, 2, 0.2, 0.8, ""),
+        tied_times = 0.1, tied_preds = 0.9)
     @test C.weights.tied_times == 0.8
     @test C.weights.tied_preds == 0.2
     @test C.weights.G == 2
@@ -98,12 +100,10 @@ end
     J_Ci = concordance(truth, pred, :I, tied_times=0).C;
     J_Cs = concordance(truth, pred, :S, tied_times=0).C;
     J_Csg = concordance(truth, pred, :SG, tied_times=0).C;
-    J_Cng = concordance(truth, pred, :G, tied_times=0).C;
     J_Cng2 = concordance(truth, pred, :G2, tied_times=0).C;
     J_Cgh = concordance(truth, pred, :GH, tied_times=0).C;
 
     @test J_Ci ≈ R_Ci
-    @test J_Cng ≈ R_Cng
     @test J_Cng2 ≈ R_Cng2
 
     # different implementation to (or not implemented in) {survival}

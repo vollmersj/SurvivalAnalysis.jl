@@ -52,6 +52,45 @@ function _fitParametricSurvival(obj, X, Y, init, llik, dtrafo)
     return obj
 end
 
+
+baseline(mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
+    mm.model.baseline
+baseline(mm::ParametricSurvival) = mm.baseline
+
+Distributions.scale(
+    mm::StatsModels.TableStatisticalModel{<:ParametricSurvival, <:AbstractMatrix}) =
+    mm.model.scale
+Distributions.scale(mm::ParametricSurvival) = mm.scale
+
+function Base.show(io::IO, mm::ParametricSurvival)
+    println(io, typeof(mm))
+    println(io)
+    println(io, "Distr:")
+    println(io, baseline(mm))
+    println(io)
+    println(io,"Coefficients:")
+
+    header = ["(Scale)", ["x$i" for i = 0:(length(coef(mm))-1)]...]
+    header[2] = "(Intercept)"
+    data = [mm.scale coef(mm)...]
+    pretty_table(io, data,  header = header, vlines = :none, hlines = :none)
+end
+
+function Base.show(io::IO, mm::StatsModels.TableStatisticalModel{<:ParametricSurvival})
+    println(io, typeof(mm))
+    println(io)
+    println(io, mm.mf.f)
+    println(io)
+    println(io, "Distr:")
+    println(io, baseline(mm))
+    println(io)
+    println(io, "Coefficients:")
+
+    header = ["(Scale)", coefnames(mm.mf)...]
+    data = [scale(mm) coef(mm)...]
+    pretty_table(io, data,  header = header, vlines = :none, hlines = :none)
+end
+
 #-------------------
 # ParametricPH
 #-------------------

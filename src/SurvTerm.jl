@@ -10,6 +10,34 @@ SurvTerm(T::X where {X<:AbstractTerm}, Δ::Y where {Y<:AbstractTerm}) =
 Base.show(io::IO, t::SurvTerm) =
     print(io, string("(", t.T, ",",  t.Δ, t.type.n == 1 ? ";+" : ";-", ")"))
 
+"""
+    Srv(T::Symbol, Δ::Symbol, type::Int = 1)
+
+    Create a `SurvTerm` object for internal use for fitting models. Arguments, `T` and `Δ`
+    should be a reference to the name of the time and status variables in a `DataFrame`
+    respectively. `type` should be `1` (or omitted) for right-censoring or `-1`
+    for left-censoring.
+
+    # Examples
+    ```jldoctest
+    julia> using DataFrames
+
+    julia> data = DataFrame(t = [1, 2, 3], d = [1, 0, 0])
+
+    julia> @formula(Srv(t, d) ~ 1)
+    FormulaTerm
+    Response:
+    (t,d)->Srv(t, d)
+    Predictors:
+    1
+
+    julia> Srv(t, d, -1)
+    Response:
+    (t,d)->Srv(t, d, -1)
+    Predictors:
+    1
+    ```
+"""
 Srv(T::Symbol, Δ::Symbol, type::Int = 1) = SurvTerm(term(T), term(Δ), term(type))
 
 function StatsModels.apply_schema(t::FunctionTerm{typeof(Srv)},

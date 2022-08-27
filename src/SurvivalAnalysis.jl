@@ -18,10 +18,11 @@ module SurvivalAnalysis
     export time, reverse, length # Base
 
     # other exports
-    export Surv, outcome_times, event_times, outcome_status, unique_times
+    export Surv, outcome_times, event_times, outcome_status, unique_times, threshold_risk
     export unique_event_times
     export total_events, total_censored, total_outcomes, total_risk, surv_stats
     export Srv
+    export SurvivalModel
     export kaplan_meier, nelson_aalen, ph, aft, KaplanMeier, NelsonAalen
     export survival, distr
     export ParametricPH, ParametricAFT
