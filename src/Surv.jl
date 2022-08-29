@@ -130,7 +130,6 @@ end
 Get length of a survival object.
 
 # Examples
-
 ```jldoctest
 julia> length(Surv([1, 2, 3], [true, false, true], :r))
 3
@@ -149,7 +148,6 @@ Base.length(srv::TwoSidedSurv) = length(srv.start)
     Get times at which an outcome (event or censoring) takes place.
 
 # Examples
-
 ```jldoctest
 julia> outcome_times(Surv([1, 2, 3], [true, false, true], :r))
 3-element Vector{Float64}:
@@ -172,12 +170,12 @@ outcome_times(srv::TwoSidedSurv) = [srv.start, srv.stop]
 Get times at which an event (not censoring) takes place.
 
 # Examples
-
 ```jldoctest
 julia> event_times(Surv([1, 2, 3], [true, false, true], :r))
 2-element Vector{Float64}:
  1.0
  3.0
+```
 """
 event_times(srv::OneSidedSurv) = srv.time[srv.status]
 
@@ -187,13 +185,13 @@ event_times(srv::OneSidedSurv) = srv.time[srv.status]
     Get vector of survival indicators.
 
 # Examples
-
 ```jldoctest
 julia> outcome_status(Surv([1, 2, 3], [true, false, true], :r))
 3-element Vector{Bool}:
  1
  0
  1
+```
 """
 outcome_status(srv::OneSidedSurv) = srv.status
 
@@ -203,12 +201,12 @@ outcome_status(srv::OneSidedSurv) = srv.status
 Get unique times at which an outcome takes place
 
 # Examples
-
 ```jldoctest
 julia> unique_outcome_times(Surv([1, 2, 1], [true, false, true], :r))
 2-element Vector{Float64}:
  1.0
  2.0
+```
 """
 unique_outcome_times(srv::OneSidedSurv) = srv.stats.time
 
@@ -218,11 +216,11 @@ unique_outcome_times(srv::OneSidedSurv) = srv.stats.time
 Get unique times at which an event takes place.
 
 # Examples
-
 ```jldoctest
 julia> unique_event_times(Surv([1, 2, 1], [true, false, true], :r))
 1-element Vector{Float64}:
  1.0
+```
 """
 unique_event_times(srv::OneSidedSurv) = unique(event_times(srv))
 
@@ -233,13 +231,13 @@ unique_event_times(srv::OneSidedSurv) = unique(event_times(srv))
 Get total number of events (optionally at a given time).
 
 # Examples
-
 ```jldoctest
 julia> total_events(Surv([1, 2, 3], [true, false, true], :r))
 2
 
 julia> total_events(Surv([1, 2, 3], [true, false, true], :r), 3)
 1
+```
 """
 total_events(srv::OneSidedSurv) = sum(srv.status)
 
@@ -250,13 +248,13 @@ total_events(srv::OneSidedSurv) = sum(srv.status)
 Get total number censored (optionally at a given time).
 
 # Examples
-
 ```jldoctest
 julia> total_censored(Surv([1, 2, 3], [false, true, false], :r))
 2
 
 julia> total_censored(Surv([1, 2, 3], [true, false, true], :r), 3)
 1
+```
 """
 total_censored(srv::OneSidedSurv) = length(srv.status) - sum(srv.status)
 
@@ -267,13 +265,13 @@ total_censored(srv::OneSidedSurv) = length(srv.status) - sum(srv.status)
 Get total number of outcomes (optionally at a given time).
 
 # Examples
-
 ```jldoctest
 julia> total_outcomes(Surv([1, 2, 3], [false, true, false], :r))
 3
 
 julia> total_outcomes(Surv([1, 2, 3], [true, false, true], :r), 3)
 1
+```
 """
 total_outcomes(srv::OneSidedSurv) = length(srv.status)
 
@@ -284,13 +282,13 @@ total_outcomes(srv::OneSidedSurv) = length(srv.status)
 Get total number at risk (optionally at a given time).
 
 # Examples
-
 ```jldoctest
 julia> total_risk(Surv([1, 2, 3], [false, true, false], :r))
 3
 
 julia> total_risk(Surv([1, 2, 3], [true, false, true], :r), 2)
 2
+```
 """
 total_risk(srv::OneSidedSurv) = length(srv.status)
 
@@ -317,13 +315,13 @@ total_risk(srv::OneSidedSurv, t::Number) = _total_outcome(srv, t, "nrisk")
 Get set of useful summary statistics over time - if `events_only = false` (default) then returned for all outcomes, otherwise only return the times at which an event occurred (useful for computing non-parametric estimators).
 
 # Examples
-
 ```jldoctest
 julia> surv_stats(Surv([1, 2, 3], [false, true, false], :r))
 (time = [1.0, 2.0, 3.0], nrisk = [3, 2, 1], ncens = [1, 0, 1], nevents = [0, 1, 0], noutcomes = [1, 1, 1])
 
 julia> surv_stats(Surv([1, 2, 3], [false, true, false], :r); events_only = true)
 (time = [2.0], nrisk = [2], ncens = [0], nevents = [1], noutcomes = [1])
+```
 """
 function surv_stats(srv::OneSidedSurv; events_only = false)
     events_only ? (w = map(x -> x > 0, srv.stats.nevents); map(s -> s[w], srv.stats)) :
@@ -336,11 +334,11 @@ end
 Get the time at which a given proportion of observations are no longer at risk. Useful when computing metrics and calculations become increasingly unstable as number of observations at risk decreases over time.
 
 # Examples
-
 ```jldoctest
 # time at which 80% of observations have experienced the event or been censored
 julia> threshold_risk(Surv([1, 2, 3, 4, 5, 6], [false, true, false, false, true, true], :r), 0.8)
 6.0
+```
 """
 function threshold_risk(srv::OneSidedSurv, p::Number)
     test_proportion(p) || throw(ArgumentError("Expected 0≤`p`≤1, got $(p)"))
@@ -372,7 +370,6 @@ end
     Merge survival objects.
 
 # Examples
-
 ```jldoctest
 julia> srv1 = Surv([1, 2, 3], [false, true, false], :r)
 ["1.0+", "2.0", "3.0+"]
@@ -391,6 +388,7 @@ julia> srv2 = Surv([7, 8, 9], [10, 11, 12])
 
 julia> merge(srv1, srv2) # TwoSidedSurv
 [(1.0, 4.0), (2.0, 5.0), (3.0, 6.0), (7.0, 10.0), (8.0, 11.0), (9.0, 12.0)]
+```
 """
 function Base.merge(A::OneSidedSurv...)
     length(unique(map(typeof, A))) > 1 &&
@@ -416,12 +414,12 @@ end
 Reverse survival outcome (not in-place). Useful for computing non-parametric estimators of the censoring distribution instead of the survival distribution.
 
 # Examples
-
 ```jldoctest
 julia> srv = Surv([1, 2, 3, 4, 5, 6], [false, true, false, false, true, true], :r)
 ["1.0+", "2.0", "3.0+", "4.0+", "5.0", "6.0"]
 
 julia> reverse(srv)
 ["1.0", "2.0+", "3.0", "4.0", "5.0+", "6.0+"]
+```
 """
 Base.reverse(srv::OneSidedSurv) = typeof(srv)(srv.time, .!srv.status)
