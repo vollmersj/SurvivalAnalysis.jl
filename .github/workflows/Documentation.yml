@@ -25,5 +25,5 @@ jobs:
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
         run: julia --project=docs/ docs/make.jl
       - name: Check expected and documented objects
-        if: ${{ github.event_name == "pull_request" }}
+        if: github.event_name == "pull_request"
         run: julia --project=docs/ docs/check_doc_coverage.jl
