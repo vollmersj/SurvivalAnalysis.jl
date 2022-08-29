@@ -9,6 +9,7 @@ module SurvivalAnalysis
     using StatsBase
     using StatsModels
     using PrettyTables: pretty_table
+    using Tables: istable
 
     # documented
     export Surv, outcome_times, event_times, outcome_status, unique_outcome_times, threshold_risk
