@@ -17,7 +17,6 @@ Available methods:
 * [`unique_outcome_times`](@ref) - Get unique times at which an outcome takes place
 * [`unique_event_times`](@ref) - Get unique times at which an event takes place
 * [`total_events`](@ref) - Get total number of events (optionally at a given time)
-* [`total_censored`](@ref) - Get total number censored (optionally at a given time)
 * [`total_outcomes`](@ref) - Get total number of outcomes (optionally at a given time)
 * [`total_risk`](@ref) -  Get total number at risk (optionally at a given time)
 * [`surv_stats`](@ref) - Get set of useful summary statistics
