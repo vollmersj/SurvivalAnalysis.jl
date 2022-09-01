@@ -241,21 +241,6 @@ julia> total_events(Surv([1, 2, 3], [true, false, true], :r), 3)
 """
 total_events(srv::OneSidedSurv) = sum(srv.status)
 
-"""
-    total_censored(srv::OneSidedSurv)
-    total_censored(srv::OneSidedSurv, t::Number)
-
-Get total number censored (optionally at a given time).
-
-# Examples
-```jldoctest
-julia> total_censored(Surv([1, 2, 3], [false, true, false], :r))
-2
-
-julia> total_censored(Surv([1, 2, 3], [true, false, true], :r), 3)
-0
-```
-"""
 total_censored(srv::OneSidedSurv) = length(srv.status) - sum(srv.status)
 
 """
