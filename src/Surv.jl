@@ -253,7 +253,7 @@ julia> total_censored(Surv([1, 2, 3], [false, true, false], :r))
 2
 
 julia> total_censored(Surv([1, 2, 3], [true, false, true], :r), 3)
-1
+0
 ```
 """
 total_censored(srv::OneSidedSurv) = length(srv.status) - sum(srv.status)
