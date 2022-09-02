@@ -14,9 +14,7 @@ ed_diff = setdiff(exp, documented);
 de_diff = setdiff(documented, exp);
 
 if length(ed_diff) > 0
-    e = "Forgot to document: $(ed_diff)"
-    @error e
-    error(e)
+    error("Forgot to document: ", ed_diff)
 elseif length(de_diff) > 0
     @warn "Extra objects documented:" de_diff
 else
