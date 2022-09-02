@@ -17,6 +17,7 @@ Available methods:
 * [`unique_outcome_times`](@ref) - Get unique times at which an outcome takes place
 * [`unique_event_times`](@ref) - Get unique times at which an event takes place
 * [`total_events`](@ref) - Get total number of events (optionally at a given time)
+* [`total_censored`](@ref) - Get total number censored (optionally at a given time)
 * [`total_outcomes`](@ref) - Get total number of outcomes (optionally at a given time)
 * [`total_risk`](@ref) -  Get total number at risk (optionally at a given time)
 * [`surv_stats`](@ref) - Get set of useful summary statistics
@@ -240,6 +241,21 @@ julia> total_events(Surv([1, 2, 3], [true, false, true], :r), 3)
 """
 total_events(srv::OneSidedSurv) = sum(srv.status)
 
+"""
+    total_censored(srv::OneSidedSurv)
+    total_censored(srv::OneSidedSurv, t::Number)
+
+Get total number censored (optionally at a given time).
+
+# Examples
+```jldoctest
+julia> total_censored(Surv([1, 2, 3], [false, true, false], :r))
+2
+
+julia> total_censored(Surv([1, 2, 3], [true, false, true], :r), 3)
+0
+```
+"""
 total_censored(srv::OneSidedSurv) = length(srv.status) - sum(srv.status)
 
 """
