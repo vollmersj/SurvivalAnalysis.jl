@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} ${{ matrix.arch }} - ${{ github.event_name }}
 
     runs-on: ${{ matrix.os }}
 
@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.0'
+          - '1.2'
           - '1'
         os:
           - ubuntu-latest

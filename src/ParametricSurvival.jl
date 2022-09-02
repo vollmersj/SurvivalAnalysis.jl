@@ -9,9 +9,9 @@ package. Type 'inherits' [`SurvivalModel`](@ref).
 
 Available methods:
 
-* [`coef`](@ref) - Extract fitted coefficients
-* [`fit`](@ref) and [`predict`](@predict) - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
-* [`baseline`](@ref) - Extract fitted baseline distribution, see [ph](@ref) and [aft](@ref) for more
+* `coef` - Extract fitted coefficients
+* [`fit`](@ref) and [`predict`](@ref) - Fit model and make predictions from fitted model with `@formula` or `matrix` interface, see [Fitting and predicting](@ref)
+* [`baseline`](@ref) - Extract fitted baseline distribution, see [`ph`](@ref) and [`aft`](@ref) for more
 * [`scale`](@ref) - Extract scale parameter of fitted distribution
 
 All distributions are fitted with the Kalbfleisch-Prentice parametrisation and then

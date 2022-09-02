@@ -1,7 +1,9 @@
 [deps]
+Cascadia = "54eefc05-d75b-58de-a785-1a3403f0919f"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Gumbo = "708ec375-b3d6-5a57-a7ce-8257bf98657a"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]

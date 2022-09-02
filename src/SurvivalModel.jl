@@ -24,9 +24,4 @@ function StatsModels.predict(
     return StatsModels.predict(mm.model, new_x; kwargs...)
 end
 
-"""
-    coef(obj::SurvivalModel)
-
-Extract coefficients from fitted [`SurvivalModel`](@ref) object.
-"""
 StatsBase.coef(obj::SurvivalModel) = obj.coefficients

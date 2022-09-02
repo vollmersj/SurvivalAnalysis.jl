@@ -15,7 +15,7 @@ makedocs(
         "Changelog" => "news.md"
     ],
     doctest = true,
-    strict = :doctest,
+    strict = true,
 )
 
 deploydocs(
