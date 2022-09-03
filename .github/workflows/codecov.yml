@@ -1,0 +1,26 @@
+name: Codecov
+
+on:
+  pull_request:
+ #   types: [closed]
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} ${{ matrix.arch }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          file: lcov.info
