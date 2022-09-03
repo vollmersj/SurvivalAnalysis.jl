@@ -88,6 +88,12 @@ predict
 
 ### Plotting
 
-```@docs
-apply_recipe
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["plots.jl"]
+```
+
+## Index
+
+```@index
 ```
