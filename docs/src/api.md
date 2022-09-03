@@ -15,7 +15,8 @@ Order   = [:type]
 
 ## Functions
 
-```@autodocs
-Modules = [SurvivalAnalysis]
-Order   = [:function]
+### Measures
+
+```@docs
+cindex
 ```
