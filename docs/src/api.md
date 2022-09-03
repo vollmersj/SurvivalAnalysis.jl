@@ -48,10 +48,8 @@ nelson_aalen
 kaplan_meier
 std
 surv_stats
-predict(::SurvivalEstimator, ::DataFrame)
 confint(::KaplanMeier, ::Number)
 confint(::NelsonAalen, ::Number)
-fit(obj::Type{<:SurvivalEstimator}, X::AbstractMatrix{<:Real}, Y::SurvivalAnalysis.RCSurv)
 ```
 
 ### SurvivalModel
@@ -70,9 +68,6 @@ ph
 aft
 scale
 baseline
-StatsBase.fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::SurvivalAnalysis.RCSurv, d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
-predict(fit::ParametricAFT, X::AbstractMatrix{<:Real})
-predict(fit::ParametricPH, X::AbstractMatrix{<:Real})
 ```
 
 ### Survival distribution functions
@@ -83,8 +78,10 @@ survival
 hazard
 ```
 
-### Prediction
+### Fitting and predicting
 
 ```@docs
 SurvivalPrediction
+fit
+predict
 ```
