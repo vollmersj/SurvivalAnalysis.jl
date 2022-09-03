@@ -78,10 +78,16 @@ survival
 hazard
 ```
 
-### Fitting and predicting
+### Fit and predict
 
 ```@docs
 SurvivalPrediction
 fit
 predict
+```
+
+### Plotting
+
+```@docs
+apply_recipe
 ```
