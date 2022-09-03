@@ -16,6 +16,8 @@ concordance
 ### Surv
 
 ```@docs
+Surv
+Surv(start::Union{Vector{T}, T} where T <: Number, stop::Union{Vector{T}, T} where T <: Number)
 total_censored
 total_risk
 total_outcomes
