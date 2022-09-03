@@ -27,7 +27,7 @@ merge
 outcome_status
 unique_outcome_times
 unique_event_times
-apply_recipe
+plot(npe::SurvivalEstimator, plot_confint::Bool = true; level = 0.95)
 survival(::SurvivalEstimator)
 time
 Srv
@@ -44,7 +44,7 @@ surv_stats
 predict(::SurvivalEstimator, ::DataFrame)
 confint(::KaplanMeier, ::Number)
 confint(::NelsonAalen, ::Number)
-fit(::Type{<:SurvivalEstimator}, ::AbstractMatrix{<:Real}, ::RCSurv)
+fit(::Type{<:SurvivalEstimator}, ::AbstractMatrix{<:Real}, ::SurvivalAnalysis.RCSurv)
 ```
 
 ### ParametricSurvival
@@ -57,7 +57,7 @@ ph
 aft
 scale
 baseline
-fit(::Type{<:ParametricSurvival}, ::AbstractMatrix{<:Real}, ::RCSurv, ::Type{T}; ::Number = 1)
+fit(::Type{<:ParametricSurvival}, ::AbstractMatrix{<:Real}, ::SurvivalAnalysis.RCSurv, ::Type{T}; ::Number = 1)
 predict(::ParametricAFT, ::AbstractMatrix{<:Real})
 predict(::ParametricPH, ::AbstractMatrix{<:Real})
 ```
