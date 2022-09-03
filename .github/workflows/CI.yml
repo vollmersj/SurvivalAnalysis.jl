@@ -23,7 +23,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - if: ${{ matrix.version }} != '1.2' && ${{ github.event_name}} == 'push'
+      - if: ${{ github.event_name}} == 'pull_request' || ${{ matrix.version }} != '1.2'
       - uses: actions/checkout@v2
       - name: Setup Julia
         uses: julia-actions/setup-julia@v1
