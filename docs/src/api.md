@@ -30,7 +30,6 @@ merge
 outcome_status
 unique_outcome_times
 unique_event_times
-apply_recipe
 survival(::SurvivalEstimator)
 time
 Srv
