@@ -31,13 +31,13 @@ abstract type ParametricSurvival <: SurvivalModel end
 
 """
     fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
-        d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
+        d::Type{<:ContinuousUnivariateDistribution}; init::Number = 1)
 
 Fit a [`ParametricSurvival`](@ref) survival model using matrix interface. It is recommended
 to use [`ph`](@ref) or [`aft`](@ref) directly instead.
 """
 function StatsBase.fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
-    d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
+    d::Type{<:ContinuousUnivariateDistribution}; init::Number = 1)
     @assert d in [Weibull, Exponential]
     # crude method to force intercept
     X = X[:,1] == ones(size(X, 1)) ? X : hcat(ones(size(X, 1)), X)
@@ -213,7 +213,7 @@ StatsModels.TableStatisticalModel{ParametricPH{Exponential}, Matrix{Float64}}
 (Y,D;+) ~ 1 + X
 
 Distr:
-Exponential{Float64}(θ=17.121272620254064)
+Exponential{Float64}(θ=17.121273)
 
 Coefficients:
  (Scale)  (Intercept)          X
@@ -237,9 +237,9 @@ function StatsBase.fit!(obj::ParametricPH, X::AbstractMatrix{<:Real}, Y::RCSurv,
 
     function dtrafo(ζ, β, ϕ)
         if ζ === Exponential
-            return Exponential(exp(-β[1]))
+            return Exponential(round(exp(-β[1]); digits=6))
         else # weibull
-            return Weibull(1/ϕ, exp(-β[1] * ϕ))
+            return Weibull(round(1/ϕ; digits=6), round(exp(-β[1] * ϕ); digits=6))
         end
     end
 
@@ -361,7 +361,7 @@ julia> Y = [1,1,4,6,8,4,9,4,5,10];
 
 julia> D = [true, false, false, false, true, false, false, true, true, false];
 
-julia> X = [1,9,3,4,20,-4,pi,exp(5),log(8),0];
+julia> X = [1,9,3,4,20,-4,2,4,1,0];
 
 julia> data = DataFrame(Y = Y, D = D, X = X);
 
@@ -371,11 +371,11 @@ StatsModels.TableStatisticalModel{ParametricAFT{Weibull}, Matrix{Float64}}
 (Y,D;+) ~ 1 + X
 
 Distr:
-Weibull{Float64}(α=1.7439548025959823, θ=11.754846456706442)
+Weibull{Float64}(α=1.491407, θ=11.636424)
 
 Coefficients:
-  (Scale)  (Intercept)            X
- 0.573409      2.46427  -0.00741527
+  (Scale)  (Intercept)           X
+ 0.670508      2.45414  -0.0209422
 ```
 """
 aft(args...; kwargs...) = fit(ParametricAFT, args...; kwargs...)
@@ -394,9 +394,9 @@ function StatsBase.fit!(obj::ParametricAFT, X::AbstractMatrix{<:Real}, Y::RCSurv
 
     function dtrafo(ζ, β, ϕ)
         if ζ === Exponential
-            return Exponential(exp(β[1]))
+            return Exponential(round(exp(β[1]); digits=6))
         else # weibull
-            return Weibull(1/ϕ, exp(β[1]))
+            return Weibull(round(1/ϕ; digits=6), round(exp(β[1]); digits=6))
         end
     end
 

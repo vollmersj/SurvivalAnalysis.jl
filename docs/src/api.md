@@ -6,93 +6,72 @@ DocTestSetup = quote
 end
 ```
 
-### Measures
+# Surv
 
-```@docs
-ConcordanceWeights
-concordance
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["Surv.jl", "SurvTerm.jl"]
+Order   = [:type, :function]
 ```
 
-### Surv
+# Models
 
-```@docs
-Surv
-Surv(start::Union{Vector{T}, T} where T <: Number, stop::Union{Vector{T}, T} where T <: Number)
-total_censored
-total_risk
-total_outcomes
-total_events
-threshold_risk
-length
-outcome_times
-event_times
-merge
-outcome_status
-unique_outcome_times
-unique_event_times
-survival(::SurvivalEstimator)
-time
-Srv
-reverse(::SurvivalAnalysis.OneSidedSurv)
+## SurvivalModel
+
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["SurvivalModel.jl"]
+Order   = [:type, :function]
 ```
 
-### SurvivalEstimator
+## SurvivalEstimator
 
-```@docs
-SurvivalEstimator
-NelsonAalen
-KaplanMeier
-distr
-nelson_aalen
-kaplan_meier
-std
-surv_stats
-confint(::KaplanMeier, ::Number)
-confint(::NelsonAalen, ::Number)
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["SurvivalEstimator.jl"]
+Order   = [:type, :function]
 ```
 
-### SurvivalModel
+## ParametricSurvival
 
-```@docs
-SurvivalModel
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["ParametricSurvival.jl"]
+Order   = [:type, :function]
 ```
 
-### ParametricSurvival
+## SurvivalPrediction
 
-```@docs
-ParametricSurvival
-ParametricAFT
-ParametricPH
-ph
-aft
-scale
-baseline
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["SurvivalPrediction.jl"]
+Order   = [:type, :function]
 ```
 
-### Survival distribution functions
+# Measures
 
-```@docs
-cum_hazard
-survival
-hazard
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["concordance.jl"]
+Order   = [:type, :function]
 ```
 
-### Fit and predict
-
-```@docs
-SurvivalPrediction
-fit
-predict
-```
-
-### Plotting
+# Plotting
 
 ```@autodocs
 Modules = [SurvivalAnalysis]
 Pages   = ["plots.jl"]
 ```
 
-## Index
+# Tools
+
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["tools.jl"]
+Order   = [:type, :function]
+```
+
+# Index
 
 ```@index
 ```
