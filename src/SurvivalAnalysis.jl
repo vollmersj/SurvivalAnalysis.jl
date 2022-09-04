@@ -47,6 +47,6 @@ module SurvivalAnalysis
     include("ContinuousUnivariateDistribution.jl")
     include("ParametricSurvival.jl")
     include("SurvivalEstimator.jl")
-    include("plot_survivalestimator.jl")
+    include("plots.jl")
     include("concordance.jl")
 end
