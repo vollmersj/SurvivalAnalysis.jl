@@ -97,7 +97,7 @@ Modules = [SurvivalAnalysis]
 Pages   = ["plots.jl"]
 ```
 
-## Index
+# Index
 
 ```@index
 ```
