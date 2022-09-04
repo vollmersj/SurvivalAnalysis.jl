@@ -82,14 +82,6 @@ survival
 hazard
 ```
 
-## Fit and predict
-
-```@docs
-SurvivalPrediction
-fit
-predict
-```
-
 ## Plotting
 
 ```@autodocs
