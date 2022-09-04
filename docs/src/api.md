@@ -6,14 +6,19 @@ DocTestSetup = quote
 end
 ```
 
-### Measures
+
+```@docs
+predict(::SurvivalEstimator, ::AbstractMatrix{<:Real})
+```
+
+## Measures
 
 ```@docs
 ConcordanceWeights
 concordance
 ```
 
-### Surv
+## Surv
 
 ```@docs
 Surv
@@ -36,7 +41,7 @@ Srv
 reverse(::SurvivalAnalysis.OneSidedSurv)
 ```
 
-### SurvivalEstimator
+## SurvivalEstimator
 
 ```@docs
 SurvivalEstimator
@@ -51,13 +56,13 @@ confint(::KaplanMeier, ::Number)
 confint(::NelsonAalen, ::Number)
 ```
 
-### SurvivalModel
+## SurvivalModel
 
 ```@docs
 SurvivalModel
 ```
 
-### ParametricSurvival
+## ParametricSurvival
 
 ```@docs
 ParametricSurvival
@@ -69,7 +74,7 @@ scale
 baseline
 ```
 
-### Survival distribution functions
+## Survival distribution functions
 
 ```@docs
 cum_hazard
@@ -77,7 +82,7 @@ survival
 hazard
 ```
 
-### Fit and predict
+## Fit and predict
 
 ```@docs
 SurvivalPrediction
@@ -85,7 +90,7 @@ fit
 predict
 ```
 
-### Plotting
+## Plotting
 
 ```@autodocs
 Modules = [SurvivalAnalysis]

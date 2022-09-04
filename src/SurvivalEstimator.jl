@@ -27,6 +27,7 @@ abstract type SurvivalEstimator <: StatisticalModel end
 
 """
     fit(obj::Type{<:SurvivalEstimator}, X::AbstractMatrix{<:Real}, Y::RCSurv)
+    fit(obj::Type{<:SurvivalEstimator}, Y::RCSurv)
 
 Fit a [`SurvivalEstimator`](@ref) survival model using matrix interface. It is recommended
 to use [`kaplan_meier`](@ref) or [`nelson_aalen`](@ref) directly instead.
