@@ -31,13 +31,13 @@ abstract type ParametricSurvival <: SurvivalModel end
 
 """
     fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
-        d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
+        d::Type{<:ContinuousUnivariateDistribution}; init::Number = 1)
 
 Fit a [`ParametricSurvival`](@ref) survival model using matrix interface. It is recommended
 to use [`ph`](@ref) or [`aft`](@ref) directly instead.
 """
 function StatsBase.fit(t::Type{<:ParametricSurvival}, X::AbstractMatrix{<:Real}, Y::RCSurv,
-    d::Type{T}; init::Number = 1) where {T <: ContinuousUnivariateDistribution}
+    d::Type{<:ContinuousUnivariateDistribution}; init::Number = 1)
     @assert d in [Weibull, Exponential]
     # crude method to force intercept
     X = X[:,1] == ones(size(X, 1)) ? X : hcat(ones(size(X, 1)), X)

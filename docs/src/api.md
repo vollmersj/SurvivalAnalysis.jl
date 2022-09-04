@@ -8,7 +8,13 @@ end
 
 
 ```@docs
-predict(::SurvivalEstimator, ::AbstractMatrix{<:Real})
+predict(::SurvivalEstimator, ::DataFrame)
+predict(::ParametricPH, ::AbstractMatrix{<:Real})
+predict(::ParametricAFT, ::AbstractMatrix{<:Real})
+SurvivalPrediction
+fit(::Type{<:SurvivalEstimator}, ::AbstractMatrix{<:Real}, ::SurvivalAnalysis.RCSurv}
+fit(::Type{<:ParametricSurvival}, ::AbstractMatrix{<:Real}, ::SurvivalAnalysis.RCSurv,
+    d::Type{<:ContinuousUnivariateDistribution}; ::Number = 1)
 ```
 
 ## Measures
