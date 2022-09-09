@@ -6,7 +6,7 @@ Abstract type for all survival time measures implemented in, or extending, this 
 Note❗Survival time measures are poorly researched in the literature and no good studies demonstrate their utility. Nor is there concensus on the 'right' way to implement these. Here the measures remove all censored observations and then compare predicted survival times for uncensored observations. Alternatives could include: using an IPCW weighting method, or retaining censoring observations and applying an uncertainty penalty.
 
 # Fields
-Structs inherting from this type include the following fields
+Structs inheriting from this type include the following fields
 
 * `losses` - Pointwise losses for the measure, i.e. ``L(tᵢ, t̂ᵢ)``
 * `mean` - Aggregation of losses, usually the sample mean
@@ -50,6 +50,8 @@ se = \\frac{σ}{√m}
 ```
 where `t` is the true survival time, `t̂` is the predicted survival time, `δ` is the censoring indicator, ``m = ∑ᵢ δᵢ``, and `σ` is the sample standard deviation of `MSE`.
 
+Returns a `MSE` struct inheriting from [`SurvivalTimeMeasure`](@ref).
+
 Note❗Censored observations in the test set are ignored.
 
 # Examples
@@ -80,6 +82,8 @@ se = \\frac{σ}{√m}
 ```
 where `t` is the true survival time, `t̂` is the predicted survival time, `δ` is the censoring indicator, ``m = ∑ᵢ δᵢ``, and `σ` is the sample standard deviation of `MAE`.
 
+Returns a `MAE` struct inheriting from [`SurvivalTimeMeasure`](@ref).
+
 Note❗Censored observations in the test set are ignored.
 
 # Examples
@@ -109,6 +113,8 @@ RMSE = \\sqrt{\\frac{1}{m} ∑ᵢ MSEᵢ} \\
 se = σ/(2√m * rmse)
 ```
 where `t` is the true survival time, `t̂` is the predicted survival time, `δ` is the censoring indicator, ``m = ∑ᵢ δᵢ``, and `σ` is the sample standard deviation of `MSE`.
+
+Returns a `RMSE` struct inheriting from [`SurvivalTimeMeasure`](@ref).
 
 Note❗Censored observations in the test set are ignored.
 Note❗RMSE is an aggregated measure which means `losses` actually correspond to `MSEᵢ`.
