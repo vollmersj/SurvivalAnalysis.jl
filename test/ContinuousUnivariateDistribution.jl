@@ -21,5 +21,3 @@ end
     @test cdf.(d, quantile.(d, [0.2, 0.5, 0.8])) ≈ [0.2, 0.5, 0.8]
     @test show(d) === nothing ## TODO - HOW TO TEST OUTPUT?
 end
-
-true

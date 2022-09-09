@@ -17,5 +17,3 @@ end
     @test show(st) === nothing
     @test SurvivalAnalysis.SurvTerm(Term(:X), Term(:Y)) == Srv(:X, :Y) == st
 end
-
-true

@@ -65,5 +65,3 @@ end
     @test srv2.start == [T..., T2...]
     @test srv2.stop == [(T .+ 10)..., (T2 .+ 10)...]
 end
-
-true

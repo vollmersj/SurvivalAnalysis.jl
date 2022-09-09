@@ -68,5 +68,3 @@ end
 @testset "SurvivalPrediction errors as expected" begin
     @test_throws ArgumentError SurvivalPrediction(lp = [1], crank = [1, 2])
 end
-
-true

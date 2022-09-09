@@ -126,5 +126,3 @@ end
     @test baseline(fit) isa Exponential{Float64}
     @test predict(fit, data[:,1:3]) isa SurvivalAnalysis.ContinuousSurvivalPrediction
 end
-
-true

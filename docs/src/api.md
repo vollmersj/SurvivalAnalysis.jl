@@ -16,19 +16,19 @@ Order   = [:type, :function]
 
 # Models
 
-## SurvivalModel
-
-```@autodocs
-Modules = [SurvivalAnalysis]
-Pages   = ["SurvivalModel.jl"]
-Order   = [:type, :function]
-```
-
 ## SurvivalEstimator
 
 ```@autodocs
 Modules = [SurvivalAnalysis]
 Pages   = ["SurvivalEstimator.jl"]
+Order   = [:type, :function]
+```
+
+## SurvivalModel
+
+```@autodocs
+Modules = [SurvivalAnalysis]
+Pages   = ["SurvivalModel.jl"]
 Order   = [:type, :function]
 ```
 
@@ -52,7 +52,7 @@ Order   = [:type, :function]
 
 ```@autodocs
 Modules = [SurvivalAnalysis]
-Pages   = ["concordance.jl"]
+Pages   = ["SurvivalMeasure.jl", "SurvivalTimeMeasure.jl", "concordance.jl"]
 Order   = [:type, :function]
 ```
 

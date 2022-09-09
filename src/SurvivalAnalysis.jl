@@ -10,6 +10,7 @@ module SurvivalAnalysis
     using StatsModels
     using PrettyTables: pretty_table
     using Tables
+    using Statistics: mean
 
     # documented
     export Surv, outcome_times, event_times, outcome_status, unique_outcome_times, threshold_risk
@@ -23,7 +24,8 @@ module SurvivalAnalysis
     export baseline
     export survival, hazard, cum_hazard
     export SurvivalPrediction
-    export concordance, ConcordanceWeights
+    export SurvivalMeasure, concordance, ConcordanceWeights
+    export SurvivalTimeMeasure, MSE, RMSE, MAE
     # documented
 
     # undocumented
@@ -48,5 +50,7 @@ module SurvivalAnalysis
     include("ParametricSurvival.jl")
     include("SurvivalEstimator.jl")
     include("plots.jl")
+    include("SurvivalMeasure.jl")
+    include("SurvivalTimeMeasure.jl")
     include("concordance.jl")
 end

@@ -169,5 +169,3 @@ end
     @test C.concordant === 8
     @test C.disconcordant === 4
 end
-
-true

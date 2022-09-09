@@ -10,7 +10,9 @@ Survival analysis interface in Julia, still very experimental. Tries to build on
 
 ## Related Packages
 
-* [JuliaStats/Survival.jl](https://github.com/JuliaStats/Survival.jl)
+* [JuliaStats/Survival.jl](https://github.com/JuliaStats/Survival.jl) implements right-censored time-to-event types, Cox PH, Kaplan-Meier and Nelson-Aalen estimators. Last commit 2022.
+* [Testispuncher/Survival.jl](https://github.com/Testispuncher/Survival.jl) implements non-parametric estimators and some plots. Last commit 2017.
+* [kkholst/EventHistory.jl](https://github.com/kkholst/EventHistory.jl) implements different censoring and truncation types and Cox PH. Last commit 2018.
 
 ## Features
 

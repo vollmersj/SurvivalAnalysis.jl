@@ -79,5 +79,3 @@ end
     @test size(p.survival_matrix.survival) == (10, length(time(na)))
     @test unique(p.survival_matrix.survival) == survival(na)
 end
-
-true
