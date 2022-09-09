@@ -56,9 +56,9 @@ Note❗Censored observations in the test set are ignored.
 
 # Examples
 ```jldoctest
-julia> truth = Surv([1, 4, 2, 2, 8], [true, false, false, true, false], :r)
+julia> truth = Surv([1, 4, 2, 2, 8], [true, false, false, true, false], :r);
 
-julia> pred = [pi, sqrt(3), 1, 8, 9]
+julia> pred = [pi, sqrt(3), 1, 8, 9];
 
 julia> MSE(truth, pred)
 MSE = 20.2932 (σ = 15.7068)
@@ -88,9 +88,9 @@ Note❗Censored observations in the test set are ignored.
 
 # Examples
 ```jldoctest
-julia> truth = Surv([1, 4, 2, 2, 8], [true, false, false, true, false], :r)
+julia> truth = Surv([1, 4, 2, 2, 8], [true, false, false, true, false], :r);
 
-julia> pred = [pi, sqrt(3), 1, 8, 9]
+julia> pred = [pi, sqrt(3), 1, 8, 9];
 
 julia> MAE(truth, pred)
 MAE = 4.0708 (σ = 1.9292)
@@ -121,9 +121,9 @@ Note❗RMSE is an aggregated measure which means `losses` actually correspond to
 
 # Examples
 ```jldoctest
-julia> truth = Surv([1, 4, 2, 2, 8], [true, false, false, true, false], :r)
+julia> truth = Surv([1, 4, 2, 2, 8], [true, false, false, true, false], :r);
 
-julia> pred = [pi, sqrt(3), 1, 8, 9]
+julia> pred = [pi, sqrt(3), 1, 8, 9];
 
 julia> RMSE(truth, pred)
 RMSE = 4.5048 (σ = 1.7433)
