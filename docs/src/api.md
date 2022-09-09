@@ -52,7 +52,7 @@ Order   = [:type, :function]
 
 ```@autodocs
 Modules = [SurvivalAnalysis]
-Pages   = ["concordance.jl"]
+Pages   = ["SurvivalMeasure.jl", "SurvivalTimeMeasure.jl", "concordance.jl"]
 Order   = [:type, :function]
 ```
 

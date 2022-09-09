@@ -33,7 +33,7 @@ struct ConcordanceWeights
     end
 end
 
-struct Concordance
+struct Concordance <: SurvivalMeasure
     C::Float64
     numerator::Float64
     denominator::Float64

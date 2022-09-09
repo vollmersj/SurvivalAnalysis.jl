@@ -27,5 +27,3 @@ end
     @test SurvivalAnalysis.c_pstring("/A", "B") === "B/A"
     @test SurvivalAnalysis.c_pstring("/A", "/B") === "1/A/B"
 end
-
-true

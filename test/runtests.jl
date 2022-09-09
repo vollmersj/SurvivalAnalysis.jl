@@ -11,6 +11,6 @@ const files = setdiff(readdir(), ["runtests.jl", "Project.toml", "Manifest.toml"
 
 for f in files
     @testset "$(f)" begin
-        @test include(f)
+        include(f)
     end
 end
