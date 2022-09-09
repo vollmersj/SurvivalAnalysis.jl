@@ -4,6 +4,7 @@
 * Documentation formatting fixes
 * Julia compat now restricted to ^1.2
 * Precision in PH and AFT fitting reduced to 6 digits in baseline distribution
+* Added survival time measures: MAE, MSE, RMSE
 
 # v0.1.0
 
