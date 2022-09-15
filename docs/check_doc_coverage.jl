@@ -2,9 +2,8 @@ using Gumbo
 using Cascadia
 using SurvivalAnalysis
 
-h = parsehtml(read("docs/build/api/index.html", String)).root[2];
-txt = eachmatch(sel".docstring-binding code", h);
-documented = map(x -> replace(string(x[1]), "SurvivalAnalysis." => ""), txt);
+documented = map(x -> replace(string(x), "SurvivalAnalysis." => ""),
+    collect(keys(Docs.meta(SurvivalAnalysis))));
 
 f = readchomp("src/SurvivalAnalysis.jl");
 exp = f[(findfirst("# documented", f)[end]+1):(findlast("# documented", f)[1]-1)];
