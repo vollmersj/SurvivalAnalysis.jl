@@ -2,7 +2,7 @@
 
 This package is still in the very early stages of development so the guidelines here are a simple placeholder.
 
-Currently the package is maintained and coded by me, Raphael Sonabend <raphaelsonabend@gmail.com>. I welcome any and all contributions, these may include:
+Currently the package is maintained and coded by me, Raphael Sonabend (<raphaelsonabend@gmail.com>). I welcome any and all contributions, these may include:
 
 * Opening bug reports and feature requests/enhancements in the [issues](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues) tracker
 * Opening [pull requests](https://github.com/RaphaelS1/SurvivalAnalysis.jl/pulls) that may close open issues, implement new features, or fix bugs that you've found
