@@ -3,13 +3,12 @@ using SurvivalAnalysis
 documented = map(x -> replace(string(x), "SurvivalAnalysis." => ""),
     collect(keys(Docs.meta(SurvivalAnalysis))));
 
-nms = names(SurvivalAnalysis);
 expected = [];
 map(x ->
     x != :SurvivalAnalysis && ## remove package name
     Symbol(eval(x)) == x && # remove aliases
     parentmodule(eval(x)) == SurvivalAnalysis && ## check if this module is parent module
-    push!(expected, strip(String(x))), nms); ## push if all true
+    push!(expected, strip(String(x))), names(SurvivalAnalysis)); ## push if all true
 
 missings = setdiff(expected, documented); ## under-documented, critical error
 extras = setdiff(documented, expected); ## over-documented, warning
