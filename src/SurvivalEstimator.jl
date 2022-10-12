@@ -355,13 +355,8 @@ function update_wt(wt, nevents, nrisk, wtmethod)
     end
 end
 
-"""
-    logrank_test(Y::RCSurv...; wtmethod=:logrank)
-
-Test the null hypothesis that two or more survival functions are identical.
-"""
-function logrank_test(Y::RCSurv...; wtmethod=:logrank)
-
+# Helper function to calculate the score vector u and covariance matrix V for a logrank test.
+function logrank_moments(Y::RCSurv...; wtmethod::Symbol=:logrank)
     m = length(Y)
     A = merge(Y...)
     ti = unique_outcome_times(A)
@@ -393,11 +388,25 @@ function logrank_test(Y::RCSurv...; wtmethod=:logrank)
         end
     end
 
+    return u, V
+end
+
+"""
+    logrank_test(Y::RCSurv...; wtmethod=:logrank)
+
+Test the null hypothesis that two or more survival functions are identical.
+"""
+function logrank_test(Y::RCSurv...; wtmethod=:logrank)
+
+    length(Y) > 1 || throw(ArgumentError("logrank_test requires two or more groups"))
+
+    u, V = logrank_moments(Y...; wtmethod=wtmethod)
+
     # Chi-square statistic
     csq = u' * pinv(V) * u
 
     # Degrees of freedom
-    dof = m - 1
+    dof = length(Y) - 1
 
     # P-value
     p = 1 - cdf(Chisq(dof), csq)
@@ -405,6 +414,51 @@ function logrank_test(Y::RCSurv...; wtmethod=:logrank)
     return (stat=csq, dof=dof, pvalue=p)
 end
 
+function _build_surv(time, status, group)
+    da = DataFrame(time=time, status=status, group=group)
+    Y = Surv[]
+    for dz in groupby(da, :group)
+        push!(Y, Surv(dz[:, :time], dz[:, :status], :r))
+    end
+    return Y
+end
+
+"""
+    logrank_test(time, status, group, strata=zeros(0); wtmethod=:logrank)
+
+Test the null hypothesis that two or more survival functions are identical.  The `status` argument is coded 0/1 corresponding to censoring (0) and event (1).  The `strata` argument is optional and contains labels defining strata for a stratified test.
+"""
+function logrank_test(time, status, group, strata=zeros(0); wtmethod=:logrank)
+
+    # Unstratified test
+    if length(strata) == 0
+        Y = _build_surv(time, status, group)
+        return logrank_test(Y...; wtmethod=wtmethod)
+    end
+
+    # Stratified test
+    da = DataFrame(time=time, status=status, group=group, strata=strata)
+    m = length(unique(da.group))
+    u = zeros(m)
+    V = zeros(m, m)
+    for dx in groupby(da, :strata)
+        Y = _build_surv(dx[:, :time], dx[:, :status], dx[:, :group])
+        u0, V0 = logrank_moments(Y...; wtmethod=wtmethod)
+        u .+= u0
+        V .+= V0
+    end
+
+    # Chi-square statistic
+    csq = u' * pinv(V) * u
+
+    # Degrees of freedom
+    dof = length(Y) - 1
+
+    # P-value
+    p = 1 - cdf(Chisq(dof), csq)
+
+    return (stat=csq, dof=dof, pvalue=p)
+end
 
 """
     confint(km::KaplanMeier; level::Float64 = 0.95)

@@ -1,6 +1,6 @@
 module SurvivalAnalysis
 
-    using DataFrames: DataFrame
+    using DataFrames: DataFrame, groupby
     using Distributions
     using LinearAlgebra: diag, pinv
     using NLSolversBase: hessian!

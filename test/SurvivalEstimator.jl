@@ -22,7 +22,7 @@ data = DataFrame(status = Δ, time = T, X = randn(n))
     @test isapprox(stats1.noutcomes, [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0])
 end
 
-@testset "logrank test" begin
+@testset "logrank test (unstratified)" begin
     R"
     library(survival)
     t = c(3, 3, 5, 9, 7, 2, 10, 4, 6, 6, 10, 13, 15, 15, 14)
@@ -43,16 +43,22 @@ end
     S1 = Surv(T1, Δ1, :r)
     S2 = Surv(T2, Δ2, :r)
     S3 = Surv(T3, Δ3, :r)
+    T = vcat(T1, T2, T3)
+    Δ = vcat(Δ1, Δ2, Δ3)
+    G = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3]
 
     # Test logrank statistics against R
     r02j = logrank_test(S1, S2; wtmethod=:logrank)
     r03j = logrank_test(S1, S2, S3; wtmethod=:logrank)
+    r03jx = logrank_test(T, Δ, G, zeros(0); wtmethod=:logrank)
     r02rstat = rcopy(R"r2$chisq")
     r03rstat = rcopy(R"r3$chisq")
     @test isapprox(r02rstat, r02j.stat)
     @test isapprox(r02j.dof, 1)
     @test isapprox(r03rstat, r03j.stat)
     @test isapprox(r03j.dof, 2)
+    @test isapprox(r03rstat, r03jx.stat)
+    @test isapprox(r03jx.dof, 2)
 
     # Test Wilcoxon statistics against Stata
     r12j = logrank_test(S1, S2; wtmethod=:wilcoxon)
@@ -77,6 +83,29 @@ end
     @test isapprox(2, r13j.dof)
     @test isapprox(0.61770817, r12j.stat)
     @test isapprox(1, r12j.dof)
+end
+
+@testset "logrank test (stratified)" begin
+    R"
+    library(survival)
+    t = c(3, 3, 5, 9, 7, 2, 10, 4, 6, 6, 10, 13, 15, 15, 14)
+    s = c(1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0)
+    g = c(1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3)
+    z = c(1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 2, 2)
+    d = data.frame(t=t, s=s, g=g, z=z)
+    r = survdiff(Surv(t, s) ~ g + strata(z), d, rho=0)
+    ";
+
+    T = Float64[3, 3, 5, 9, 7, 2, 10, 4, 6, 6, 10, 13, 15, 15, 14]
+    Δ = [1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
+    G = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3]
+    Z = [1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 2, 2]
+
+    # Test logrank statistics against R
+    rj = logrank_test(T, Δ, G, Z; wtmethod=:logrank)
+    rstat = rcopy(R"r$chisq")
+    @test isapprox(rstat, rj.stat)
+    @test isapprox(rj.dof, 2)
 end
 
 @testset "Can fit/predict with covariates" begin
