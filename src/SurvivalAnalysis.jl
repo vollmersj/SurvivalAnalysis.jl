@@ -2,7 +2,7 @@ module SurvivalAnalysis
 
     using DataFrames: DataFrame
     using Distributions
-    using LinearAlgebra: diag
+    using LinearAlgebra: diag, pinv
     using NLSolversBase: hessian!
     using Optim
     using RecipesBase
@@ -26,6 +26,7 @@ module SurvivalAnalysis
     export SurvivalPrediction
     export SurvivalMeasure, concordance, ConcordanceWeights
     export SurvivalTimeMeasure, MSE, RMSE, MAE
+    export logrank_test
 
     ## undocumented
     # reexports

@@ -363,6 +363,42 @@ function _tabulate_surv(T, Δ)
             noutcomes = noutcomes)
 end
 
+# Expand the time points in 'stats' to include all times in 'times'.
+function _padstats(stats, times)
+
+    ut = unique(vcat(stats.time, times))
+    sort!(ut)
+    n = length(ut)
+    nrisk = zeros(n)
+    ncens = zeros(n)
+    nevents = zeros(n)
+    noutcomes = zeros(n)
+
+    for (i,t) in enumerate(ut)
+        j = searchsortedfirst(stats.time, t)
+        if j <= length(stats.time) && stats.time[j] == t
+            nrisk[i] = stats.nrisk[j]
+            ncens[i] = stats.ncens[j]
+            nevents[i] = stats.nevents[j]
+            noutcomes[i] = stats.noutcomes[j]
+        end
+    end
+
+    nr = last(stats.nrisk)
+    for i in reverse(eachindex(nrisk))
+        if ut[i] > last(stats.time)
+            continue
+        elseif nrisk[i] == 0
+            nrisk[i] = nr
+        else
+            nr = nrisk[i]
+        end
+    end
+
+    return (time = ut, nrisk = nrisk, ncens = ncens, nevents = nevents,
+            noutcomes = noutcomes)
+end
+
 """
     merge(A::OneSidedSurv...)
     merge(A::TwoSidedSurv...)

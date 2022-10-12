@@ -338,6 +338,74 @@ function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
     )
 end
 
+#-------------------
+# Log-rank tests
+#-------------------
+function update_wt(wt, nevents, nrisk, wtmethod)
+    if wtmethod == :logrank
+        return 1
+    elseif wtmethod == :wilcoxon
+        return nrisk
+    elseif wtmethod == :tw
+       return sqrt(nrisk)
+    elseif wtmethod == :peto
+        return wt * (1 - nevents / (nrisk + 1))
+    else
+        error("Unknown weight")
+    end
+end
+
+"""
+    logrank_test(Y::RCSurv...; wtmethod=:logrank)
+
+Test the null hypothesis that two or more survival functions are identical.
+"""
+function logrank_test(Y::RCSurv...; wtmethod=:logrank)
+
+    m = length(Y)
+    A = merge(Y...)
+    ti = unique_outcome_times(A)
+    sta = A.stats
+    st = [_padstats(y.stats, ti) for y in Y]
+
+    u = zeros(m)
+    V = zeros(m, m)
+    wt = 1.0
+    for i in eachindex(ti)
+        d, n = sta.nevents[i], sta.nrisk[i]
+        wt = update_wt(wt, d, n, wtmethod)
+        if n == 0
+            break
+        end
+        for j in 1:m
+            dd, nnj = st[j].nevents[i], st[j].nrisk[i]
+            rj = dd / nnj
+            fj = nnj / n
+            u[j] += wt * (dd - d*fj)
+            for k in 1:m
+                nnk = st[k].nrisk[i]
+                fk = nnk / n
+                q = j == k ? 1.0 : 0.0
+                if n > 1
+                    V[j,k] += wt^2 * (q - fj) * fk * d * (n - d) / (n - 1)
+                end
+            end
+        end
+    end
+
+    # Chi-square statistic
+    csq = u' * pinv(V) * u
+
+    # Degrees of freedom
+    dof = m - 1
+
+    # P-value
+    p = 1 - cdf(Chisq(dof), csq)
+
+    return (stat=csq, dof=dof, pvalue=p)
+end
+
+
 """
     confint(km::KaplanMeier; level::Float64 = 0.95)
     confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)
