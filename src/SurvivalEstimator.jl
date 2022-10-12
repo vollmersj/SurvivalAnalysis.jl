@@ -343,7 +343,7 @@ end
 #-------------------
 function update_wt(wt, nevents, nrisk, wtmethod)
     if wtmethod == :logrank
-        return 1
+        return 1.0
     elseif wtmethod == :wilcoxon
         return nrisk
     elseif wtmethod == :tw
