@@ -4,7 +4,7 @@ n = 50
 T = randn(n) .+ 10;
 data = DataFrame(status = Δ, time = T, X = randn(n))
 
-@testset "padstats test" begin
+@testset "expandstats test" begin
 
     T1 = Float64[3, 1, 5, 9, 7]
     Δ1 = [1, 1, 0, 1, 1]
@@ -14,7 +14,7 @@ data = DataFrame(status = Δ, time = T, X = randn(n))
     S2 = Surv(T2, Δ2, :r)
     M = merge(S1, S2)
 
-    stats1 = SurvivalAnalysis._padstats(S1.stats, unique_outcome_times(M))
+    stats1 = SurvivalAnalysis.expandstats(S1.stats, unique_outcome_times(M))
     @test isapprox(stats1.time, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
     @test isapprox(stats1.nrisk, [5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0])
     @test isapprox(stats1.ncens, [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
@@ -48,9 +48,9 @@ end
     G = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3]
 
     # Test logrank statistics against R
-    r02j = logrank_test(S1, S2; wtmethod=:logrank)
-    r03j = logrank_test(S1, S2, S3; wtmethod=:logrank)
-    r03jx = logrank_test(T, Δ, G, zeros(0); wtmethod=:logrank)
+    r02j = logrank(S1, S2; wtmethod=:logrank)
+    r03j = logrank(S1, S2, S3; wtmethod=:logrank)
+    r03jx = logrank(T, Δ, G, zeros(0); wtmethod=:logrank)
     r02rstat = rcopy(R"r2$chisq")
     r03rstat = rcopy(R"r3$chisq")
     @test isapprox(r02rstat, r02j.stat)
@@ -61,24 +61,24 @@ end
     @test isapprox(r03jx.dof, 2)
 
     # Test Wilcoxon statistics against Stata
-    r12j = logrank_test(S1, S2; wtmethod=:wilcoxon)
-    r13j = logrank_test(S1, S2, S3; wtmethod=:wilcoxon)
+    r12j = logrank(S1, S2; wtmethod=:wilcoxon)
+    r13j = logrank(S1, S2, S3; wtmethod=:wilcoxon)
     @test isapprox(5.2944871, r13j.stat)
     @test isapprox(2, r13j.dof)
     @test isapprox(0.5540201, r12j.stat)
     @test isapprox(1, r12j.dof)
 
     # Test Tarone-Ware statistics against Stata
-    r12j = logrank_test(S1, S2; wtmethod=:tw)
-    r13j = logrank_test(S1, S2, S3; wtmethod=:tw)
+    r12j = logrank(S1, S2; wtmethod=:tw)
+    r13j = logrank(S1, S2, S3; wtmethod=:tw)
     @test isapprox(6.4063107, r13j.stat)
     @test isapprox(2, r13j.dof)
     @test isapprox(0.88063788, r12j.stat)
     @test isapprox(1, r12j.dof)
 
     # Test Peto-Peto statistics against Stata
-    r12j = logrank_test(S1, S2; wtmethod=:peto)
-    r13j = logrank_test(S1, S2, S3; wtmethod=:peto)
+    r12j = logrank(S1, S2; wtmethod=:peto)
+    r13j = logrank(S1, S2, S3; wtmethod=:peto)
     @test isapprox(6.029332, r13j.stat)
     @test isapprox(2, r13j.dof)
     @test isapprox(0.61770817, r12j.stat)
@@ -102,7 +102,7 @@ end
     Z = [1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 2, 2]
 
     # Test logrank statistics against R
-    rj = logrank_test(T, Δ, G, Z; wtmethod=:logrank)
+    rj = logrank(T, Δ, G, Z; wtmethod=:logrank)
     rstat = rcopy(R"r$chisq")
     @test isapprox(rstat, rj.stat)
     @test isapprox(rj.dof, 2)

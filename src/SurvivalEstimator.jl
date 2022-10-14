@@ -341,7 +341,7 @@ end
 #-------------------
 # Log-rank tests
 #-------------------
-function update_wt(wt, nevents, nrisk, wtmethod)
+function _update_wt(wt, nevents, nrisk, wtmethod)
     if wtmethod == :logrank
         return 1.0
     elseif wtmethod == :wilcoxon
@@ -351,7 +351,7 @@ function update_wt(wt, nevents, nrisk, wtmethod)
     elseif wtmethod == :peto
         return wt * (1 - nevents / (nrisk + 1))
     else
-        error("Unknown weight")
+        error("wtmethod must be one of logrank, wilcoxon, tw, or peto")
     end
 end
 
@@ -361,14 +361,14 @@ function logrank_moments(Y::RCSurv...; wtmethod::Symbol=:logrank)
     A = merge(Y...)
     ti = unique_outcome_times(A)
     sta = A.stats
-    st = [_padstats(y.stats, ti) for y in Y]
+    st = [expandstats(y.stats, ti) for y in Y]
 
     u = zeros(m)
     V = zeros(m, m)
     wt = 1.0
     for i in eachindex(ti)
         d, n = sta.nevents[i], sta.nrisk[i]
-        wt = update_wt(wt, d, n, wtmethod)
+        wt = _update_wt(wt, d, n, wtmethod)
         if n == 0
             break
         end
@@ -392,13 +392,36 @@ function logrank_moments(Y::RCSurv...; wtmethod::Symbol=:logrank)
 end
 
 """
-    logrank_test(Y::RCSurv...; wtmethod=:logrank)
+    logrank(Y::RCSurv...; wtmethod=:logrank)
+    logrank(time, status, group, strata=zeros(0); wtmethod=:logrank)
 
 Test the null hypothesis that two or more survival functions are identical.
-"""
-function logrank_test(Y::RCSurv...; wtmethod=:logrank)
 
-    length(Y) > 1 || throw(ArgumentError("logrank_test requires two or more groups"))
+When providing `time` and `status` as vectors, the `status` argument is coded 0/1 corresponding to censoring (0) and event (1).
+
+The `strata` argument is optional and contains labels defining strata for a stratified test.
+
+`wtmethod` selects one of four different weighting methods: logrank (uniform weighting), Wilcoxon (weight by number at risk), Tarone-Ware (weight by the square root of the number at risk), Peto-Peto (weight by the estimated marginal survival function).
+
+# Examples
+```jldoctest
+julia> srv1 = Surv([1, 3, 4], [false, true, true], :r);
+
+julia> srv2 = Surv([4, 5, 6], [true, true, false], :r);
+
+julia> logrank(srv1, srv2; wtmethod=:wilcoxon)
+(stat = 2.499999999999999, dof = 1, pvalue = 0.11384629800665824)
+
+julia> logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2]; wtmethod=:wilcoxon)
+(stat = 2.499999999999999, dof = 1, pvalue = 0.11384629800665824)
+
+julia> logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2], [1, 1, 2, 1, 2, 2]; wtmethod=:wilcoxon)
+(stat = 2.9999999999999982, dof = 1, pvalue = 0.08326451666355017)
+```
+"""
+function logrank(Y::RCSurv...; wtmethod=:logrank)
+
+    length(Y) > 1 || throw(ArgumentError("logrank requires two or more groups"))
 
     u, V = logrank_moments(Y...; wtmethod=wtmethod)
 
@@ -423,17 +446,15 @@ function _build_surv(time, status, group)
     return Y
 end
 
-"""
-    logrank_test(time, status, group, strata=zeros(0); wtmethod=:logrank)
+function logrank(time, status, group, strata=zeros(0); wtmethod=:logrank)
 
-Test the null hypothesis that two or more survival functions are identical.  The `status` argument is coded 0/1 corresponding to censoring (0) and event (1).  The `strata` argument is optional and contains labels defining strata for a stratified test.
-"""
-function logrank_test(time, status, group, strata=zeros(0); wtmethod=:logrank)
+    length(time) == length(status) == length(group) || throw(ArgumentError("time, status, and group must have the same length"))
+    length(strata) in [0, length(time)] || throw(ArgumentError("If provided, strata must have the same length as time, status, and group"))
 
     # Unstratified test
     if length(strata) == 0
         Y = _build_surv(time, status, group)
-        return logrank_test(Y...; wtmethod=wtmethod)
+        return logrank(Y...; wtmethod=wtmethod)
     end
 
     # Stratified test

@@ -26,7 +26,7 @@ module SurvivalAnalysis
     export SurvivalPrediction
     export SurvivalMeasure, concordance, ConcordanceWeights
     export SurvivalTimeMeasure, MSE, RMSE, MAE
-    export logrank_test
+    export logrank
 
     ## undocumented
     # reexports
