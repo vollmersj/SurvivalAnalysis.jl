@@ -434,13 +434,17 @@ function logrank(Y::RCSurv...; wtmethod=:logrank)
     return (stat=csq, dof=dof, pvalue=p)
 end
 
+# Returns a list of Surv values, each of which contains the survival data for one group.
+# Also returns a vector containing the group labels
 function _build_surv(time, status, group)
     da = DataFrame(time=time, status=status, group=group)
     Y = Surv[]
+    grp = []
     for dz in groupby(da, :group)
         push!(Y, Surv(dz[:, :time], dz[:, :status], :r))
+        push!(grp, first(dz[:, :group]))
     end
-    return Y
+    return Y, grp
 end
 
 function logrank(time, status, group, strata=zeros(0); wtmethod=:logrank)
@@ -450,27 +454,34 @@ function logrank(time, status, group, strata=zeros(0); wtmethod=:logrank)
 
     # Unstratified test
     if length(strata) == 0
-        Y = _build_surv(time, status, group)
+        Y, _ = _build_surv(time, status, group)
         return logrank(Y...; wtmethod=wtmethod)
+    end
+
+    # Dictionary mapping group labels to integer positions 1, 2, ...
+    gpix = Dict{eltype(group),Int}()
+    for g in sort(unique(group))
+        gpix[g] = length(gpix) + 1
     end
 
     # Stratified test
     da = DataFrame(time=time, status=status, group=group, strata=strata)
-    m = length(unique(da.group))
+    m = length(gpix)
     u = zeros(m)
     V = zeros(m, m)
     for dx in groupby(da, :strata)
-        Y = _build_surv(dx[:, :time], dx[:, :status], dx[:, :group])
+        Y, grp = _build_surv(dx[:, :time], dx[:, :status], dx[:, :group])
         u0, V0 = logrank_moments(Y...; wtmethod=wtmethod)
-        u .+= u0
-        V .+= V0
+        ii = [gpix[g] for g in grp]
+        u[ii] .+= u0
+        V[ii, ii] .+= V0
     end
 
     # Chi-square statistic
     csq = u' * pinv(V) * u
 
     # Degrees of freedom
-    dof = length(Y) - 1
+    dof = length(gpix) - 1
 
     # P-value
     p = 1 - cdf(Chisq(dof), csq)

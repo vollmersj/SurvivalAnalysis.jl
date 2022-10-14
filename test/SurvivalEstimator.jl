@@ -109,6 +109,29 @@ end
     rstat = rcopy(R"r$chisq")
     @test isapprox(rstat, rj.stat)
     @test isapprox(rj.dof, 2)
+
+    # In this example, some strata do not contain all the groups
+    R"
+    library(survival)
+    t = c(3, 3, 5, 9, 7, 2, 10, 4, 6, 6, 10, 13, 15, 15, 14)
+    s = c(1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0)
+    g = c(1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3)
+    z = c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2)
+    d = data.frame(t=t, s=s, g=g, z=z)
+    r = survdiff(Surv(t, s) ~ g + strata(z), d, rho=0)
+    ";
+
+    T = Float64[3, 3, 5, 9, 7, 2, 10, 4, 6, 6, 10, 13, 15, 15, 14]
+    Δ = [1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0]
+    G = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3]
+    Z = [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2]
+
+    # Test logrank statistics against R
+    rj = logrank(T, Δ, G, Z; wtmethod=:logrank)
+    println(rj)
+    rstat = rcopy(R"r$chisq")
+    @test isapprox(rstat, rj.stat)
+    @test isapprox(rj.dof, 2)
 end
 
 @testset "Can fit/predict with covariates" begin
