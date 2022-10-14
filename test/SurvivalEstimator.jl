@@ -83,6 +83,9 @@ end
     @test isapprox(2, r13j.dof)
     @test isapprox(0.61770817, r12j.stat)
     @test isapprox(1, r12j.dof)
+
+    # Test that an error is thrown with an invalid weight method
+    @test_throws ErrorException("wtmethod must be one of logrank, wilcoxon, tw, or peto") logrank(S1, S2; wtmethod=:xyz)
 end
 
 @testset "logrank test (stratified)" begin

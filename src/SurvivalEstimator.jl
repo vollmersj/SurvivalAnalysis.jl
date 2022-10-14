@@ -369,9 +369,6 @@ function logrank_moments(Y::RCSurv...; wtmethod::Symbol=:logrank)
     for i in eachindex(ti)
         d, n = sta.nevents[i], sta.nrisk[i]
         wt = _update_wt(wt, d, n, wtmethod)
-        if n == 0
-            break
-        end
         for j in 1:m
             dd, nnj = st[j].nevents[i], st[j].nrisk[i]
             rj = dd / nnj
