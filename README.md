@@ -1,11 +1,8 @@
 # SurvivalAnalysis.jl: A survival analysis interface for Julia
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-| Status | Testing | Coverage | Docs | Codebase | Contributions |
-| -------| ------- | -------- | ---- | ----- | ------------- |
-| [![deps](https://juliahub.com/docs/SurvivalAnalysis/deps.svg)](https://juliahub.com/ui/Packages/SurvivalAnalysis/N9zkY?t=2) <br> [![version](https://juliahub.com/docs/SurvivalAnalysis/version.svg)](https://juliahub.com/ui/Packages/SurvivalAnalysis/N9zkY) <br> [![pkgeval](https://juliahub.com/docs/SurvivalAnalysis/pkgeval.svg)](https://juliahub.com/ui/Packages/SurvivalAnalysis/N9zkY) | [![CI](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/CI.yml) | [![codecov](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl/branch/main/graph/badge.svg?token=R1QK5X4RVP)](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl) | [![](https://img.shields.io/badge/docs-stable-darkblue.svg)](https://raphaels1.github.io/SurvivalAnalysis.jl/stable) <br> [![](https://img.shields.io/badge/docs-dev-lightblue.svg)](https://raphaels1.github.io/SurvivalAnalysis.jl/dev) | [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/blob/main/code_style_blue.md) <br> ![Experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg) <br> [![MIT](https://img.shields.io/badge/License-MIT-yelllow)](https://opensource.org/licenses/MIT) | <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-13-orange.svg?style=flat-square)](#contributors)<!-- ALL-CONTRIBUTORS-BADGE:END --> |
+| Status | Testing | Coverage | Docs | Codebase |
+| -------| ------- | -------- | ---- | ----- |
+| [![deps](https://juliahub.com/docs/SurvivalAnalysis/deps.svg)](https://juliahub.com/ui/Packages/SurvivalAnalysis/N9zkY?t=2) <br> [![version](https://juliahub.com/docs/SurvivalAnalysis/version.svg)](https://juliahub.com/ui/Packages/SurvivalAnalysis/N9zkY) <br> [![pkgeval](https://juliahub.com/docs/SurvivalAnalysis/pkgeval.svg)](https://juliahub.com/ui/Packages/SurvivalAnalysis/N9zkY) | [![CI](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/actions/workflows/CI.yml) | [![codecov](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl/branch/main/graph/badge.svg?token=R1QK5X4RVP)](https://codecov.io/gh/RaphaelS1/SurvivalAnalysis.jl) | [![](https://img.shields.io/badge/docs-stable-darkblue.svg)](https://raphaels1.github.io/SurvivalAnalysis.jl/stable) <br> [![](https://img.shields.io/badge/docs-dev-lightblue.svg)](https://raphaels1.github.io/SurvivalAnalysis.jl/dev) | [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/RaphaelS1/SurvivalAnalysis.jl/blob/main/code_style_blue.md) <br> ![Experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg) <br> [![MIT](https://img.shields.io/badge/License-MIT-yelllow)](https://opensource.org/licenses/MIT) |
 
 ## About
 
@@ -49,6 +46,10 @@ Survival analysis interface in Julia, still very experimental. Tries to build on
 * [ ] [Documentation](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/9)
 
 ## Contributors
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
