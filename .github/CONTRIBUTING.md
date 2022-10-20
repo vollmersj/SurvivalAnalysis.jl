@@ -10,3 +10,17 @@ Currently the package is maintained and coded by me, Raphael Sonabend (<raphaels
 * Commenting on open issues, pull requests, or discussions
 
 I appreciate contributing to a project may sometimes feel daunting, so please feel free to reach out to me and schedule a call if you'd like to chat before making your first contribution.
+
+Everyone who makes a contribution, of any sort, will be credited. Just tag yourself in an issue or PR with the `@all-contributors` bot with any of:
+
+```
+@all-contributors please add @<username> for <contributions>
+
+@all-contributors please add @<username> for <contributions>. please add @<username> for <contributions>.
+
+@all-contributors
+please add @<username> for <contributions>. 
+please add @<username> for <contributions>.
+```
+
+Contribution types are listed [here](https://allcontributors.org/docs/en/emoji-key).
