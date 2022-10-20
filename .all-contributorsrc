@@ -27,6 +27,16 @@
         "test",
         "tutorial"
       ]
+    },
+    {
+      "login": "kshedden",
+      "name": "Kerby Shedden",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2666691?v=4",
+      "profile": "https://github.com/kshedden",
+      "contributions": [
+        "doc",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
