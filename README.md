@@ -1,4 +1,7 @@
 # SurvivalAnalysis.jl: A survival analysis interface for Julia
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 | Status | Testing | Coverage | Docs | Codebase | Contributions |
 | -------| ------- | -------- | ---- | ----- | ------------- |
@@ -48,6 +51,20 @@ Survival analysis interface in Julia, still very experimental. Tries to build on
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="http://www.raphaelsonabend.co.uk"><img src="https://avatars.githubusercontent.com/u/25639974?v=4?s=100" width="100px;" alt="Raphael Sonabend"/><br /><sub><b>Raphael Sonabend</b></sub></a><br /><a href="https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues?q=author%3ARaphaelS1" title="Bug reports">🐛</a> <a href="https://github.com/RaphaelS1/SurvivalAnalysis.jl/commits?author=RaphaelS1" title="Code">💻</a> <a href="#content-RaphaelS1" title="Content">🖋</a> <a href="https://github.com/RaphaelS1/SurvivalAnalysis.jl/commits?author=RaphaelS1" title="Documentation">📖</a> <a href="#design-RaphaelS1" title="Design">🎨</a> <a href="#example-RaphaelS1" title="Examples">💡</a> <a href="#ideas-RaphaelS1" title="Ideas, Planning, & Feedback">🤔</a> <a href="#maintenance-RaphaelS1" title="Maintenance">🚧</a> <a href="#projectManagement-RaphaelS1" title="Project Management">📆</a> <a href="#question-RaphaelS1" title="Answering Questions">💬</a> <a href="#research-RaphaelS1" title="Research">🔬</a> <a href="https://github.com/RaphaelS1/SurvivalAnalysis.jl/pulls?q=is%3Apr+reviewed-by%3ARaphaelS1" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/RaphaelS1/SurvivalAnalysis.jl/commits?author=RaphaelS1" title="Tests">⚠️</a> <a href="#tutorial-RaphaelS1" title="Tutorials">✅</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 
