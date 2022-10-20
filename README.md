@@ -44,3 +44,14 @@ Survival analysis interface in Julia, still very experimental. Tries to build on
 * [ ] [mlr3proba integration](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/21)
 * [ ] [MLJ integration](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/22)
 * [ ] [Documentation](https://github.com/RaphaelS1/SurvivalAnalysis.jl/issues/9)
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
