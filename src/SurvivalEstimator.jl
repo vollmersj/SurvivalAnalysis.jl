@@ -406,14 +406,22 @@ julia> srv1 = Surv([1, 3, 4], [false, true, true], :r);
 
 julia> srv2 = Surv([4, 5, 6], [true, true, false], :r);
 
-julia> logrank(srv1, srv2; wtmethod=:wilcoxon)
-(stat = 2.499999999999999, dof = 1, pvalue = 0.11384629800665824)
+julia> pr = x -> (stat=round(x.stat; sigdigits=4), dof=x.dof, pvalue=round(x.pvalue; sigdigits=4));
 
-julia> logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2]; wtmethod=:wilcoxon)
-(stat = 2.499999999999999, dof = 1, pvalue = 0.11384629800665824)
+julia> r = logrank(srv1, srv2; wtmethod=:wilcoxon);
 
-julia> logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2], [1, 1, 2, 1, 2, 2]; wtmethod=:wilcoxon)
-(stat = 2.9999999999999982, dof = 1, pvalue = 0.08326451666355017)
+julia> pr(r)
+(stat = 2.5, dof = 1, pvalue = 0.1138)
+
+julia> r = logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2]; wtmethod=:wilcoxon);
+
+julia> pr(r)
+(stat = 2.5, dof = 1, pvalue = 0.1138)
+
+julia> r = logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2], [1, 1, 2, 1, 2, 2]; wtmethod=:wilcoxon);
+
+julia> pr(r)
+(stat = 3.0, dof = 1, pvalue = 0.08326)
 ```
 """
 function logrank(Y::RCSurv...; wtmethod=:logrank)
