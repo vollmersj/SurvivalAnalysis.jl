@@ -364,6 +364,59 @@ function _tabulate_surv(T, Δ)
 end
 
 """
+    expandstats(stats, times)
+
+Insert new times into 'stats' (a named tuple compatible with the 'stats' field of 'RCSurv').
+
+Zero observation/event counts are used for the newly-inserted times.  Time values in 'times' that are already in 'stats.time' are ignored.
+
+# Examples
+```jldoctest
+julia> srv = Surv([1, 4], [false, true], :r);
+
+julia> srv.stats
+(time = [1.0, 4.0], nrisk = [2, 1], ncens = [1, 0], nevents = [0, 1], noutcomes = [1, 1])
+
+julia> SurvivalAnalysis.expandstats(srv.stats, [3, 4, 5])
+(time = [1.0, 3.0, 4.0, 5.0], nrisk = [2.0, 1.0, 1.0, 0.0], ncens = [1.0, 0.0, 0.0, 0.0], nevents = [0.0, 0.0, 1.0, 0.0], noutcomes = [1.0, 0.0, 1.0, 0.0])
+```
+"""
+function expandstats(stats, times)
+
+    ut = unique(vcat(stats.time, times))
+    sort!(ut)
+    n = length(ut)
+    nrisk = zeros(n)
+    ncens = zeros(n)
+    nevents = zeros(n)
+    noutcomes = zeros(n)
+
+    for (i,t) in enumerate(ut)
+        j = searchsortedfirst(stats.time, t)
+        if j <= length(stats.time) && stats.time[j] == t
+            nrisk[i] = stats.nrisk[j]
+            ncens[i] = stats.ncens[j]
+            nevents[i] = stats.nevents[j]
+            noutcomes[i] = stats.noutcomes[j]
+        end
+    end
+
+    nr = last(stats.nrisk)
+    for i in reverse(eachindex(nrisk))
+        if ut[i] > last(stats.time)
+            continue
+        elseif nrisk[i] == 0
+            nrisk[i] = nr
+        else
+            nr = nrisk[i]
+        end
+    end
+
+    return (time = ut, nrisk = nrisk, ncens = ncens, nevents = nevents,
+            noutcomes = noutcomes)
+end
+
+"""
     merge(A::OneSidedSurv...)
     merge(A::TwoSidedSurv...)
 

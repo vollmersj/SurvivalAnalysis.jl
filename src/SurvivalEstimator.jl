@@ -338,6 +338,165 @@ function StatsBase.fit!(obj::KaplanMeier, Y::RCSurv)
     )
 end
 
+#-------------------
+# Log-rank tests
+#-------------------
+function _update_wt(wt, nevents, nrisk, wtmethod)
+    if wtmethod == :logrank
+        return 1.0
+    elseif wtmethod == :wilcoxon
+        return nrisk
+    elseif wtmethod == :tw
+       return sqrt(nrisk)
+    elseif wtmethod == :peto
+        return wt * (1 - nevents / (nrisk + 1))
+    else
+        error("wtmethod must be one of logrank, wilcoxon, tw, or peto")
+    end
+end
+
+# Helper function to calculate the score vector u and covariance matrix V for a logrank test.
+function logrank_moments(Y::RCSurv...; wtmethod::Symbol=:logrank)
+    m = length(Y)
+    A = merge(Y...)
+    ti = unique_outcome_times(A)
+    sta = A.stats
+    st = [expandstats(y.stats, ti) for y in Y]
+
+    u = zeros(m)
+    V = zeros(m, m)
+    wt = 1.0
+    for i in eachindex(ti)
+        d, n = sta.nevents[i], sta.nrisk[i]
+        wt = _update_wt(wt, d, n, wtmethod)
+        for j in 1:m
+            dd, nnj = st[j].nevents[i], st[j].nrisk[i]
+            rj = dd / nnj
+            fj = nnj / n
+            u[j] += wt * (dd - d*fj)
+            for k in 1:m
+                nnk = st[k].nrisk[i]
+                fk = nnk / n
+                q = j == k ? 1.0 : 0.0
+                if n > 1
+                    V[j,k] += wt^2 * (q - fj) * fk * d * (n - d) / (n - 1)
+                end
+            end
+        end
+    end
+
+    return u, V
+end
+
+"""
+    logrank(Y::RCSurv...; wtmethod=:logrank)
+    logrank(time, status, group, strata=zeros(0); wtmethod=:logrank)
+
+Test the null hypothesis that two or more survival functions are identical.
+
+When providing `time` and `status` as vectors, the `status` argument is coded 0/1 corresponding to censoring (0) and event (1).
+
+The `strata` argument is optional and contains labels defining strata for a stratified test.
+
+`wtmethod` selects one of four different weighting methods: logrank (uniform weighting), Wilcoxon (weight by number at risk), Tarone-Ware (weight by the square root of the number at risk), Peto-Peto (weight by the estimated marginal survival function).
+
+# Examples
+```jldoctest
+julia> srv1 = Surv([1, 3, 4], [false, true, true], :r);
+
+julia> srv2 = Surv([4, 5, 6], [true, true, false], :r);
+
+julia> pr = x -> (stat=round(x.stat; sigdigits=4), dof=x.dof, pvalue=round(x.pvalue; sigdigits=4));
+
+julia> r = logrank(srv1, srv2; wtmethod=:wilcoxon);
+
+julia> pr(r)
+(stat = 2.5, dof = 1, pvalue = 0.1138)
+
+julia> r = logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2]; wtmethod=:wilcoxon);
+
+julia> pr(r)
+(stat = 2.5, dof = 1, pvalue = 0.1138)
+
+julia> r = logrank([1, 3, 4, 4, 5, 6], [false, true, true, true, true, false], [1, 1, 1, 2, 2, 2], [1, 1, 2, 1, 2, 2]; wtmethod=:wilcoxon);
+
+julia> pr(r)
+(stat = 3.0, dof = 1, pvalue = 0.08326)
+```
+"""
+function logrank(Y::RCSurv...; wtmethod=:logrank)
+
+    length(Y) > 1 || throw(ArgumentError("logrank requires two or more groups"))
+
+    u, V = logrank_moments(Y...; wtmethod=wtmethod)
+
+    # Chi-square statistic
+    csq = u' * pinv(V) * u
+
+    # Degrees of freedom
+    dof = length(Y) - 1
+
+    # P-value
+    p = 1 - cdf(Chisq(dof), csq)
+
+    return (stat=csq, dof=dof, pvalue=p)
+end
+
+# Returns a list of Surv values, each of which contains the survival data for one group.
+# Also returns a vector containing the group labels
+function _build_surv(time, status, group)
+    da = DataFrame(time=time, status=status, group=group)
+    Y = Surv[]
+    grp = []
+    for dz in groupby(da, :group)
+        push!(Y, Surv(dz[:, :time], dz[:, :status], :r))
+        push!(grp, first(dz[:, :group]))
+    end
+    return Y, grp
+end
+
+function logrank(time, status, group, strata=zeros(0); wtmethod=:logrank)
+
+    length(time) == length(status) == length(group) || throw(ArgumentError("time, status, and group must have the same length"))
+    length(strata) in [0, length(time)] || throw(ArgumentError("If provided, strata must have the same length as time, status, and group"))
+
+    # Unstratified test
+    if length(strata) == 0
+        Y, _ = _build_surv(time, status, group)
+        return logrank(Y...; wtmethod=wtmethod)
+    end
+
+    # Dictionary mapping group labels to integer positions 1, 2, ...
+    gpix = Dict{eltype(group),Int}()
+    for g in sort(unique(group))
+        gpix[g] = length(gpix) + 1
+    end
+
+    # Stratified test
+    da = DataFrame(time=time, status=status, group=group, strata=strata)
+    m = length(gpix)
+    u = zeros(m)
+    V = zeros(m, m)
+    for dx in groupby(da, :strata)
+        Y, grp = _build_surv(dx[:, :time], dx[:, :status], dx[:, :group])
+        u0, V0 = logrank_moments(Y...; wtmethod=wtmethod)
+        ii = [gpix[g] for g in grp]
+        u[ii] .+= u0
+        V[ii, ii] .+= V0
+    end
+
+    # Chi-square statistic
+    csq = u' * pinv(V) * u
+
+    # Degrees of freedom
+    dof = length(gpix) - 1
+
+    # P-value
+    p = 1 - cdf(Chisq(dof), csq)
+
+    return (stat=csq, dof=dof, pvalue=p)
+end
+
 """
     confint(km::KaplanMeier; level::Float64 = 0.95)
     confint(km::KaplanMeier, t::Number; level::Float64 = 0.95)

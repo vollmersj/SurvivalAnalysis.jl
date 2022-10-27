@@ -36,6 +36,14 @@
       "contributions": [
         "doc",
         "code"
+    },
+    {
+      "login": "mschauer",
+      "name": "Moritz Schauer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1923437?v=4",
+      "profile": "http://www.math.chalmers.se/~smoritz/index.html",
+      "contributions": [
+        "review"
       ]
     }
   ],
