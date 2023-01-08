@@ -47,7 +47,9 @@ end
 # support interval.
 function design(spt, Y)
 
-    (; start, stop, ltrunc) = Y
+    start = Y.start
+    stop = Y.stop
+    ltrunc = Y.ltrunc
 
     n = length(Y)
     p = length(spt)
@@ -99,7 +101,11 @@ for the data in `ms` at the parameter vector `par`.
 """
 function loglike(ms::HazardNPMLE, par::Vector{Float64})
 
-    (; Y, support, duration, Dstar, D) = ms
+    Y = ms.Y
+    support = ms.support
+    duration = ms.duration
+    Dstar = ms.Dstar
+    D = ms.D
 
     n = length(Y)
     p = length(support)
@@ -124,7 +130,11 @@ copied into the array `G` which must have the same length as `par`.
 """
 function score!(ms::HazardNPMLE, G::Vector{Float64}, par::Vector{Float64})
 
-    (; Y, support, duration, Dstar, D) = ms
+    Y = ms.Y
+    support = ms.support
+    duration = ms.duration
+    Dstar = ms.Dstar
+    D = ms.D
 
     length(G) == length(par) || throw(ArgumentError("G and par must have the same length"))
 
@@ -168,7 +178,11 @@ function StatsBase.fit(::Type{HazardNPMLE}, Y::IntSurv; shape = :nondecreasing_h
 end
 
 function _fit_nondecreasing_hazard(ms::HazardNPMLE, opts)
-    (; Y, support, duration, Dstar, D) = ms
+    Y = ms.Y
+    support = ms.support
+    duration = ms.duration
+    Dstar = ms.Dstar
+    D = ms.D
 
     p = length(support)
 
