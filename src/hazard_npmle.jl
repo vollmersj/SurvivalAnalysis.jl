@@ -8,13 +8,12 @@ mutable struct HazardNPMLE <: SurvivalEstimator
     # The data
     Y::IntSurv
 
-    # The NPMLE takes the form of a piecewise-constant
-    # hazard function with support on the intervals
-    # [support[i], support[i+1]).
+    # The NPMLE takes the form of a piecewise-constant hazard function
+    # with support on the intervals [support[i], support[i+1]).
     support::Vector{Float64}
 
-    # The duration of each interval in `support`.  The length
-    # of `duration` is one less than the length of `support`.
+    # The duration of each interval in `support`.  The length of
+    # `duration` is one less than the length of `support`.
     duration::Vector{Float64}
 
     # A n x p matrix (n=sample size, p=number of support intervals),
@@ -23,10 +22,11 @@ mutable struct HazardNPMLE <: SurvivalEstimator
     D::AbstractMatrix
 
     # A n x p matrix (n=sample size, p=number of support intervals),
-    # such that Dstar[i,j] = 1 iff the j^th support interval is contained
-    # inside the interval [start[i], stop[i]).
+    # such that Dstar[i,j] = 1 iff the j^th support interval is
+    # contained inside the interval [start[i], stop[i]).
     Dstar::AbstractMatrix
 
+    # The untransformed parameter vector, directly from the optimizer.
     par::Vector{Float64}
 
     # The estimated hazard values on the intervals defined by support.
@@ -96,8 +96,8 @@ end
 """
     loglike(ms::HazardNPMLE, par::Vector{Float64})
 
-Evaluate and return the nonparametric log-likelihood function
-for the data in `ms` at the parameter vector `par`.
+Evaluate and return the nonparametric log-likelihood function for the
+data in `ms` at the parameter vector `par`.
 """
 function loglike(ms::HazardNPMLE, par::Vector{Float64})
 
@@ -124,9 +124,10 @@ end
 """
     score!(ms::HazardNPMLE, G::Vector{Float64}, par::Vector{Float64})
 
-Calculate the score function for the nonparametric log-likelihood function
-for the data in `ms` at the parameter vector `par`.  The score vector is
-copied into the array `G` which must have the same length as `par`.
+Calculate the score function for the nonparametric log-likelihood
+function for the data in `ms` at the parameter vector `par`.  The
+score vector is copied into the array `G` which must have the same
+length as `par`.
 """
 function score!(ms::HazardNPMLE, G::Vector{Float64}, par::Vector{Float64})
 
@@ -160,12 +161,12 @@ end
 """
      fit(::Type{HazardNPMLE}, Y::IntSurv; shape=:nondecreasing_hazard)
 
-Estimate a distribution using interval-censored data with left
+Estimate a distribution based on interval-censored data subjet to left
 truncation.  It is known that the nonparametric MLE may not exist or
 may fail to be unique unless constraints are imposed.  Currently the
-only option is to constrain the hazard function to be non-decreasing,
-in which case the approach of Pan and Chappell (Biometrics, 1998) is
-used.
+only impemented option is to constrain the hazard function to be
+non-decreasing, in which case the approach of Pan and Chappell
+(Biometrics, 1998) is used.
 """
 function StatsBase.fit(::Type{HazardNPMLE}, Y::IntSurv; shape = :nondecreasing_hazard,
                        optim_opts=Optim.Options(iterations = 100000))

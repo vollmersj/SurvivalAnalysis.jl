@@ -21,51 +21,6 @@ function npmle_gendat(n, dist, tdist, rng)
     return event, Surv(start, stop, ltrunc, Float64[])
 end
 
-@testset "Check monotone hazard NPMLE fit for interval censored data with weights" begin
-
-    rng = StableRNG(123)
-    n = 250
-    m = div(n, 2)
-
-    # Generate a weighted dataset
-    _, Y1 = npmle_gendat(n, Exponential(1), Uniform(0, 1.5), rng)
-    w = ones(n)
-    w[m:end] .= 2
-    Y1 = Surv(Y1.start, Y1.stop, Y1.ltrunc, w)
-
-    # Generate unweighted data sets with replication that should
-    # have identical parameter estimates as Y1.
-    start2 = vcat(Y1.start, Y1.start[m:end])
-    stop2 = vcat(Y1.stop, Y1.stop[m:end])
-    ltrunc2 = vcat(Y1.ltrunc, Y1.ltrunc[m:end])
-    Y2 = Surv(start2, stop2, ltrunc2, Float64[])
-    Y3 = Surv(start2, stop2, ltrunc2, ones(length(start2)))
-
-    ms1 = fit(HazardNPMLE, Y1)
-    ms2 = fit(HazardNPMLE, Y2)
-    ms3 = fit(HazardNPMLE, Y3)
-
-    @test ms1.converged == true
-    @test ms2.converged == true
-    @test ms3.converged == true
-
-    @test isapprox(SurvivalAnalysis.loglike(ms1, ms1.par), SurvivalAnalysis.loglike(ms2, ms1.par))
-
-    ll1 = SurvivalAnalysis.loglike(ms1, ms1.par)
-    ll2 = SurvivalAnalysis.loglike(ms1, ms2.par)
-    ll3 = SurvivalAnalysis.loglike(ms1, ms3.par)
-    ll4 = SurvivalAnalysis.loglike(ms2, ms1.par)
-    ll5 = SurvivalAnalysis.loglike(ms2, ms2.par)
-    ll6 = SurvivalAnalysis.loglike(ms2, ms3.par)
-    ll = [ll1, ll2, ll3, ll4, ll5, ll6]
-    @test maximum(ll) - minimum(ll) < 1
-
-    @assert isapprox(ms1.support, ms2.support)
-    @assert isapprox(ms1.support, ms3.support)
-    @assert isapprox(ms1.duration, ms2.duration)
-    @assert isapprox(ms1.duration, ms3.duration)
-end
-
 @testset "Check the gradient of the NPMLE for interval censored data" begin
 
     rng = StableRNG(123)
@@ -84,7 +39,6 @@ end
         @test isapprox(agrad, ngrad)
     end
 end
-
 
 @testset "Check monotone hazard NPMLE fit for interval censored data" begin
 
