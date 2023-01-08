@@ -2,7 +2,8 @@ module SurvivalAnalysis
 
     using DataFrames: DataFrame, groupby
     using Distributions
-    using LinearAlgebra: diag, pinv
+    import Distributions: cdf
+    using LinearAlgebra: diag, diagm, Diagonal, pinv, dot
     using NLSolversBase: hessian!
     using Optim
     using RecipesBase
@@ -11,6 +12,8 @@ module SurvivalAnalysis
     using PrettyTables: pretty_table
     using Tables
     using Statistics: mean
+    using IntervalSets
+    using SparseArrays
 
     ## documented
     export Surv, outcome_times, event_times, outcome_status, unique_outcome_times, threshold_risk
@@ -27,6 +30,7 @@ module SurvivalAnalysis
     export SurvivalMeasure, concordance, ConcordanceWeights
     export SurvivalTimeMeasure, MSE, RMSE, MAE
     export logrank
+    export HazardNPMLE, cdf
 
     ## undocumented
     # reexports
@@ -53,4 +57,5 @@ module SurvivalAnalysis
     include("SurvivalMeasure.jl")
     include("SurvivalTimeMeasure.jl")
     include("concordance.jl")
+    include("hazard_npmle.jl")
 end
