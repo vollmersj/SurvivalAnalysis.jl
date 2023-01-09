@@ -56,6 +56,7 @@ end
         for k in 1:nrep
             _, Y = npmle_gendat(n, dist, tdist, rng)
             ms = fit(HazardNPMLE, Y)
+            @test Optim.converged(ms.optim_rslt) == true
             haz[:, k] = [hazard(ms, x) for x in xs]
             surv[:, k] = [survival(ms, x) for x in xs]
         end
@@ -93,6 +94,10 @@ end
     ms1 = fit(HazardNPMLE, Y1; optim_opts=opts)
     ms2 = fit(HazardNPMLE, Y2; optim_opts=opts)
     ms3 = fit(HazardNPMLE, Y3; optim_opts=opts)
+
+    @test Optim.converged(ms1.optim_rslt) == true
+    @test Optim.converged(ms2.optim_rslt) == true
+    @test Optim.converged(ms3.optim_rslt) == true
 
     @test isapprox(SurvivalAnalysis.loglike(ms1, ms1.par), SurvivalAnalysis.loglike(ms2, ms1.par))
     @test isapprox(SurvivalAnalysis.loglike(ms1, ms1.par), SurvivalAnalysis.loglike(ms3, ms1.par))

@@ -39,7 +39,7 @@ mutable struct HazardNPMLE <: SurvivalEstimator
     shape::Symbol
 
     # An indicator that the NPMLE converged.
-    converged::Bool
+    optim_rslt::Any
 end
 
 # Build design matrices D and Dstar which respectively indicate which
@@ -90,7 +90,7 @@ end
 function HazardNPMLE(Y::IntSurv)
     spt = get_support(Y)
     D, Dstar = design(spt, Y)
-    return HazardNPMLE(Y, spt, diff(spt), D, Dstar, [], [], [], Symbol(), false)
+    return HazardNPMLE(Y, spt, diff(spt), D, Dstar, [], [], [], Symbol(), nothing)
 end
 
 """
@@ -178,6 +178,25 @@ function StatsBase.fit(::Type{HazardNPMLE}, Y::IntSurv; shape = :nondecreasing_h
     return _fit_nondecreasing_hazard(ms, optim_opts)
 end
 
+function _optfuns(ms)
+
+    # The MLE may have some parameters equal to -infinity
+    # corresponding to flat regions of the hazard function.
+    # To make the optimization have a finite solution, introduce
+    # a barrier function that blows up at negative infinity.
+    ee = 1e-6
+
+    f = x -> -loglike(ms, x) + ee*sum(exp.(-x))
+
+    g! = (G, x) -> begin
+        score!(ms, G, x)
+        G .*= -1
+        G .-= ee*exp.(-x)
+    end
+
+    return f, g!
+end
+
 function _fit_nondecreasing_hazard(ms::HazardNPMLE, opts)
     Y = ms.Y
     support = ms.support
@@ -190,17 +209,13 @@ function _fit_nondecreasing_hazard(ms::HazardNPMLE, opts)
     # Starting values
     par = ones(p - 1) / (p - 1)
 
-    f = x -> -loglike(ms, x)
-    g! = (G, x) -> begin
-        score!(ms, G, x)
-        G .*= -1
-    end
+    f, g! = _optfuns(ms)
 
     # More iterations than the default is needed since
     # the optimization is high-dimensional.
     rr = Optim.optimize(f, g!, par, LBFGS(), opts)
-    ms.converged = Optim.converged(rr)
-    if !ms.converged
+    ms.optim_rslt = rr
+    if !Optim.converged(rr)
         @warn("monotone hazard estimation did not converge")
     end
     ms.par = Optim.minimizer(rr)
