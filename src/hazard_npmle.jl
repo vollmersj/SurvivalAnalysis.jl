@@ -49,16 +49,23 @@ function design(spt, Y)
 
     start = Y.start
     stop = Y.stop
-    ltrunc = Y.ltrunc
+    ltrunc = length(Y.ltrunc) > 0 ? Y.ltrunc : spzeros(length(start))
 
     n = length(Y)
     p = length(spt)
     D = spzeros(n, p - 1)
     Dstar = spzeros(n, p - 1)
+    itrunc0 = Interval{:Closed,:Open}(0.0, 0.0)
 
     for i = 1:n
+
+        # A truncation interval
         itrunc = Interval{:Closed,:Open}(ltrunc[i], start[i])
+
+        # An observation interval
         iobs = Interval{:Closed,:Open}(start[i], stop[i])
+
+        # Loop over the support intervals
         for j = 1:p-1
             ivl = Interval{:Closed,:Open}(spt[j], spt[j+1])
             if ivl ⊆ itrunc
@@ -75,11 +82,9 @@ end
 
 # Calculate the support intervals for the NPMLE.
 function get_support(Y)
-    spt = Float64[]
-    for i in eachindex(Y.start)
-        push!(spt, Y.start[i])
-        push!(spt, Y.stop[i])
-        push!(spt, Y.ltrunc[i])
+    spt = vcat(Y.start, Y.stop, Y.ltrunc)
+    if length(Y.ltrunc) == 0
+        push!(spt, 0.0)
     end
     spt = unique(spt)
     sort!(spt)
@@ -105,20 +110,17 @@ function loglike(ms::HazardNPMLE, par::Vector{Float64})
     support = ms.support
     duration = ms.duration
     Dstar = ms.Dstar
-    D = ms.D
 
     n = length(Y)
     p = length(support)
     dpar = cumsum(exp.(par))
     ddpar = dpar .* duration
-
-    lp = D * ddpar
     lps = Dstar * ddpar
 
-    wgt = length(ms.Y.weight) == 0 ? ones(n) : ms.Y.weight
+    wgt = length(Y.weight) == 0 ? ones(n) : Y.weight
 
-    ll = dot(wgt, log.(1 .- exp.(-lps)) - lp)
-    return ll
+    v = log.(1 .- exp.(-lps)) - ms.D * ddpar
+    return dot(wgt, v)
 end
 
 """
@@ -135,7 +137,6 @@ function score!(ms::HazardNPMLE, G::Vector{Float64}, par::Vector{Float64})
     support = ms.support
     duration = ms.duration
     Dstar = ms.Dstar
-    D = ms.D
 
     length(G) == length(par) || throw(ArgumentError("G and par must have the same length"))
 
@@ -146,14 +147,13 @@ function score!(ms::HazardNPMLE, G::Vector{Float64}, par::Vector{Float64})
 
     jac = [i >= j ? 1.0 : 0.0 for i = 1:p-1, j = 1:p-1]
 
-    lp = D * ddpar
     lps = Dstar * ddpar
 
-    wgt = length(ms.Y.weight) == 0 ? ones(n) : ms.Y.weight
+    wgt = length(Y.weight) == 0 ? ones(n) : Y.weight
 
     G .= 0
     ee = exp.(-lps)
-    G .= Dstar' * ((wgt .* ee) ./ (1 .- ee)) - D' * wgt
+    G .= Dstar' * ((wgt .* ee) ./ (1 .- ee)) - ms.D' * wgt
     G .*= duration
     G .= Diagonal(exp.(par)) * jac' * G
 end

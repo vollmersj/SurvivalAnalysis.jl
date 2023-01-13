@@ -7,12 +7,14 @@ function npmle_gendat(n, dist, tdist, rng)
             sto = sta .+ 0.1 .- 1e-10
 
             # Left truncation
-            ltr = rand(rng, tdist)
+            ltr = isnothing(tdist) ? 0.0 : rand(rng, tdist)
             if sta >= ltr
                 push!(event, evt)
-                push!(ltrunc, ltr)
                 push!(start, sta)
                 push!(stop, sto)
+                if !isnothing(tdist)
+                    push!(ltrunc, ltr)
+                end
                 break
             end
         end
@@ -25,18 +27,20 @@ end
 
     rng = StableRNG(123)
 
-    n = 100
-    for k in 1:1
-        event, Y = npmle_gendat(n, Exponential(1), Exponential(1), rng)
-        ms = HazardNPMLE(Y)
-        p = length(ms.support)
-        par = 3 .+ rand(rng, p-1)
-        sort!(par)
-        agrad = zeros(p-1)
-        SurvivalAnalysis.score!(ms, agrad, par)
-        loglike = par -> SurvivalAnalysis.loglike(ms, par)
-        ngrad = grad(central_fdm(8, 1), loglike, par)[1]
-        @test isapprox(agrad, ngrad)
+    for n in [100, 200]
+        # Check with and without truncation
+        for tdist in [nothing, Exponential(1)]
+            event, Y = npmle_gendat(n, Exponential(1), tdist, rng)
+            ms = HazardNPMLE(Y)
+            p = length(ms.support)
+            par = 3 .+ rand(rng, p-1)
+            sort!(par)
+            agrad = zeros(p-1)
+            SurvivalAnalysis.score!(ms, agrad, par)
+            loglike = par -> SurvivalAnalysis.loglike(ms, par)
+            ngrad = grad(central_fdm(8, 1), loglike, par)[1]
+            @test isapprox(agrad, ngrad)
+        end
     end
 end
 
@@ -48,7 +52,8 @@ end
 
     # The distributions and sample sizes here match Pan and Chappell (1998).
     for (dist, tdist, mv, tol) in [[Exponential(1), Uniform(0, 1.5), 4., 0.1],
-                                   [Weibull(4, 1), Uniform(0, 1.5), 2., 0.02]]
+                                   [Weibull(4, 1), Uniform(0, 1.5), 2., 0.02],
+                                   [Weibull(4, 1), nothing, 2, 0.02]]
         xs = collect(range(0., mv, 20))
         haz = zeros(length(xs), nrep)
         thaz = [hazard(dist, x) for x in xs]
