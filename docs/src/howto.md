@@ -49,7 +49,7 @@ Coefficients:
 ### 2. `fit` + Formula
 
 ```jldoctest data
-julia>  f = fit(KaplanMeier, @formula(Srv(Y, D) ~ 1), data)
+julia>  f = fit(KaplanMeier, @formula(Surv(Y, D) ~ 1), data)
 StatsModels.TableStatisticalModel{KaplanMeier, Matrix{Float64}}
 
 (Y,D;+) ~ 1
