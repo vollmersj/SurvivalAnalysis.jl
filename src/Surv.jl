@@ -102,6 +102,8 @@ function Surv(start::Union{Vector{T}, T} where T <: Number,
         "length of ltrunc must be either 0, or the common length of start and stop"))
     length(weight) == 0 || length(ltrunc) == length(start) || throw(ArgumentError(
         "length of weight must be either 0, or the common length of start and stop"))
+    all(start .<= stop) || throw(ArgumentError(
+        "entries of start must be less than or equal to the corresponding entry of stop"))
     return IntSurv(start, stop, ltrunc, weight)
 end
 

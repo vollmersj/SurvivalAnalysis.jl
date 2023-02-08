@@ -83,12 +83,9 @@ end
 # Calculate the support intervals for the NPMLE.
 function get_support(Y)
     spt = vcat(Y.start, Y.stop, Y.ltrunc)
-    if length(Y.ltrunc) == 0
-        push!(spt, 0.0)
-    end
     spt = unique(spt)
-    sort!(spt)
 
+    sort!(spt)
     return spt
 end
 
@@ -174,6 +171,10 @@ function StatsBase.fit(::Type{HazardNPMLE}, Y::IntSurv; shape = :nondecreasing_h
     shape == :nondecreasing_hazard ||
         throw(ArgumentError("Only shape=:nondecreasing_hazard is currently allowed"))
 
+    if any(Y.start .== Y.stop)
+        throw(ArgumentError("Observations may not have identical start and stop times"))
+    end
+
     ms = HazardNPMLE(Y)
     return _fit_nondecreasing_hazard(ms, optim_opts)
 end
@@ -207,7 +208,7 @@ function _fit_nondecreasing_hazard(ms::HazardNPMLE, opts)
     p = length(support)
 
     # Starting values
-    par = ones(p - 1) / (p - 1)
+    par = -5*ones(p - 1)
 
     f, g! = _optfuns(ms)
 
