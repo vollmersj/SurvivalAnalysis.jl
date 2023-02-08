@@ -52,13 +52,17 @@ end
 struct IntSurv <: TwoSidedSurv
     start::Vector{Float64}
     stop::Vector{Float64}
-    IntSurv(start::Vector{Float64}, stop::Vector{Float64}) = new(start, stop)
+    ltrunc::Vector{Float64}
+    weight::Vector{Float64}
+    IntSurv(start::Vector{Float64}, stop::Vector{Float64}, ltrunc::Vector{Float64}, weight::Vector{Float64}) =
+        new(start, stop, ltrunc, weight)
 end
 
 """
     Surv(start, stop)
     Surv(time)
     Surv(time, status, type)
+    Surv(start, stop, ltrunc, weight)
 
 Survival analysis is dependent on representing both known and unknown survival time outcomes for an observation. When the true survival time is unknown we say an observation is *censored* and we instead record their censoring time. Let ``(T, Δ)`` be a one-sided survival outcome, then ``T`` is the outcome time (the time at which an outcome, event or censoring, is observed) and ``Δ`` is the survival indicator (1 if the outcome is an event and 0 if censoring). For example, if a patient drops out of a study at time 5, then they are recorded as ``(T=5, Δ=0)``. Two-sided survival outcomes are more simply recorded as ``(T₁,T₂)`` which means the true event time was somewhere between ``T₁`` and ``T₂``.
 
@@ -69,8 +73,6 @@ There are three censoring types:
 * Interval (`Surv(start, stop)`) - The true outcome time occurs at some time *within* the observed censoring times
 
 If no `status` vector is passed to the function then it is assumed no-one is censored - this is rarely useful in practice as in this case one could simply use regression models.
-
-Note❗ Whilst this package supports functionality for all censoring types, currently only methods for right censoring are included.
 
 # Examples
 ```jldoctest
@@ -85,12 +87,29 @@ julia> Surv([1, 2, 3], [5, 6, 7]) # interval-censoring
 ```
 """
 function Surv(start::Union{Vector{T}, T} where T <: Number,
-            stop::Union{Vector{T}, T} where T <: Number)
+            stop::Union{Vector{T}, T} where T <: Number,
+            ltrunc::Union{Vector{T}, T} where T <: Number,
+            weight::Union{Vector{T}, T} where T <: Number)
     start = start isa Vector ? convert(Vector{Float64}, start) :
         convert(Vector{Float64}, [start])
     stop = stop isa Vector ? convert(Vector{Float64}, stop) :
         convert(Vector{Float64}, [stop])
-    return IntSurv(start, stop)
+    ltrunc = ltrunc isa Vector ? convert(Vector{Float64}, ltrunc) :
+        convert(Vector{Float64}, [ltrunc])
+    length(start) == length(stop) || throw(ArgumentError(
+        "lengths of start and stop must be identical"))
+    length(ltrunc) == 0 || length(ltrunc) == length(start) || throw(ArgumentError(
+        "length of ltrunc must be either 0, or the common length of start and stop"))
+    length(weight) == 0 || length(ltrunc) == length(start) || throw(ArgumentError(
+        "length of weight must be either 0, or the common length of start and stop"))
+    all(start .<= stop) || throw(ArgumentError(
+        "entries of start must be less than or equal to the corresponding entry of stop"))
+    return IntSurv(start, stop, ltrunc, weight)
+end
+
+function Surv(start::Union{Vector{T}, T} where T <: Number,
+            stop::Union{Vector{T}, T} where T <: Number)
+    return Surv(start, stop, Float64[], Float64[])
 end
 
 Surv(time::Union{Vector{T}, T} where T <: Number) = Surv(time, trues(length(time)), :right)
