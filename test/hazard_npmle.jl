@@ -54,7 +54,7 @@ end
     for (dist, tdist, mv, tol) in [[Exponential(1), Uniform(0, 1.5), 4., 0.1],
                                    [Weibull(4, 1), Uniform(0, 1.5), 2., 0.02],
                                    [Weibull(4, 1), nothing, 2, 0.02]]
-        xs = collect(range(0., mv, 20))
+        xs = collect(range(0., mv; length=20))
         haz = zeros(length(xs), nrep)
         thaz = [hazard(dist, x) for x in xs]
         surv = zeros(length(xs), nrep)
